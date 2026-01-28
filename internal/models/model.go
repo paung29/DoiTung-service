@@ -8,21 +8,23 @@ import (
 )
 
 type Account struct {
-	AccountID uint
-	Name string
-	Email string
-	PasswordHash string
-	Role enums.Role
+	AccountID 		uint 		`gorm:"primaryKey"`
+
+	Name 			string	
+	Email 			string		`gorm:"uniqueIndex;not null"`
+	PasswordHash 	string		`gorm:"not null"`
+	Role 			enums.Role	`gorm:"type:varchar(20);not null"`
 	
 	types.Timestamp
 	
 }
 
 type Year struct {
-	YearID   uint 
-	Year int
+	YearID  							uint `gorm:"primaryKey"`
 
-	Zone []Zone
+	Year 								int  `gorm:"uniqueIndex;not null"`
+
+	Zones []Zone
 	YearFormSetting *YearFormSetting
 
 	types.Timestamp
@@ -30,145 +32,217 @@ type Year struct {
 }
 
 type YearFormSetting struct {
-	YearID uint
-	Year int
+	YearID 					uint `gorm:"primaryKey"`
 
-	ClusterActive bool
-	FlowerActive bool
-	PodActive bool
-	PreHarvestActive bool
-	HarvestGradingActive bool
+	ClusterActive 			bool
+	FlowerActive 			bool
+	PodActive 				bool
+	PreHarvestActive 		bool
+	HarvestGradingActive 	bool
 
-	yearRef Year
+	YearRef 				Year `gorm:"foreignKey:YearID;references:YearID"`
 
 	types.Timestamp
 
 }
 
 type Zone struct {
+	ZoneID 		uint 	`gorm:"primaryKey"`
 
-	ZoneID uint
-	YearID uint
-	ZoneNo int
-	ZoneName string
+	YearID 		uint	`gorm:"not null;index;uniqueIndex:ux_year_zone_no,priority:1"`
+	ZoneNo 		int		`gorm:"not null;uniqueIndex:ux_year_zone_no,priority:2"`
 
-	YearRef Year
-	Pole []Poles
+	ZoneName 	string
+
+	YearRef 	Year	`gorm:"foreignKey:YearID;references:YearID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	Poles 		[]Pole	`gorm:"foreignKey:ZoneID;references:ZoneID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+
+	types.Timestamp
 }
 
-type Poles struct {
-	PoleID   uint
-	ZoneID uint
-	PoleNo int
+type Pole struct {
+	PoleID   	uint	`gorm:"primaryKey"`
 
-	ZoneRef Zone
-	Clusters []Cluster
+	ZoneID 		uint	`gorm:"not null;index;uniqueIndex:ux_zone_pole_no,priority:1"`
+	PoleNo 		int		`gorm:"not null;uniqueIndex:ux_zone_pole_no,priority:2"`
+
+	ZoneRef 	Zone	`gorm:"foreignKey:ZoneID;references:ZoneID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	Clusters 	[]Cluster	`gorm:"foreignKey:PoleID;references:PoleID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+
+	types.Timestamp
 }
 
 type Cluster struct {
-	ClusterID   uint
-	PoleID uint
-	ClusterNo int
+	ClusterID   uint 	`gorm:"primaryKey"`
 
+	PoleID 		uint	`gorm:"not null;index;uniqueIndex:ux_pole_cluster_no,priority:1"`
+	ClusterNo 	int		`gorm:"not null;uniqueIndex:ux_pole_cluster_no,priority:2"`
+
+	PoleRef 	Pole	`gorm:"foreignKey:PoleID;references:PoleID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+
+	types.Timestamp
 }
 
 type ClusterForm struct {
-	ClusterFormID uint
-	ClusterID uint
-	RecordedBy uint
+	ClusterFormID 	uint				`gorm:"primaryKey"`
 
-	Condition enums.Condition
-	RecordedDate time.Time
+	YearID 			uint				`gorm:"index;not null"`
+	ClusterID 		uint				`gorm:"index;not null"`
+	RecordedByID 	uint				`gorm:"index;not null"`
+
+	Condition 		enums.Condition		`gorm:"type:varchar(20);not null"`
+	RecordedDate 	time.Time			`gorm:"not null"`
+
+	Cluster    		Cluster
+	RecordedBy 		Account
 
 	types.Timestamp
 }
 
 type FlowerForm struct {
-	FlowerFormID uint
-	ClusterID uint
-	RecordedBy uint
+	FlowerFormID 	uint				`gorm:"primaryKey"`
 
-	TotalFlowers int
+	YearID 			uint				`gorm:"index;not null"`
+	ClusterID 		uint				`gorm:"index;not null"`
+	RecordedByID 	uint				`gorm:"index;not null"`	
+
+	TotalFlowers 	int
+	RecordedDate 	time.Time
+
+	Cluster Cluster
+	RecordedBy Account
+
+	types.Timestamp
+
 }
 
 type PollinationForm struct {
-	PollinationFormID uint
-	ClusterID uint
-	RecordedBy uint
+	PollinationFormID 			uint	`gorm:"primaryKey"`
 
-	NumberPods int
-	UnsuccessfulPollination int
-	GoodFlowers int
-	BadFlowers int
-	Condition enums.Condition
+	YearID 						uint	`gorm:"index;not null"`
+	ClusterID 					uint	`gorm:"index;not null"`
+	RecordedByID 				uint	`gorm:"index;not null"`
 
-	RecordedDate time.Time
+	NumberPods 					int
+	UnsuccessfulPollination 	int
+	GoodFlowers 				int
+	BadFlowers 					int
+	Condition 					enums.Condition	`gorm:"type:varchar(20)"`
+
+	Cluster 					Cluster
+	RecordedBy 					Account
+
+	RecordedDate 				time.Time
+
 	types.Timestamp
 }
 
 type PodForm struct {
-	PodFormID uint
-	ClusterID uint
-	RecordedBy uint
-	NumberPods int
-	LostPod int
-	RemaingingPods int
-}
+	PodFormID 			uint	`gorm:"primaryKey"`
 
-type PreHarvestForm struct {
-	PreHarvestFormID uint
-	ClusterID uint
-	RecordedBy uint
+	YearID   			uint 	`gorm:"index;not null"`
+	ClusterID 			uint	`gorm:"index;not null"`
+	RecordedByID 		uint	`gorm:"index;not null"`
 
-	NumberPods int
-	LostPod int
-	RemovedPods int
-	PlantsRemoved int
-	Condition enums.Condition
-}
+	NumberPods 			int
+	LostPods 			int
+	RemainingPods 		int
 
-type HarvestGradingForm struct {
-	HarvestGradingFormID uint
-	PoleID uint
-	RecordedBy uint
+	Cluster 			Cluster
+	RecordedBy 			Account
 
-	GradeAPlusCount  int
-	GradeAPlusWeight int
+	RecordedDate  		time.Time
 
-	GradeACount  int
-	GradeAWeight int
-
-	GradeBCount  int
-	GradeBWeight int
-
-	GradeCCount  int
-	GradeCWeight int
-
-	GradeDPlusCount  int
-	GradeDPlusWeight int
-
-	UndersizedCount int
-	UndersizedWeight int
-
-	RecordedDate time.Time
 	types.Timestamp
 }
 
-type StockLocation struct {
-	LocationID uint
-	LocationName string
+type PreHarvestForm struct {
+	PreHarvestFormID 	uint	`gorm:"primaryKey"`
+
+	YearID 				uint	`gorm:"index;not null"`
+	ClusterID 			uint	`gorm:"index;not null"`
+	RecordedByID 		uint	`gorm:"index;not null"`
+
+	NumberPods 			int
+	LostPods 			int
+	RemovedPods 		int
+	PlantsRemoved 		int
+	Condition 			enums.Condition	`gorm:"type:varchar(20)"`
+
+	RecordedDate time.Time
+
+	Cluster 			Cluster
+	RecordedBy 			Account
+
+	types.Timestamp
+}
+
+type HarvestGradingForm struct {
+	HarvestGradingFormID uint	`gorm:"primaryKey"`
+
+	YearID 				 uint	`gorm:"index;not null"`
+	PoleID 				 uint	`gorm:"index;not null"`
+	RecordedByID 		 uint	`gorm:"index;not null"`
+
+	GradeAPlusCount  	int
+	GradeAPlusWeight 	int
+
+	GradeACount  		int
+	GradeAWeight 		int
+
+	GradeBCount  		int
+	GradeBWeight 		int
+
+	GradeCCount  		int
+	GradeCWeight 		int
+
+	GradeDCount 	int
+	GradeDWeight 	int
+
+	GradeDPlusCount 	int
+	GradeDPlusWeight 	int
+
+	UndersizedCount 	int
+	UndersizedWeight 	int
+
+	RecordedDate 		time.Time
+
+	Pole 				Pole
+	RecordedBy 			Account
+
+	types.Timestamp
+}
+
+type Warehouse struct {
+	WarehouseID 	uint `gorm:"primaryKey"`
+
+	YearID        	uint   `gorm:"index;not null"`
+	WarehouseName 	string `gorm:"not null"`
+
+	types.Timestamp
 }
 
 type StockMovement struct {
-	StockMovementID uint
-	YearID uint
-	LocationID uint
-	RecordedBy uint
+	StockMovementID 	uint	`gorm:"primaryKey"`
 
-	Grade string
-	MovementType enums.MovementType
-	PricePerGram int
-	TotalGrams int
-	TotalPods int
-	Details string
+	YearID 				uint	`gorm:"index;not null"`
+	RecordedByID 		uint	`gorm:"index;not null"`
+
+	Grade 				enums.Grade			`gorm:"type:varchar(20)"`
+	MovementType 		enums.MovementType	`gorm:"type:varchar(20);not null"`
+	PricePerGram 		int
+	TotalGrams 			int
+	TotalPods 			int
+	Details 			string
+
+	FromWarehouseID 	*uint
+	ToWarehouseID   	*uint
+
+	FromWarehouse 		*Warehouse `gorm:"foreignKey:FromWarehouseID"`
+	ToWarehouse   		*Warehouse `gorm:"foreignKey:ToWarehouseID"`
+
+	RecordedBy 			Account
+
+	RecordedDate 		time.Time `gorm:"not null"`
+	types.Timestamp
 }
