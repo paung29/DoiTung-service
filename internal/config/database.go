@@ -48,4 +48,6 @@ func ConnectDatabase() {
 
 	DB = db
 
+	SeedAccounts()
+
 }

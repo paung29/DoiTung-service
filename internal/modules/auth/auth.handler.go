@@ -24,6 +24,29 @@ func Login(context *fiber.Ctx) error {
 		})
 	}
 
+	token, response, err := LoginService(form)
+
+	if err != nil {
+		return context.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "internal server error",
+		})
+	}
+
+	if !response.Success {
+		return context.Status(fiber.StatusUnauthorized).JSON(response)
+	}
+
+	context.Cookie(&fiber.Cookie{
+		Name : "access_token",
+		Value: token,
+		HTTPOnly: true,
+		Secure: false,
+		SameSite: fiber.CookieSameSiteLaxMode,
+		Path:     "/",
+		MaxAge:   60 * 60 * 24,
+	})
+
 	return context.JSON(fiber.Map{
 		"success" : true,
 	})
