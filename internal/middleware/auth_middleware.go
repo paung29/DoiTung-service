@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"github.com/doitung/DoiTung-service/internal/modules/auth"
 	"github.com/gofiber/fiber/v2"
+	jwtService "github.com/doitung/DoiTung-service/internal/common/jwt"
 )
 
 
@@ -17,7 +17,7 @@ func RequiredAuth(context *fiber.Ctx) error {
 		})
 	}
 
-	accountID, err := auth.ParseToken(token)
+	accountID, err := jwtService.ParseToken(token)
 
 	if err != nil {
 		return context.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

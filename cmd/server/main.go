@@ -14,7 +14,8 @@ func main() {
 	app := fiber.New()
 
 	config.ConnectDatabase()
-	auth.RegisterRoutes(app)
+	
+	auth.Setup(app, config.DB)
 
 	log.Fatal(app.Listen(":8080"))
 }

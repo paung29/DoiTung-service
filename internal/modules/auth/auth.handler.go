@@ -5,7 +5,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Login(context *fiber.Ctx) error {
+type AuthHandler struct {
+	service AuthService
+}
+
+func NewAuthHandler(service AuthService) *AuthHandler {
+	return &AuthHandler{
+		service: service,
+	}
+}
+
+func (h *AuthHandler) Login(context *fiber.Ctx) error {
 
 	var form LoginRequest
 
@@ -24,7 +34,7 @@ func Login(context *fiber.Ctx) error {
 		})
 	}
 
-	token, response, err := LoginService(form)
+	token, response, err := h.service.Login(form)
 
 	if err != nil {
 		return context.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -48,7 +58,8 @@ func Login(context *fiber.Ctx) error {
 	})
 
 	return context.JSON(fiber.Map{
-		"success" : true,
+		"success" : response.Success,
+		"message" : response.Message,
 	})
 
 }
