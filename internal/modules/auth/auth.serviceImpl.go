@@ -39,7 +39,7 @@ func (s *service) Login(form LoginRequest) (string, AuthResponse, error) {
 		}, nil
 	}
 
-	token, err := jwtService.GenerateToken(account.AccountID)
+	token, err := jwtService.GenerateToken(account.AccountID, string(account.Role))
 
 	if err != nil {
 		return "", AuthResponse{

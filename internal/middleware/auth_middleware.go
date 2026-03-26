@@ -17,7 +17,7 @@ func RequiredAuth(context *fiber.Ctx) error {
 		})
 	}
 
-	accountID, err := jwtService.ParseToken(token)
+	claims, err := jwtService.ParseToken(token)
 
 	if err != nil {
 		return context.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -26,7 +26,8 @@ func RequiredAuth(context *fiber.Ctx) error {
 		})
 	}
 
-	context.Locals("account_id", accountID)
+	context.Locals("account_id", claims.AccountID)
+	context.Locals("role", claims.Role)
 
 	return context.Next()
 }

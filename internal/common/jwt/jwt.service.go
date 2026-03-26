@@ -18,13 +18,15 @@ func getJWTSecret() string {
 }
 
 type JWTClaims struct {
-	AccountID uint `json:"account_id"`
+	AccountID uint  `json:"account_id"`
+	Role      string`json:"role"`
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(accountID uint) (string, error) {
+func GenerateToken(accountID uint, role string) (string, error) {
 	claims := JWTClaims {
 		AccountID: accountID,
+		Role: role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt: jwt.NewNumericDate(time.Now()),
@@ -36,19 +38,24 @@ func GenerateToken(accountID uint) (string, error) {
 	return token.SignedString(jwtSecret)
 }
 
-func ParseToken(tokenStr string) (uint, error){
+func ParseToken(tokenStr string) (*JWTClaims, error){
+	
 	token, err := jwt.ParseWithClaims(tokenStr, &JWTClaims{}, func(t *jwt.Token) (interface{}, error) {
+
+		if t.Method.Alg() != jwt.SigningMethodHS256.Alg() {
+			return nil, errors.New("unexpected signing method")
+		}
 		return jwtSecret, nil
 	})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	claims, ok := token.Claims.(*JWTClaims)
 
 	if !ok || !token.Valid {
-		return 0, errors.New("invalid token")
+		return nil, errors.New("invalid token")
 	}
 
-	return claims.AccountID, nil
+	return claims, nil
 }

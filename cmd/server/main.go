@@ -4,8 +4,9 @@ import (
 	"log"
 
 	"github.com/doitung/DoiTung-service/internal/config"
-	"github.com/gofiber/fiber/v2"
+	"github.com/doitung/DoiTung-service/internal/modules/account"
 	"github.com/doitung/DoiTung-service/internal/modules/auth"
+	"github.com/gofiber/fiber/v2"
 )
 
 
@@ -16,6 +17,7 @@ func main() {
 	config.ConnectDatabase()
 	
 	auth.Setup(app, config.DB)
+	account.Setup(app, config.DB)
 
 	log.Fatal(app.Listen(":8080"))
 }
