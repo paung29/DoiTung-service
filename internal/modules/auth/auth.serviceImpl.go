@@ -3,9 +3,10 @@ package auth
 import (
 	"errors"
 
+	jwtService "github.com/doitung/DoiTung-service/internal/common/jwt"
+	"github.com/doitung/DoiTung-service/internal/utils"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	jwtService "github.com/doitung/DoiTung-service/internal/common/jwt"
 )
 
 
@@ -15,16 +16,10 @@ func (s *service) Login(form LoginRequest) (string, AuthResponse, error) {
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", AuthResponse{
-				Success: false,
-				Message: "account not found",
-			}, nil
+			return "", AuthResponse{}, utils.UnauthorizedError("account not found")
 		}
 
-		return "", AuthResponse{
-			Success: false,
-			Message: "internal server error",
-		}, err
+		return "", AuthResponse{}, utils.SystemError("failed to query account")
 	}
 		
 	err = bcrypt.CompareHashAndPassword(
@@ -33,19 +28,13 @@ func (s *service) Login(form LoginRequest) (string, AuthResponse, error) {
 	)
 
 	if err != nil {
-		return "", AuthResponse{
-			Success: false,
-			Message: "invalid password",
-		}, nil
+		return "", AuthResponse{}, utils.UnauthorizedError("invalid password")
 	}
 
 	token, err := jwtService.GenerateToken(account.AccountID, string(account.Role))
 
 	if err != nil {
-		return "", AuthResponse{
-			Success: false,
-			Message: "failed to generate token",
-		}, err
+		return "", AuthResponse{}, utils.SystemError("failed to generate token")
 	}
 
 	return token, AuthResponse{

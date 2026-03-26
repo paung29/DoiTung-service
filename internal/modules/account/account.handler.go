@@ -18,33 +18,15 @@ func NewAccountHandler(service AccountService) *AccountHandler {
 func (h *AccountHandler) CreateAccount(context *fiber.Ctx) error {
 	var form AccountCreateForm
 
-	if err := context.BodyParser(&form); err != nil {
-		return context.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": "invalid json format",
-		})
-	}
-
-	if err := utils.Validate.Struct(form); err != nil {
-		return context.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": "validation error",
-			"errors":  utils.FormatValidationErrors(err),
-		})
+	if err := utils.ParseAndValidate(context, &form); err != nil {
+		return utils.HandleError(context, err)
 	}
 
 	response, err := h.service.CreateAccount(form)
 
 	if err != nil {
-		return context.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"message": "internal server error",
-		})
+		return utils.HandleError(context, err)
 	}
-	
-	if !response.Success {
-		return context.Status(fiber.StatusBadRequest).JSON(response)
-	}
-	
+
 	return context.Status(fiber.StatusCreated).JSON(response)
 }

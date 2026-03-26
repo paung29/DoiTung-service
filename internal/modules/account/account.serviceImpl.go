@@ -1,9 +1,12 @@
 package account
 
 import (
+	"errors"
+
 	"github.com/doitung/DoiTung-service/internal/models"
 	"github.com/doitung/DoiTung-service/internal/types/enums"
 	"github.com/doitung/DoiTung-service/internal/utils"
+	"gorm.io/gorm"
 )
 
 func (s *service) CreateAccount(form AccountCreateForm) (AccountCreateResponse, error) {
@@ -13,30 +16,24 @@ func (s *service) CreateAccount(form AccountCreateForm) (AccountCreateResponse, 
 	switch role {
 	case enums.RoleAdmin, enums.RoleStaff:
 	default:
-		return AccountCreateResponse{
-			Success: false,
-			Message: "invalid role",
-		}, nil
+		return AccountCreateResponse{}, utils.BadRequestError("invalid role")
 	}
 
 	existingAccount, err := s.accountRepo.FindByEmail(form.Email)
 
 	if err == nil && existingAccount != nil {
-		return AccountCreateResponse{
-			Success: false,
-			Message: "email already exists",
-		}, nil
+		return AccountCreateResponse{}, utils.BadRequestError("email already exists")
+	}
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return AccountCreateResponse{}, utils.SystemError("failed to check existing account")
 	}
 
 	hashedPassword, err := utils.HashedPassword(form.Password)
 
 	if err != nil {
-		return  AccountCreateResponse{
-			Success: false,
-			Message: "failed to hash password",
-		}, err
+		return  AccountCreateResponse{}, utils.SystemError("failed to hash password")
 	}
-
 
 	account := &models.Account{
 		Email: form.Email,
@@ -45,10 +42,7 @@ func (s *service) CreateAccount(form AccountCreateForm) (AccountCreateResponse, 
 	}
 
 	if err := s.accountRepo.Create(account); err != nil {
-		return AccountCreateResponse{
-			Success: false,
-			Message: "failed to create account",
-		}, err
+		return AccountCreateResponse{}, utils.SystemError("failed to create account")
 	}
 
 	return AccountCreateResponse{

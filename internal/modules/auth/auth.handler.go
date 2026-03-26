@@ -19,32 +19,13 @@ func (h *AuthHandler) Login(context *fiber.Ctx) error {
 
 	var form LoginRequest
 
-	if err := context.BodyParser(&form);err != nil {
-		return context.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success" : false,
-			"message" : "invalid json format",
-		})
-	}
-
-	if err := utils.Validate.Struct(form);err != nil {
-		return context.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success" : false,
-			"message" : "validation error",
-			"errors" : utils.FormatValidationErrors(err),
-		})
+	if err := utils.ParseAndValidate(context, &form); err != nil {
+		return utils.HandleError(context, err)
 	}
 
 	token, response, err := h.service.Login(form)
-
 	if err != nil {
-		return context.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"message": "internal server error",
-		})
-	}
-
-	if !response.Success {
-		return context.Status(fiber.StatusUnauthorized).JSON(response)
+		return utils.HandleError(context, err)
 	}
 
 	context.Cookie(&fiber.Cookie{
@@ -57,9 +38,6 @@ func (h *AuthHandler) Login(context *fiber.Ctx) error {
 		MaxAge:   60 * 60 * 24,
 	})
 
-	return context.JSON(fiber.Map{
-		"success" : response.Success,
-		"message" : response.Message,
-	})
+	return context.JSON(response)
 
 }
