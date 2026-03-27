@@ -1,11 +1,31 @@
 package year
 
 import (
-	"github.com/doitung/DoiTung-service/internal/models"
 	commonrepo "github.com/doitung/DoiTung-service/internal/common/repository"
+	"github.com/doitung/DoiTung-service/internal/models"
+	"gorm.io/gorm"
 )
 
+type repository struct {
+	db *gorm.DB
+}
 
-func (repo repository) Create(year *models.Year) error {
-	return commonrepo.Create(repo.db, year)
+func NewYearRepository(db *gorm.DB) YearRepository {
+	return &repository{db: db}
+}
+
+func (repo *repository) Create(tx *gorm.DB,year *models.Year) error {
+	return commonrepo.Create(tx, year)
+}
+
+func (repo *repository) CreateFormSetting(tx *gorm.DB, setting *models.YearFormSetting) error {
+	return commonrepo.Create(tx, setting)
+}
+
+func (repo *repository) FindByYear(yearValue int) (*models.Year, error) {
+	var year models.Year
+	if err := repo.db.Where("year = ?", yearValue).First(&year).Error; err != nil {
+		return nil,err 
+	}
+	return &year, nil
 }

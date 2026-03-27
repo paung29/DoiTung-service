@@ -1,1 +1,31 @@
 package year
+
+import (
+	"github.com/doitung/DoiTung-service/internal/utils"
+	"github.com/gofiber/fiber/v2"
+)
+
+type YearHandler struct {
+	service YearService
+}
+
+func NewYearHandler(service YearService) *YearHandler {
+	return &YearHandler{
+		service: service,
+	}
+}
+
+func (h YearHandler) CreateYear (context *fiber.Ctx) error {
+	var form YearCreateForm
+
+	if err := utils.ParseAndValidate(context, &form); err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	response, err := h.service.CreateYear(form)
+
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.Status(fiber.StatusCreated).JSON(response)
+}

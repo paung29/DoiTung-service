@@ -6,13 +6,9 @@ import (
 )
 
 type YearRepository interface {
-	Create(year *models.Year) error
+	Create(tx *gorm.DB, year *models.Year) error
+	CreateFormSetting(tx *gorm.DB, setting *models.YearFormSetting) error
+	FindByYear(year int) (*models.Year, error)
 }
 
-type repository struct {
-	db *gorm.DB
-}
 
-func NewYearRepository(db *gorm.DB) YearRepository {
-	return &repository{db: db}
-}
