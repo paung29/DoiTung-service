@@ -1,6 +1,9 @@
 package middleware
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/doitung/DoiTung-service/internal/utils"
+	"github.com/gofiber/fiber/v2"
+)
 
 func RequireRoles(allowedRoles ...string) fiber.Handler {
 
@@ -8,10 +11,7 @@ func RequireRoles(allowedRoles ...string) fiber.Handler {
 		
 		role, ok := context.Locals("role").(string)
 		if !ok || role == "" {
-			return context.Status(fiber.StatusForbidden).JSON(fiber.Map{
-				"success": false,
-				"message": "role not found",
-			})
+			return utils.UnauthorizedError("role not found")
 		}
 
 		for _, allowed := range allowedRoles {
@@ -20,9 +20,6 @@ func RequireRoles(allowedRoles ...string) fiber.Handler {
 			}
 		}
 
-		return context.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"success": false,
-			"message": "forbidden",
-		})
+		return utils.ForbiddenError("Not Allowed Access")
 	}
 }

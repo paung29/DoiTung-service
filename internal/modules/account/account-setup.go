@@ -5,8 +5,6 @@ import (
 	"gorm.io/gorm"
 )
 
-
-
 func Setup(app *fiber.App, db *gorm.DB) {
 	accountRepo := NewAccountrepository(db)
 	accountService := NewAuthService(accountRepo)
