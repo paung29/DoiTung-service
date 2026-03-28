@@ -36,6 +36,7 @@ func (s *service) CreateYear(form YearCreateForm) (YearCreateResponse, error){
 	}
 
 	setting := &models.YearFormSetting{
+		YearID: year.YearID,
 		ClusterActive: false,
 		FlowerActive : false,
 		PodActive 		:		false,

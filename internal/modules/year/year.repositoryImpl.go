@@ -29,3 +29,7 @@ func (repo *repository) FindByYear(yearValue int) (*models.Year, error) {
 	}
 	return &year, nil
 }
+
+func (repo *repository) FindByID(id uint) (*models.Year, error) {
+	return commonrepo.FindByID[models.Year](repo.db, id)
+}

@@ -9,6 +9,7 @@ type YearRepository interface {
 	Create(tx *gorm.DB, year *models.Year) error
 	CreateFormSetting(tx *gorm.DB, setting *models.YearFormSetting) error
 	FindByYear(year int) (*models.Year, error)
+	FindByID(id uint) (*models.Year, error)
 }
 
 
