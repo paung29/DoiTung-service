@@ -49,10 +49,10 @@ type YearFormSetting struct {
 type Zone struct {
 	ZoneID 		uint 	`gorm:"primaryKey"`
 
-	YearID 		uint	`gorm:"not null;index;uniqueIndex:ux_year_zone_no,priority:1"`
+	YearID 		uint	`gorm:"not null;index;uniqueIndex:ux_year_zone_no,priority:1;uniqueIndex:ux_year_zone_name,priority:1"`
 	ZoneNo 		int		`gorm:"not null;uniqueIndex:ux_year_zone_no,priority:2"`
 
-	ZoneName 	string
+	ZoneName 	string	`gorm:"not null;uniqueIndex:ux_year_zone_name,priority:2"`
 
 	YearRef 	Year	`gorm:"foreignKey:YearID;references:YearID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	Poles 		[]Pole	`gorm:"foreignKey:ZoneID;references:ZoneID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`

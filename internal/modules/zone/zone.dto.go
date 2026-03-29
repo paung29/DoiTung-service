@@ -8,3 +8,4 @@ type CreateZoneRequest struct {
 type CreateZoneResponse struct {
 	Message string `json:"message"`
 }
+

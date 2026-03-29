@@ -44,3 +44,13 @@ func (repo *repository) GetMaxZoneNoByYear(yearID uint) (int, error) {
 
 	return max, nil
 }
+
+func(repo *repository) FindByYearAndZoneName(yearID uint, name string) (*models.Zone, error) {
+	var zone models.Zone
+
+	if err := repo.db.Where("year_id = ? AND zone_name = ?", yearID, name).First(&zone).Error; err != nil {
+		return nil, err
+	}
+
+	return &zone, nil
+}

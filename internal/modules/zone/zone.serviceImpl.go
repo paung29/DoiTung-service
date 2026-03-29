@@ -36,6 +36,16 @@ func (s service) CreateZone(form CreateZoneRequest) (CreateZoneResponse, error) 
 
 	yearID := yearRecord.YearID
 
+	existingZone, err := s.zoneRepo.FindByYearAndZoneName(yearID, form.Name)
+
+	if err == nil && existingZone != nil {
+		return CreateZoneResponse{}, utils.BadRequestError("zone name already exists in this year")
+	}
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return CreateZoneResponse{}, utils.SystemError("failed to check zone name")
+	}
+
 	maxZoneNo, err := s.zoneRepo.GetMaxZoneNoByYear(yearID)
 	if err != nil {
 		return CreateZoneResponse{}, utils.SystemError("failed to generate zone number")
