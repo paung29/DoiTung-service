@@ -5,6 +5,7 @@ import "gorm.io/gorm"
 
 type YearService interface {
 	CreateYear(form YearCreateForm) (YearCreateResponse, error)
+	ChangeYearFormSettingStatus(form YearFormSettingStatusChange) (YearFormSettingStatusChangeResponse, error)
 }
 
 type service struct {

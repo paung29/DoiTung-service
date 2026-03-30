@@ -9,10 +9,9 @@ type YearCreateResponse struct {
 }
 
 type YearFormSettingStatusChange struct {
-	Year int 
-	FormID string
-	FormName string
-	ActiveStatus string 
+	Year int `json:"year" validate:"required"`
+	FormName string	`json:"formName" validate:"required,oneof=cluster flower pollination pod preHarvest harvestGrading"`
+	ActiveStatus *bool 	`json:"activeStatus" validate:"required"`
 }
 
 type YearFormSettingStatusChangeResponse struct {

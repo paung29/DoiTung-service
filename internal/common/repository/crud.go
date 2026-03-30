@@ -21,3 +21,7 @@ func DeleteByID[T any] (db *gorm.DB, id uint) error {
 	var entity T
 	return db.Delete(&entity, id).Error
 }
+
+func Save[T any] (db *gorm.DB, entity T) error {
+	return db.Save(entity).Error
+}

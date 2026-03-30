@@ -33,3 +33,11 @@ func (repo *repository) FindByYear(yearValue int) (*models.Year, error) {
 func (repo *repository) FindByID(id uint) (*models.Year, error) {
 	return commonrepo.FindByID[models.Year](repo.db, id)
 }
+
+func (repo *repository) FindFormSettingByYear(id uint) (*models.YearFormSetting, error) {
+	return commonrepo.FindByID[models.YearFormSetting](repo.db, id)
+}
+
+func (repo *repository) UpdateFormSetting(db *gorm.DB, setting *models.YearFormSetting) error {
+	return commonrepo.Save(db,setting )
+}

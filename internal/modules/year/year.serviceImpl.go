@@ -56,3 +56,48 @@ func (s *service) CreateYear(form YearCreateForm) (YearCreateResponse, error){
 		Message: "year created successfully",
 	}, nil
 }
+
+func (s *service) ChangeYearFormSettingStatus(form YearFormSettingStatusChange) (YearFormSettingStatusChangeResponse, error) {
+	yearRecord, err := s.yearRepo.FindByYear(form.Year)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return YearFormSettingStatusChangeResponse{}, utils.NotFoundError("year not found")
+		}
+		return YearFormSettingStatusChangeResponse{}, utils.SystemError("failed to check year")
+	}
+
+	yearID := yearRecord.YearID
+
+	yearSetting, err := s.yearRepo.FindFormSettingByYear(yearID)
+
+	if err != nil {
+		return YearFormSettingStatusChangeResponse{}, utils.NotFoundError("year form setting not found")
+	}
+
+	switch form.FormName {
+	case "cluster":
+		yearSetting.ClusterActive = *form.ActiveStatus
+	case "flower":
+		yearSetting.FlowerActive = *form.ActiveStatus
+	case "pod":
+		yearSetting.PodActive = *form.ActiveStatus
+	case "preHarvest":
+		yearSetting.PreHarvestActive = *form.ActiveStatus
+	case "harvestGrading":
+		yearSetting.HarvestGradingActive = *form.ActiveStatus
+	default:
+		return YearFormSettingStatusChangeResponse{}, utils.BadRequestError("invalid form name")
+	}
+
+	if err := s.yearRepo.UpdateFormSetting(s.db, yearSetting); err != nil {
+		return YearFormSettingStatusChangeResponse{}, utils.SystemError("failed to update year form setting")
+	}
+
+	return YearFormSettingStatusChangeResponse{
+		Message: "year form setting updated successfully",
+	}, nil
+}
+
+
+
