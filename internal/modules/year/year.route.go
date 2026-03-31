@@ -10,6 +10,6 @@ func RegisterRoutes(app *fiber.App, handler *YearHandler) {
 	account := app.Group("/years")
 
 	account.Post("/create",middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.CreateYear)
-	account.Post("/form-setting/update",middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.ChangeYearFormSettingStatus)
+	account.Put("/form-setting/update",middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.ChangeYearFormSettingStatus)
 
 }
