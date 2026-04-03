@@ -8,7 +8,7 @@ import (
 func RequireRoles(allowedRoles ...string) fiber.Handler {
 
 	return func(context *fiber.Ctx) error {
-		
+
 		role, ok := context.Locals("role").(string)
 		if !ok || role == "" {
 			return utils.UnauthorizedError("role not found")
@@ -20,6 +20,6 @@ func RequireRoles(allowedRoles ...string) fiber.Handler {
 			}
 		}
 
-		return utils.ForbiddenError("Not Allowed Access")
+		return utils.ForbiddenError("Not Allowed Access 1")
 	}
 }

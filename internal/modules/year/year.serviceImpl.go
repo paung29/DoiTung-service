@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (s *service) CreateYear(form YearCreateForm) (YearCreateResponse, error){
+func (s *service) CreateYear(form YearCreateForm) (YearCreateResponse, error) {
 
 	existingYear, err := s.yearRepo.FindByYear(form.Year)
 
@@ -36,12 +36,12 @@ func (s *service) CreateYear(form YearCreateForm) (YearCreateResponse, error){
 	}
 
 	setting := &models.YearFormSetting{
-		YearID: year.YearID,
-		ClusterActive: false,
-		FlowerActive : false,
-		PodActive 		:		false,
-		PreHarvestActive 	:	false,
-		HarvestGradingActive :	false,
+		YearID:               year.YearID,
+		ClusterActive:        false,
+		FlowerActive:         false,
+		PodActive:            false,
+		PreHarvestActive:     false,
+		HarvestGradingActive: false,
 	}
 
 	if err := s.yearRepo.CreateFormSetting(tx, setting); err != nil {
@@ -98,6 +98,3 @@ func (s *service) ChangeYearFormSettingStatus(form YearFormSettingStatusChange) 
 		Message: "year form setting updated successfully",
 	}, nil
 }
-
-
-

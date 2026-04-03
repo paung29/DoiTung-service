@@ -1,1 +1,12 @@
 package cluster
+
+import (
+	"github.com/doitung/DoiTung-service/internal/middleware"
+	"github.com/gofiber/fiber/v2"
+)
+
+func ClusterRoutes(app *fiber.App, handler *ClusterHandler) {
+	cluster := app.Group("/clusters")
+
+	cluster.Post("/create", middleware.RequiredAuth, handler.CreateCluster)
+}
