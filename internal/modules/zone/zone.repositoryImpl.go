@@ -1,9 +1,9 @@
 package zone
 
 import (
+	commonrepo "github.com/doitung/DoiTung-service/internal/common/repository"
 	"github.com/doitung/DoiTung-service/internal/models"
 	"gorm.io/gorm"
-	commonrepo"github.com/doitung/DoiTung-service/internal/common/repository"
 )
 
 type repository struct {
@@ -34,9 +34,9 @@ func (repo *repository) GetMaxZoneNoByYear(yearID uint) (int, error) {
 	var max int
 
 	err := repo.db.Model(&models.Zone{}).
-					Where("year_id = ?", yearID).
-					Select("COALESCE(MAX(zone_no), 0)").
-					Scan(&max).Error
+		Where("year_id = ?", yearID).
+		Select("COALESCE(MAX(zone_no), 0)").
+		Scan(&max).Error
 
 	if err != nil {
 		return 0, nil
@@ -45,7 +45,7 @@ func (repo *repository) GetMaxZoneNoByYear(yearID uint) (int, error) {
 	return max, nil
 }
 
-func(repo *repository) FindByYearAndZoneName(yearID uint, name string) (*models.Zone, error) {
+func (repo *repository) FindByYearAndZoneName(yearID uint, name string) (*models.Zone, error) {
 	var zone models.Zone
 
 	if err := repo.db.Where("year_id = ? AND zone_name = ?", yearID, name).First(&zone).Error; err != nil {
