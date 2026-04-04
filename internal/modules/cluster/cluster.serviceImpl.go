@@ -29,8 +29,16 @@ func NewClusterService(db *gorm.DB, yearRepo year.YearRepository, zoneRepo zone.
 
 func (s *service) CreateCluster(form ClusterCreateRequest, userId uint) (ClusterCreateResponse, error) {
 
+	// Check if the year exists
+	yearRecord, err := s.yearRepo.FindByYear(int(form.Year))
+	if err != nil {
+		return ClusterCreateResponse{}, utils.NotFoundError("year not found")
+	}
+
+	yearId := yearRecord.YearID
+
 	// Check if the zone exists
-	zoneRecord, err := s.zoneRepo.FindByYearAndZoneNo(uint(form.YearId), int(form.ZoneNo))
+	zoneRecord, err := s.zoneRepo.FindByYearAndZoneNo(uint(yearId), int(form.ZoneNo))
 	if err != nil {
 		return ClusterCreateResponse{}, utils.NotFoundError("zone not found")
 	}
@@ -44,15 +52,21 @@ func (s *service) CreateCluster(form ClusterCreateRequest, userId uint) (Cluster
 
 	// If not exist, create pole
 	if err != nil {
-		pole := &models.Pole{
-			ZoneID: zoneId,
-			PoleNo: int(form.PoleNo),
-		}
-		if err := s.clusterRepo.CreatePole(pole); err != nil {
+		if err == gorm.ErrRecordNotFound {
+			pole := &models.Pole{
+				ZoneID: zoneId,
+				PoleNo: int(form.PoleNo),
+			}
+			if err := s.clusterRepo.CreatePole(pole); err != nil {
+				tx.Rollback()
+				return ClusterCreateResponse{}, utils.SystemError("Failed to create pole")
+			}
+			poleRecord = pole
+		} else {
 			tx.Rollback()
-			return ClusterCreateResponse{}, utils.SystemError("Failed to create pole")
+			return ClusterCreateResponse{}, utils.SystemError("Failed to check pole")
 		}
-		poleRecord = pole
+
 	}
 	poleId := poleRecord.PoleID
 	// Check if the cluster exists
@@ -60,15 +74,23 @@ func (s *service) CreateCluster(form ClusterCreateRequest, userId uint) (Cluster
 
 	// If not exist, create cluster
 	if err != nil {
-		cluster := &models.Cluster{
-			PoleID:    poleId,
-			ClusterNo: int(form.ClusterNo),
-		}
-		if err := s.clusterRepo.CreateCluster(cluster); err != nil {
+		// If the error is record not found
+		if err == gorm.ErrRecordNotFound {
+			// continue to create cluster
+			cluster := &models.Cluster{
+				PoleID:    poleId,
+				ClusterNo: int(form.ClusterNo),
+			}
+			if err := s.clusterRepo.CreateCluster(cluster); err != nil {
+				tx.Rollback()
+				return ClusterCreateResponse{}, utils.SystemError("Failed to create cluster")
+			}
+			clusterRecord = cluster
+		} else {
 			tx.Rollback()
-			return ClusterCreateResponse{}, utils.SystemError("Failed to create cluster")
+			return ClusterCreateResponse{}, utils.SystemError("Failed to check cluster")
 		}
-		clusterRecord = cluster
+
 	}
 	clusterId := clusterRecord.ClusterID
 
@@ -81,7 +103,7 @@ func (s *service) CreateCluster(form ClusterCreateRequest, userId uint) (Cluster
 
 	// Create cluster form
 	clusterForm := &models.ClusterForm{
-		YearID:       form.YearId,
+		YearID:       yearId,
 		ClusterID:    clusterId,
 		RecordedByID: userId,
 		Condition:    enums.Condition(form.Condition),

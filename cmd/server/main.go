@@ -9,13 +9,18 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/cluster"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/modules/zone"
+	"github.com/doitung/DoiTung-service/internal/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func main() {
 
-	app := fiber.New()
+	app := fiber.New(
+		fiber.Config{
+			ErrorHandler: utils.HandleError,
+		},
+	)
 
 	config.ConnectDatabase()
 

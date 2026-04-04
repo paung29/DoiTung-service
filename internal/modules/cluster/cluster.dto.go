@@ -1,7 +1,7 @@
 package cluster
 
 type ClusterCreateRequest struct {
-	YearId    uint   `json:"year-id" validate:"required,number"`
+	Year      uint   `json:"year" validate:"required,number"`
 	ZoneNo    uint   `json:"zone-no" validate:"required,number"`
 	PoleNo    uint   `json:"pole-no" validate:"required,number"`
 	ClusterNo uint   `json:"cluster-no" validate:"required,number"`
