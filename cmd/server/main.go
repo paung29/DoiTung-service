@@ -7,6 +7,7 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/account"
 	"github.com/doitung/DoiTung-service/internal/modules/auth"
 	"github.com/doitung/DoiTung-service/internal/modules/cluster"
+	"github.com/doitung/DoiTung-service/internal/modules/forms/flower"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/modules/zone"
 	"github.com/doitung/DoiTung-service/internal/utils"
@@ -31,6 +32,7 @@ func main() {
 	year.Setup(app, config.DB)
 	zone.Setup(app, config.DB)
 	cluster.Setup(app, config.DB)
+	flower.Setup(app, config.DB)
 
 	log.Fatal(app.Listen(":8080"))
 }
