@@ -13,7 +13,7 @@ func NewFlowerHandler(service FlowerService) *FlowerHandler {
 	return &FlowerHandler{service: service}
 }
 
-func (h *FlowerHandler) CreateCluster(context *fiber.Ctx) error {
+func (h *FlowerHandler) CreateOrUpdateFlowerForm(context *fiber.Ctx) error {
 
 	var userId uint = context.Locals("account_id").(uint)
 	var form FlowerFormRequest
@@ -22,7 +22,7 @@ func (h *FlowerHandler) CreateCluster(context *fiber.Ctx) error {
 		return utils.HandleError(context, err)
 	}
 
-	response, err := h.service.CreateFlowerForm(form, userId)
+	response, err := h.service.CreateOrUpdateFlowerForm(form, userId)
 
 	if err != nil {
 		return utils.HandleError(context, err)

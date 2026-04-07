@@ -8,5 +8,5 @@ import (
 func FlowerRoutes(app *fiber.App, handler *FlowerHandler) {
 	flower := app.Group("/flowers")
 
-	flower.Post("/create", middleware.RequiredAuth, handler.CreateCluster)
+	flower.Post("/create", middleware.RequiredAuth, handler.CreateOrUpdateFlowerForm)
 }
