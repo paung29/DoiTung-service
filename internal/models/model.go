@@ -63,6 +63,8 @@ type Pole struct {
 	ZoneID uint `gorm:"not null;index;uniqueIndex:ux_zone_pole_no,priority:1"`
 	PoleNo int  `gorm:"not null;uniqueIndex:ux_zone_pole_no,priority:2"`
 
+	HarvestGradingFormDone bool `gorm:"default:false"`
+
 	ZoneRef  Zone      `gorm:"foreignKey:ZoneID;references:ZoneID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	Clusters []Cluster `gorm:"foreignKey:PoleID;references:PoleID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 
@@ -74,6 +76,12 @@ type Cluster struct {
 
 	PoleID    uint `gorm:"not null;index;uniqueIndex:ux_pole_cluster_no,priority:1"`
 	ClusterNo int  `gorm:"not null;uniqueIndex:ux_pole_cluster_no,priority:2"`
+
+	ClusterFormDone     bool `gorm:"default:false"`
+	FlowerFormDone      bool `gorm:"default:false"`
+	PodFormDone         bool `gorm:"default:false"`
+	PollinationFormDone bool `gorm:"default:false"`
+	PreHarvestFormDone  bool `gorm:"default:false"`
 
 	PoleRef Pole `gorm:"foreignKey:PoleID;references:PoleID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 
@@ -90,8 +98,8 @@ type ClusterForm struct {
 	Condition    enums.Condition `gorm:"type:varchar(20);not null"`
 	RecordedDate time.Time       `gorm:"not null"`
 
-	Cluster    Cluster	`gorm:"foreignKey:ClusterID;references:ClusterID"`
-	RecordedBy Account	`gorm:"foreignKey:RecordedByID;references:AccountID"`
+	Cluster    Cluster `gorm:"foreignKey:ClusterID;references:ClusterID"`
+	RecordedBy Account `gorm:"foreignKey:RecordedByID;references:AccountID"`
 
 	types.Timestamp
 }
@@ -99,8 +107,8 @@ type ClusterForm struct {
 type FlowerForm struct {
 	FlowerFormID uint `gorm:"primaryKey"`
 
-	YearID    uint `gorm:"not null;uniqueIndex:ux_year_cluster_flower,priority:1"`
-	ClusterID uint `gorm:"not null;uniqueIndex:ux_year_cluster_flower,priority:2"`
+	YearID       uint `gorm:"not null;uniqueIndex:ux_year_cluster_flower,priority:1"`
+	ClusterID    uint `gorm:"not null;uniqueIndex:ux_year_cluster_flower,priority:2"`
 	RecordedByID uint `gorm:"index;not null"`
 
 	TotalFlowers int
@@ -108,8 +116,8 @@ type FlowerForm struct {
 	Done         bool            `gorm:"default:false"`
 	RecordedDate time.Time
 
-	Cluster    Cluster	`gorm:"foreignKey:ClusterID;references:ClusterID"`
-	RecordedBy Account	`gorm:"foreignKey:RecordedByID;references:AccountID"`
+	Cluster    Cluster `gorm:"foreignKey:ClusterID;references:ClusterID"`
+	RecordedBy Account `gorm:"foreignKey:RecordedByID;references:AccountID"`
 
 	types.Timestamp
 }
@@ -117,8 +125,8 @@ type FlowerForm struct {
 type PollinationForm struct {
 	PollinationFormID uint `gorm:"primaryKey"`
 
-	YearID    uint `gorm:"not null;uniqueIndex:ux_year_cluster_pollination,priority:1"`
-	ClusterID uint `gorm:"not null;uniqueIndex:ux_year_cluster_pollination,priority:2"`
+	YearID       uint `gorm:"not null;uniqueIndex:ux_year_cluster_pollination,priority:1"`
+	ClusterID    uint `gorm:"not null;uniqueIndex:ux_year_cluster_pollination,priority:2"`
 	RecordedByID uint `gorm:"index;not null"`
 
 	NumberPods              int
@@ -127,8 +135,8 @@ type PollinationForm struct {
 	BadFlowers              int
 	Condition               enums.Condition `gorm:"type:varchar(20)"`
 
-	Cluster    Cluster	`gorm:"foreignKey:ClusterID;references:ClusterID"`
-	RecordedBy Account	`gorm:"foreignKey:RecordedByID;references:AccountID"`
+	Cluster    Cluster `gorm:"foreignKey:ClusterID;references:ClusterID"`
+	RecordedBy Account `gorm:"foreignKey:RecordedByID;references:AccountID"`
 
 	RecordedDate time.Time
 
@@ -138,16 +146,16 @@ type PollinationForm struct {
 type PodForm struct {
 	PodFormID uint `gorm:"primaryKey"`
 
-	YearID    uint `gorm:"not null;uniqueIndex:ux_year_cluster_pod,priority:1"`
-	ClusterID uint `gorm:"not null;uniqueIndex:ux_year_cluster_pod,priority:2"`
+	YearID       uint `gorm:"not null;uniqueIndex:ux_year_cluster_pod,priority:1"`
+	ClusterID    uint `gorm:"not null;uniqueIndex:ux_year_cluster_pod,priority:2"`
 	RecordedByID uint `gorm:"index;not null"`
 
 	NumberPods    int
 	LostPods      int
 	RemainingPods int
 
-	Cluster    Cluster	`gorm:"foreignKey:ClusterID;references:ClusterID"`
-	RecordedBy Account	`gorm:"foreignKey:RecordedByID;references:AccountID"`
+	Cluster    Cluster `gorm:"foreignKey:ClusterID;references:ClusterID"`
+	RecordedBy Account `gorm:"foreignKey:RecordedByID;references:AccountID"`
 
 	RecordedDate time.Time
 
@@ -157,8 +165,8 @@ type PodForm struct {
 type PreHarvestForm struct {
 	PreHarvestFormID uint `gorm:"primaryKey"`
 
-	YearID    uint `gorm:"not null;uniqueIndex:ux_year_cluster_preharvest,priority:1"`
-	ClusterID uint `gorm:"not null;uniqueIndex:ux_year_cluster_preharvest,priority:2"`
+	YearID       uint `gorm:"not null;uniqueIndex:ux_year_cluster_preharvest,priority:1"`
+	ClusterID    uint `gorm:"not null;uniqueIndex:ux_year_cluster_preharvest,priority:2"`
 	RecordedByID uint `gorm:"index;not null"`
 
 	NumberPods    int
@@ -169,8 +177,8 @@ type PreHarvestForm struct {
 
 	RecordedDate time.Time
 
-	Cluster    Cluster	`gorm:"foreignKey:ClusterID;references:ClusterID"`
-	RecordedBy Account	`gorm:"foreignKey:RecordedByID;references:AccountID"`
+	Cluster    Cluster `gorm:"foreignKey:ClusterID;references:ClusterID"`
+	RecordedBy Account `gorm:"foreignKey:RecordedByID;references:AccountID"`
 
 	types.Timestamp
 }
@@ -178,8 +186,8 @@ type PreHarvestForm struct {
 type HarvestGradingForm struct {
 	HarvestGradingFormID uint `gorm:"primaryKey"`
 
-	YearID uint `gorm:"not null;uniqueIndex:ux_year_pole_harvest,priority:1"`
-	PoleID uint `gorm:"not null;uniqueIndex:ux_year_pole_harvest,priority:2"`
+	YearID       uint `gorm:"not null;uniqueIndex:ux_year_pole_harvest,priority:1"`
+	PoleID       uint `gorm:"not null;uniqueIndex:ux_year_pole_harvest,priority:2"`
 	RecordedByID uint `gorm:"index;not null"`
 
 	GradeAPlusCount  int
@@ -205,7 +213,7 @@ type HarvestGradingForm struct {
 
 	RecordedDate time.Time
 
-	Pole Pole `gorm:"foreignKey:PoleID;references:PoleID"`
+	Pole       Pole    `gorm:"foreignKey:PoleID;references:PoleID"`
 	RecordedBy Account `gorm:"foreignKey:RecordedByID;references:AccountID"`
 
 	types.Timestamp
