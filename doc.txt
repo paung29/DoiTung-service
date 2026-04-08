@@ -1,0 +1,6 @@
+
+// To run air
+export PATH=$PATH:$(go env GOPATH)/bin
+
+
+// If db changes or some changes not effect remove tmp and app.db file
