@@ -10,18 +10,25 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/forms/flower"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/modules/zone"
-	"github.com/doitung/DoiTung-service/internal/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func main() {
 
-	app := fiber.New(
-		fiber.Config{
-			ErrorHandler: utils.HandleError,
+	app := fiber.New(fiber.Config{
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			code := fiber.StatusInternalServerError
+
+			if e, ok := err.(*fiber.Error); ok {
+				code = e.Code
+			}
+
+			return c.Status(code).JSON(fiber.Map{
+				"message": err.Error(),
+			})
 		},
-	)
+	})
 
 	config.ConnectDatabase()
 
