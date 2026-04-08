@@ -1,6 +1,8 @@
 package cluster
 
 import (
+	"time"
+
 	"github.com/doitung/DoiTung-service/internal/models"
 	"github.com/doitung/DoiTung-service/internal/modules/account"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
@@ -117,6 +119,7 @@ func (s *service) CreateCluster(form ClusterCreateRequest, userId uint) (Cluster
 		ClusterID:    clusterId,
 		RecordedByID: userId,
 		Condition:    enums.Condition(form.Condition),
+		RecordedDate: time.Now(),
 	}
 	if err := s.clusterRepo.CreateClusterForm(clusterForm); err != nil {
 		tx.Rollback()
