@@ -1,5 +1,5 @@
 package flower
 
 type FlowerService interface {
-	CreateFlowerForm(form FlowerFormRequest, userId uint) (FlowerFormResponse, error)
+	CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) (FlowerFormResponse, error)
 }
