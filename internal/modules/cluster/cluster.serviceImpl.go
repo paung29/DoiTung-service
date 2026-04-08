@@ -123,6 +123,13 @@ func (s *service) CreateCluster(form ClusterCreateRequest, userId uint) (Cluster
 		return ClusterCreateResponse{}, utils.SystemError("Failed to create cluster form")
 	}
 
+	// Cluster form done, update cluster record
+	clusterRecord.ClusterFormDone = true
+	if err := s.clusterRepo.UpdateCluster(clusterRecord); err != nil {
+		tx.Rollback()
+		return ClusterCreateResponse{}, utils.SystemError("Failed to update cluster record")
+	}
+
 	if err := tx.Commit().Error; err != nil {
 		return ClusterCreateResponse{}, utils.SystemError("Failed to commit transaction")
 	}

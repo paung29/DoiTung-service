@@ -55,3 +55,7 @@ func (r *repository) FindClusterFormByClusterId(clusterId uint) (*models.Cluster
 	}
 	return &form, nil
 }
+
+func (r *repository) UpdateCluster(cluster *models.Cluster) error {
+	return commonrepo.Save(r.db, cluster)
+}

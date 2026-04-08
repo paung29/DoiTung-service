@@ -11,4 +11,5 @@ type ClusterRepository interface {
 	FindPoleByZoneAndPoleNo(zoneId uint, poleNo uint) (*models.Pole, error)
 	FindClusterByPoleAndClusterNo(poleId uint, clusterNo uint) (*models.Cluster, error)
 	FindClusterFormByClusterId(clusterId uint) (*models.ClusterForm, error)
+	UpdateCluster(cluster *models.Cluster) error
 }
