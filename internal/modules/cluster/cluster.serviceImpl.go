@@ -37,6 +37,16 @@ func (s *service) CreateCluster(form ClusterCreateRequest, userId uint) (Cluster
 
 	yearId := yearRecord.YearID
 
+	// Check if the form setting is open for the year
+	yearSetting, err := s.yearRepo.FindFormSettingByYear(yearId)
+	if err != nil {
+		return ClusterCreateResponse{}, utils.NotFoundError("year setting not found")
+	}
+
+	if !yearSetting.ClusterActive {
+		return ClusterCreateResponse{}, utils.BadRequestError("cluster form is not open for this year")
+	}
+
 	// Check if the zone exists
 	zoneRecord, err := s.zoneRepo.FindByYearAndZoneNo(uint(yearId), int(form.ZoneNo))
 	if err != nil {

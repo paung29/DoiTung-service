@@ -104,6 +104,8 @@ type FlowerForm struct {
 	RecordedByID uint `gorm:"index;not null"`
 
 	TotalFlowers int
+	Condition    enums.Condition `gorm:"type:varchar(20)"`
+	Done         bool            `gorm:"default:false"`
 	RecordedDate time.Time
 
 	Cluster    Cluster	`gorm:"foreignKey:ClusterID;references:ClusterID"`
