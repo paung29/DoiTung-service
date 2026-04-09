@@ -90,7 +90,7 @@ func (s *service) CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) 
 				RecordedByID: userId,
 				YearID:       yearId,
 				ClusterID:    clusterId,
-				TotalFlowers: int(form.TotalFlowers),
+				TotalFlowers: int(*form.TotalFlowers),
 				Condition:    enums.Condition(form.Condition),
 				Done:         true,
 				RecordedDate: time.Now(),
@@ -122,7 +122,7 @@ func (s *service) CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) 
 	}
 
 	// If the form already exists, update it
-	existingForm.TotalFlowers = int(form.TotalFlowers)
+	existingForm.TotalFlowers = int(*form.TotalFlowers)
 	existingForm.Condition = enums.Condition(form.Condition)
 	existingForm.RecordedByID = userId
 	existingForm.Done = true
