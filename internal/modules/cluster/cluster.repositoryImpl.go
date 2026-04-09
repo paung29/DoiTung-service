@@ -56,6 +56,14 @@ func (r *repository) FindClusterFormByClusterId(clusterId uint) (*models.Cluster
 	return &form, nil
 }
 
-func (r *repository) UpdateCluster(cluster *models.Cluster) error {
-	return commonrepo.Save(r.db, cluster)
+func (r *repository) UpdateCluster(db *gorm.DB, cluster *models.Cluster) error {
+	return commonrepo.Save(db, cluster)
+}
+
+func (r *repository) FindClusterById(clusterId uint) (*models.Cluster, error) {
+	var form models.Cluster
+	if err := r.db.Where("cluster_id = ?", clusterId).First(&form).Error; err != nil {
+		return nil, err
+	}
+	return &form, nil
 }

@@ -128,7 +128,7 @@ func (s *service) CreateCluster(form ClusterCreateRequest, userId uint) (Cluster
 
 	// Cluster form done, update cluster record
 	clusterRecord.ClusterFormDone = true
-	if err := s.clusterRepo.UpdateCluster(clusterRecord); err != nil {
+	if err := s.clusterRepo.UpdateCluster(tx, clusterRecord); err != nil {
 		tx.Rollback()
 		return ClusterCreateResponse{}, utils.SystemError("Failed to update cluster record")
 	}

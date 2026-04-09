@@ -103,7 +103,7 @@ func (s *service) CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) 
 
 			// Flower form done, update cluster record
 			clusterRecord.FlowerFormDone = true
-			if err := s.clusterRepo.UpdateCluster(clusterRecord); err != nil {
+			if err := s.clusterRepo.UpdateCluster(tx, clusterRecord); err != nil {
 				tx.Rollback()
 				return FlowerFormResponse{}, utils.SystemError("failed to update cluster record")
 			}
