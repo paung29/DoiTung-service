@@ -34,6 +34,7 @@ type YearFormSetting struct {
 
 	ClusterActive        bool
 	FlowerActive         bool
+	PollinationActive    bool
 	PodActive            bool
 	PreHarvestActive     bool
 	HarvestGradingActive bool

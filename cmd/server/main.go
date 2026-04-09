@@ -8,6 +8,7 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/auth"
 	"github.com/doitung/DoiTung-service/internal/modules/cluster"
 	"github.com/doitung/DoiTung-service/internal/modules/forms/flower"
+	"github.com/doitung/DoiTung-service/internal/modules/forms/pollination"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/modules/zone"
 	"github.com/gofiber/fiber/v2"
@@ -40,6 +41,7 @@ func main() {
 	zone.Setup(app, config.DB)
 	cluster.Setup(app, config.DB)
 	flower.Setup(app, config.DB)
+	pollination.Setup(app, config.DB)
 
 	log.Fatal(app.Listen(":8080"))
 }

@@ -81,20 +81,38 @@ func (s *service) CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) 
 	// If form does not exist, create it
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+
+			// transaction starts here
+			tx := s.db.Begin()
+
 			// Create the flower form
 			flowerForm := &models.FlowerForm{
 				RecordedByID: userId,
 				YearID:       yearId,
 				ClusterID:    clusterId,
-				TotalFlowers: int(form.TotalFlowers),
+				TotalFlowers: int(*form.TotalFlowers),
 				Condition:    enums.Condition(form.Condition),
 				Done:         true,
 				RecordedDate: time.Now(),
 			}
 			// Save the flower form
 			if err := s.flowerRepo.CreateFlowerForm(s.db, flowerForm); err != nil {
+				tx.Rollback()
 				return FlowerFormResponse{}, utils.SystemError("failed to create flower form")
 			}
+
+			// Flower form done, update cluster record
+			clusterRecord.FlowerFormDone = true
+			if err := s.clusterRepo.UpdateCluster(tx, clusterRecord); err != nil {
+				tx.Rollback()
+				return FlowerFormResponse{}, utils.SystemError("failed to update cluster record")
+			}
+
+			// Commit the transaction
+			if err := tx.Commit().Error; err != nil {
+				return FlowerFormResponse{}, utils.SystemError("failed to commit transaction")
+			}
+
 			return FlowerFormResponse{
 				Message: "flower form created successfully!!!",
 			}, nil
@@ -104,7 +122,7 @@ func (s *service) CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) 
 	}
 
 	// If the form already exists, update it
-	existingForm.TotalFlowers = int(form.TotalFlowers)
+	existingForm.TotalFlowers = int(*form.TotalFlowers)
 	existingForm.Condition = enums.Condition(form.Condition)
 	existingForm.RecordedByID = userId
 	existingForm.Done = true

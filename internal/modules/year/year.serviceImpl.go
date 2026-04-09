@@ -39,6 +39,7 @@ func (s *service) CreateYear(form YearCreateForm) (YearCreateResponse, error) {
 		YearID:               year.YearID,
 		ClusterActive:        false,
 		FlowerActive:         false,
+		PollinationActive:    false,
 		PodActive:            false,
 		PreHarvestActive:     false,
 		HarvestGradingActive: false,
@@ -80,6 +81,8 @@ func (s *service) ChangeYearFormSettingStatus(form YearFormSettingStatusChange) 
 		yearSetting.ClusterActive = *form.ActiveStatus
 	case "flower":
 		yearSetting.FlowerActive = *form.ActiveStatus
+	case "pollination":
+		yearSetting.PollinationActive = *form.ActiveStatus
 	case "pod":
 		yearSetting.PodActive = *form.ActiveStatus
 	case "preHarvest":
