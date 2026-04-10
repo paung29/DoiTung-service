@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"time"
+
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -54,4 +56,21 @@ func (h *AuthHandler) GetUserInfo(context *fiber.Ctx) error {
 
 
 	return context.JSON(response)
+}
+
+func (h *AuthHandler) Logout(context *fiber.Ctx) error {
+
+	context.Cookie(&fiber.Cookie{
+		Name:     "access_token",
+		Value:    "",
+		Expires:  time.Now().Add(-time.Hour), // expire in the past
+		HTTPOnly: true,
+		SameSite: "None", // must match your login cookie config
+		Secure:   true,   // true if using HTTPS
+		Path:     "/",
+	})
+
+	return context.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Logged out successfully",
+	})
 }

@@ -10,6 +10,7 @@ func RegisterRoutes(app *fiber.App, handler *AuthHandler) {
 	auth := app.Group("/auth")
 
 	auth.Post("/login", handler.Login)
+	auth.Post("/logout", middleware.RequiredAuth, middleware.RequireRoles("ADMIN", "STAFF"),handler.Logout)
 
 	auth.Get("/me", middleware.RequiredAuth, middleware.RequireRoles("ADMIN", "STAFF"),handler.GetUserInfo)
 
