@@ -12,6 +12,7 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/modules/zone"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
@@ -34,6 +35,12 @@ func main() {
 	config.ConnectDatabase()
 
 	app.Use(logger.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:3000", // frontend URL
+		AllowCredentials: true,                   // ✅ REQUIRED
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
+	}))
 
 	auth.Setup(app, config.DB)
 	account.Setup(app, config.DB)

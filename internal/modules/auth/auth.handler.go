@@ -41,3 +41,17 @@ func (h *AuthHandler) Login(context *fiber.Ctx) error {
 	return context.JSON(response)
 
 }
+
+func (h *AuthHandler) GetUserInfo(context *fiber.Ctx) error {
+
+	var userId uint = context.Locals("account_id").(uint)
+
+	response, err := h.service.GetUserInfo(userId)
+
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+
+	return context.JSON(response)
+}
