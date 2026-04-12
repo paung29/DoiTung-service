@@ -1,0 +1,13 @@
+package pod
+
+type PodFormRequest struct {
+	Year      uint  `json:"year" validate:"required,number"`
+	ZoneNo    uint  `json:"zone-no" validate:"required,number"`
+	PoleNo    uint  `json:"pole-no" validate:"required,number"`
+	ClusterNo uint  `json:"cluster-no" validate:"required,number"`
+	LostPods  *uint `json:"lost-pods" validate:"required,number"`
+}
+
+type PodFormResponse struct {
+	Message string `json:"message"`
+}

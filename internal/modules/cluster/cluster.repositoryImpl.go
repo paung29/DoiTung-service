@@ -67,3 +67,25 @@ func (r *repository) FindClusterById(clusterId uint) (*models.Cluster, error) {
 	}
 	return &form, nil
 }
+
+func (r *repository) UpdateFormStatusByClusterId(db *gorm.DB, clusterId uint, status bool, formName string) error {
+	var cluster models.Cluster
+	if err := db.Where("cluster_id = ?", clusterId).First(&cluster).Error; err != nil {
+		return err
+	}
+
+	switch formName {
+	case "cluster-form":
+		cluster.ClusterFormDone = status
+	case "flower-form":
+		cluster.FlowerFormDone = status
+	case "pollination-form":
+		cluster.PollinationFormDone = status
+	case "pod-form":
+		cluster.PodFormDone = status
+	case "pre-harvest-form":
+		cluster.PreHarvestFormDone = status
+	}
+
+	return commonrepo.Save(db, &cluster)
+}

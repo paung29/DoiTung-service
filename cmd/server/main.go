@@ -8,6 +8,7 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/auth"
 	"github.com/doitung/DoiTung-service/internal/modules/cluster"
 	"github.com/doitung/DoiTung-service/internal/modules/forms/flower"
+	"github.com/doitung/DoiTung-service/internal/modules/forms/pod"
 	"github.com/doitung/DoiTung-service/internal/modules/forms/pollination"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/modules/zone"
@@ -37,7 +38,7 @@ func main() {
 	app.Use(logger.New())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "http://localhost:3000", // frontend URL
-		AllowCredentials: true,                   // ✅ REQUIRED
+		AllowCredentials: true,                    // ✅ REQUIRED
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
 	}))
@@ -49,6 +50,7 @@ func main() {
 	cluster.Setup(app, config.DB)
 	flower.Setup(app, config.DB)
 	pollination.Setup(app, config.DB)
+	pod.Setup(app, config.DB)
 
 	log.Fatal(app.Listen(":8080"))
 }
