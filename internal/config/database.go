@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/doitung/DoiTung-service/internal/models"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -23,6 +24,8 @@ func ConnectDatabase() {
 			Colorful:      true,
 		},
 	)
+
+	godotenv.Load(".env")
 
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=Asia/Bangkok",
