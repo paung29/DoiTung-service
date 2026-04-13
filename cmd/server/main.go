@@ -10,6 +10,7 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/forms/flower"
 	"github.com/doitung/DoiTung-service/internal/modules/forms/pod"
 	"github.com/doitung/DoiTung-service/internal/modules/forms/pollination"
+	preharvest "github.com/doitung/DoiTung-service/internal/modules/forms/pre-harvest"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/modules/zone"
 	"github.com/gofiber/fiber/v2"
@@ -51,6 +52,7 @@ func main() {
 	flower.Setup(app, config.DB)
 	pollination.Setup(app, config.DB)
 	pod.Setup(app, config.DB)
+	preharvest.Setup(app, config.DB)
 
 	log.Fatal(app.Listen(":8080"))
 }

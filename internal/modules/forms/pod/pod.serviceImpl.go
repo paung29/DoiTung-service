@@ -10,6 +10,7 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/forms/pollination"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/modules/zone"
+	"github.com/doitung/DoiTung-service/internal/types/enums"
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"gorm.io/gorm"
 )
@@ -65,6 +66,7 @@ func (s *service) CreateOrUpdatePodForm(form PodFormRequest, userId uint) (PodFo
 	numberPods := pollinationForm.NumberPods
 	lostPods := int(*form.LostPods)
 	remainingPods := numberPods - lostPods
+	condition := enums.Condition(form.Condition)
 
 	// check if the pod form already exist for the cluster
 	existingForm, err := s.podRepo.GetPodFormByClusterId(s.db, clusterId)
@@ -81,6 +83,7 @@ func (s *service) CreateOrUpdatePodForm(form PodFormRequest, userId uint) (PodFo
 				LostPods:      lostPods,
 				RemainingPods: remainingPods,
 				RecordedDate:  time.Now(),
+				Condition:     condition,
 			}
 			if err := s.podRepo.CreatePodForm(tx, newForm); err != nil {
 				tx.Rollback()
@@ -108,6 +111,7 @@ func (s *service) CreateOrUpdatePodForm(form PodFormRequest, userId uint) (PodFo
 	existingForm.LostPods = lostPods
 	existingForm.RemainingPods = remainingPods
 	existingForm.RecordedByID = userId
+	existingForm.Condition = condition
 	existingForm.RecordedDate = time.Now()
 
 	if err := s.podRepo.UpdatePodForm(s.db, existingForm); err != nil {
