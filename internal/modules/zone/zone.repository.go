@@ -10,4 +10,5 @@ type ZoneRepository interface {
 	FindByYearAndZoneNo(yearID uint, zoneNo int) (*models.Zone, error)
 	GetMaxZoneNoByYear(yearID uint) (int, error)
 	FindByYearAndZoneName(yearID uint, name string) (*models.Zone, error)
+	FindByYearID(yearID uint) ([]models.Zone, error)
 }

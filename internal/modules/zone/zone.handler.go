@@ -29,3 +29,19 @@ func (h ZoneHandler) CreateZone (context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusCreated).JSON(response)
 } 
+
+func (h ZoneHandler) GetAllZone (context *fiber.Ctx) error {
+
+	var form GetAllZoneForm
+
+	if err := utils.ParseAndValidate(context, &form); err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	response, err := h.service.GetAllZone(uint(form.Year))
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusCreated).JSON(response)
+}

@@ -54,3 +54,10 @@ func (repo *repository) FindByYearAndZoneName(yearID uint, name string) (*models
 
 	return &zone, nil
 }
+
+func (repo *repository) FindByYearID(yearID uint) ([]models.Zone, error) {
+	var zones []models.Zone
+	err := repo.db.Where("year_id = ?", yearID).Find(&zones).Error
+
+	return zones, err
+}
