@@ -64,11 +64,11 @@ func (v *ClusterValidator) ValidateClusterContext(
 		if !yearSetting.PodActive {
 			return 0, 0, utils.BadRequestError("pod form is not open")
 		}
-	case "pre-harvest":
+	case "preHarvest":
 		if !yearSetting.PreHarvestActive {
-			return 0, 0, utils.BadRequestError("pre-harvest form is not open")
+			return 0, 0, utils.BadRequestError("preHarvest form is not open")
 		}
-	case "harvestgrading":
+	case "harvestGrading":
 		if !yearSetting.HarvestGradingActive {
 			return 0, 0, utils.BadRequestError("harvest grading form is not open")
 		}

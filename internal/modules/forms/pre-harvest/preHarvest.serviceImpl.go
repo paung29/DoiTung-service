@@ -44,7 +44,7 @@ func (s *service) CreateOreUpdatePreHarvestForm(form PreHarvestFormRequest, user
 		form.ZoneId,
 		form.PoleId,
 		form.ClusterId,
-		"pre-harvest",
+		"preHarvest",
 	)
 	if err != nil {
 		return PreHarvestFormResponse{}, utils.SystemError("Cannot validate the cluster")
@@ -68,13 +68,13 @@ func (s *service) CreateOreUpdatePreHarvestForm(form PreHarvestFormRequest, user
 	condition := enums.Condition(form.Condition)
 	recordedDate := time.Now()
 
-	// Check if a pre-harvest form already exists for the cluster
+	// Check if a preHarvest form already exists for the cluster
 	existingForm, err := s.preHarvestRepo.GetPreHarvestFormByClusterId(s.db, clusterId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// transaction starts here
 			tx := s.db.Begin()
-			// Create a new pre-harvest form
+			// Create a new preHarvest form
 			newForm := &models.PreHarvestForm{
 				ClusterID:             clusterId,
 				YearID:                yearId,
@@ -88,11 +88,11 @@ func (s *service) CreateOreUpdatePreHarvestForm(form PreHarvestFormRequest, user
 			}
 			if err := tx.Create(&newForm).Error; err != nil {
 				tx.Rollback()
-				return PreHarvestFormResponse{}, utils.SystemError("failed to create pre-harvest form")
+				return PreHarvestFormResponse{}, utils.SystemError("failed to create preHarvest form")
 			}
 
-			// Update the cluster's pre-harvest form status to done
-			if err := s.clusterRepo.UpdateFormStatusByClusterId(tx, clusterId, true, "pre-harvest-form"); err != nil {
+			// Update the cluster's preHarvest form status to done
+			if err := s.clusterRepo.UpdateFormStatusByClusterId(tx, clusterId, true, "preHarvest-form"); err != nil {
 				tx.Rollback()
 				return PreHarvestFormResponse{}, utils.SystemError("failed to update cluster form status")
 			}
@@ -101,13 +101,13 @@ func (s *service) CreateOreUpdatePreHarvestForm(form PreHarvestFormRequest, user
 				return PreHarvestFormResponse{}, utils.SystemError("failed to commit transaction")
 			}
 
-			return PreHarvestFormResponse{Message: "Pre-harvest form created successfully"}, nil
+			return PreHarvestFormResponse{Message: "preHarvest form created successfully"}, nil
 		} else {
-			return PreHarvestFormResponse{}, utils.SystemError("failed to get existing pre-harvest form")
+			return PreHarvestFormResponse{}, utils.SystemError("failed to get existing preHarvest form")
 		}
 	}
 
-	// Update the existing pre-harvest form
+	// Update the existing preHarvest form
 	existingForm.NumberPodsSecondRound = numberPodsSecondRound
 	existingForm.LostPodsBeforeHarvest = lostPodsBeforeHarvest
 	existingForm.RemovedPods = removedPods
@@ -116,8 +116,8 @@ func (s *service) CreateOreUpdatePreHarvestForm(form PreHarvestFormRequest, user
 	existingForm.RecordedDate = recordedDate
 
 	if err := s.preHarvestRepo.UpdatePreHarvestForm(s.db, existingForm); err != nil {
-		return PreHarvestFormResponse{}, utils.SystemError("failed to update pre-harvest form")
+		return PreHarvestFormResponse{}, utils.SystemError("failed to update preHarvest form")
 	}
 
-	return PreHarvestFormResponse{Message: "Pre-harvest form updated successfully"}, nil
+	return PreHarvestFormResponse{Message: "preHarvest form updated successfully"}, nil
 }
