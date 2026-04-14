@@ -216,8 +216,6 @@ type HarvestGradingForm struct {
 	GradeBWeight     int
 	GradeCCount      int
 	GradeCWeight     int
-	GradeDCount      int
-	GradeDWeight     int
 	GradeDPlusCount  int
 	GradeDPlusWeight int
 	UndersizedCount  int
