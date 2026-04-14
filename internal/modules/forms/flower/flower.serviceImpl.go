@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/doitung/DoiTung-service/internal/common/form"
 	"github.com/doitung/DoiTung-service/internal/models"
 	"github.com/doitung/DoiTung-service/internal/modules/cluster"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
@@ -16,6 +17,7 @@ import (
 
 type service struct {
 	db          *gorm.DB
+	validator   *form.ClusterValidator
 	yearRepo    year.YearRepository
 	zoneRepo    zone.ZoneRepository
 	clusterRepo cluster.ClusterRepository
@@ -23,8 +25,10 @@ type service struct {
 }
 
 func NewFlowerService(db *gorm.DB, yearRepo year.YearRepository, zoneRepo zone.ZoneRepository, clusterRepo cluster.ClusterRepository, flowerRepo FlowerRepository) FlowerService {
+	validator := form.NewClusterValidator(yearRepo, zoneRepo, clusterRepo)
 	return &service{
 		db:          db,
+		validator:   validator,
 		yearRepo:    yearRepo,
 		zoneRepo:    zoneRepo,
 		clusterRepo: clusterRepo,
@@ -34,44 +38,18 @@ func NewFlowerService(db *gorm.DB, yearRepo year.YearRepository, zoneRepo zone.Z
 
 func (s *service) CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) (FlowerFormResponse, error) {
 
-	// Check if the year exists
-	yearRecord, err := s.yearRepo.FindByYear(int(form.Year))
+	// Validate the cluster context
+
+	yearId, clusterId, err := s.validator.ValidateClusterContext(
+		form.Year,
+		form.ZoneNo,
+		form.PoleNo,
+		form.ClusterNo,
+		"flower",
+	)
 	if err != nil {
-		return FlowerFormResponse{}, utils.NotFoundError("year not found")
+		return FlowerFormResponse{}, utils.SystemError("failed to validate cluster context")
 	}
-
-	yearId := yearRecord.YearID
-
-	// Check if the form setting is open for the year
-	yearSetting, err := s.yearRepo.FindFormSettingByYear(yearId)
-	if err != nil {
-		return FlowerFormResponse{}, utils.NotFoundError("year setting not found")
-	}
-
-	if !yearSetting.FlowerActive {
-		return FlowerFormResponse{}, utils.BadRequestError("flower form is not open for this year")
-	}
-
-	// Check if the zone exists
-	zoneRecord, err := s.zoneRepo.FindByYearAndZoneNo(uint(yearId), int(form.ZoneNo))
-	if err != nil {
-		return FlowerFormResponse{}, utils.NotFoundError("zone not found")
-	}
-	zoneId := zoneRecord.ZoneID
-
-	// Check if the pole exists
-	poleRecord, err := s.clusterRepo.FindPoleByZoneAndPoleNo(zoneId, form.PoleNo)
-	if err != nil {
-		return FlowerFormResponse{}, utils.NotFoundError("pole not found")
-	}
-
-	// Check if the cluster exists
-	clusterRecord, err := s.clusterRepo.FindClusterByPoleAndClusterNo(poleRecord.PoleID, form.ClusterNo)
-	if err != nil {
-		return FlowerFormResponse{}, utils.NotFoundError("cluster not found")
-	}
-
-	clusterId := clusterRecord.ClusterID
 
 	// Check if the flower form already exists for the cluster
 	existingForm, err := s.flowerRepo.GetFlowerFormByClusterID(s.db, clusterId)
@@ -102,8 +80,7 @@ func (s *service) CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) 
 			}
 
 			// Flower form done, update cluster record
-			clusterRecord.FlowerFormDone = true
-			if err := s.clusterRepo.UpdateCluster(tx, clusterRecord); err != nil {
+			if err := s.clusterRepo.UpdateFormStatusByClusterId(tx, clusterId, true, "flower"); err != nil {
 				tx.Rollback()
 				return FlowerFormResponse{}, utils.SystemError("failed to update cluster record")
 			}
