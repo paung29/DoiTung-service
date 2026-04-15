@@ -60,8 +60,8 @@ type Zone struct {
 
 	ZoneName string `gorm:"not null;uniqueIndex:ux_year_zone_name,priority:2"`
 
-	Year Year   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	Poles   []Pole `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Year  Year   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Poles []Pole `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
 	types.Timestamp
 }
@@ -74,7 +74,7 @@ type Pole struct {
 
 	HarvestGradingFormDone bool `gorm:"default:false"`
 
-	Zone             Zone                 `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Zone                Zone                 `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Clusters            []Cluster            `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	HarvestGradingForms []HarvestGradingForm `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
@@ -93,12 +93,12 @@ type Cluster struct {
 	PollinationFormDone bool `gorm:"default:false"`
 	PreHarvestFormDone  bool `gorm:"default:false"`
 
-	Pole            Pole               `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	ClusterForms       []ClusterForm      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	FlowerForms        []FlowerForm       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	PollinationForms   []PollinationForm  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	PodForms           []PodForm          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	PreHarvestForms    []PreHarvestForm   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Pole             Pole              `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	ClusterForms     []ClusterForm     `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	FlowerForms      []FlowerForm      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	PollinationForms []PollinationForm `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	PodForms         []PodForm         `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	PreHarvestForms  []PreHarvestForm  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
 	types.Timestamp
 }
@@ -113,7 +113,7 @@ type ClusterForm struct {
 	Condition    enums.Condition `gorm:"type:varchar(20);not null"`
 	RecordedDate time.Time       `gorm:"not null"`
 
-	Year    Year    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Year       Year    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Cluster    Cluster `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	RecordedBy Account `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
@@ -132,7 +132,7 @@ type FlowerForm struct {
 	Done         bool            `gorm:"default:false"`
 	RecordedDate time.Time
 
-	Year    Year    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Year       Year    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Cluster    Cluster `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	RecordedBy Account `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
@@ -153,7 +153,7 @@ type PollinationForm struct {
 	Condition               enums.Condition `gorm:"type:varchar(20)"`
 	RecordedDate            time.Time
 
-	Year    Year    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Year       Year    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Cluster    Cluster `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	RecordedBy Account `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
@@ -170,9 +170,10 @@ type PodForm struct {
 	NumberPods    int
 	LostPods      int
 	RemainingPods int
+	Condition     enums.Condition `gorm:"type:varchar(20)"`
 	RecordedDate  time.Time
 
-	Year    Year    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Year       Year    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Cluster    Cluster `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	RecordedBy Account `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
@@ -186,14 +187,14 @@ type PreHarvestForm struct {
 	ClusterID    uint `gorm:"not null;uniqueIndex:ux_year_cluster_preharvest,priority:2"`
 	RecordedByID uint `gorm:"index;not null"`
 
-	NumberPods    int
-	LostPods      int
-	RemovedPods   int
-	PlantsRemoved int
-	Condition     enums.Condition `gorm:"type:varchar(20)"`
-	RecordedDate  time.Time
+	NumberPodsSecondRound int
+	LostPodsBeforeHarvest int
+	RemovedPods           int
+	PlantsRemoved         int
+	Condition             enums.Condition `gorm:"type:varchar(20)"`
+	RecordedDate          time.Time
 
-	Year    Year    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Year       Year    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Cluster    Cluster `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	RecordedBy Account `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
@@ -215,8 +216,6 @@ type HarvestGradingForm struct {
 	GradeBWeight     int
 	GradeCCount      int
 	GradeCWeight     int
-	GradeDCount      int
-	GradeDWeight     int
 	GradeDPlusCount  int
 	GradeDPlusWeight int
 	UndersizedCount  int
@@ -224,7 +223,7 @@ type HarvestGradingForm struct {
 
 	RecordedDate time.Time
 
-	Year    Year    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Year       Year    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Pole       Pole    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	RecordedBy Account `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
@@ -258,7 +257,7 @@ type StockMovement struct {
 	FromWarehouseID *uint
 	ToWarehouseID   *uint
 
-	Year       Year       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Year          Year       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	FromWarehouse *Warehouse `gorm:"foreignKey:FromWarehouseID;references:WarehouseID"`
 	ToWarehouse   *Warehouse `gorm:"foreignKey:ToWarehouseID;references:WarehouseID"`
 	RecordedBy    Account    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`

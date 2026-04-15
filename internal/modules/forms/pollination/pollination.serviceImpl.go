@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/doitung/DoiTung-service/internal/common/form"
 	"github.com/doitung/DoiTung-service/internal/models"
 	"github.com/doitung/DoiTung-service/internal/modules/cluster"
 	"github.com/doitung/DoiTung-service/internal/modules/forms/flower"
@@ -17,6 +18,7 @@ import (
 
 type service struct {
 	db              *gorm.DB
+	validator       *form.ClusterValidator
 	yearRepo        year.YearRepository
 	zoneRepo        zone.ZoneRepository
 	clusterRepo     cluster.ClusterRepository
@@ -25,8 +27,10 @@ type service struct {
 }
 
 func NewPollinationService(db *gorm.DB, yearRepo year.YearRepository, zoneRepo zone.ZoneRepository, clusterRepo cluster.ClusterRepository, flowerRepo flower.FlowerRepository, pollinationRepo PollinationRepository) PollinationService {
+	validator := form.NewClusterValidator(yearRepo, zoneRepo, clusterRepo)
 	return &service{
 		db:              db,
+		validator:       validator,
 		yearRepo:        yearRepo,
 		zoneRepo:        zoneRepo,
 		clusterRepo:     clusterRepo,
@@ -37,44 +41,16 @@ func NewPollinationService(db *gorm.DB, yearRepo year.YearRepository, zoneRepo z
 
 func (s *service) CreateOrUpdatePollinationForm(form PollinationFormRequest, userId uint) (PollinationFormResponse, error) {
 
-	// Check if the year exists
-	yearRecord, err := s.yearRepo.FindByYear(int(form.Year))
-	if err != nil {
-		return PollinationFormResponse{}, utils.NotFoundError("year not found")
-	}
-
-	yearId := yearRecord.YearID
-
-	// Check if the form is active in the year
-	yearSetting, err := s.yearRepo.FindFormSettingByYear(yearId)
-	if err != nil {
-		return PollinationFormResponse{}, utils.NotFoundError("year setting not found")
-	}
-
-	if !yearSetting.PollinationActive {
-		return PollinationFormResponse{}, utils.BadRequestError("pollination form is not active for this year")
-	}
-
-	// Check if the zone exists
-	zoneRecord, err := s.zoneRepo.FindByYearAndZoneNo(yearId, int(form.ZoneNo))
-	if err != nil {
-		return PollinationFormResponse{}, utils.NotFoundError("zone not found")
-	}
-	zoneId := zoneRecord.ZoneID
-
-	// Check if the pole exists
-	poleRecord, err := s.clusterRepo.FindPoleByZoneAndPoleNo(zoneId, form.PoleNo)
-	if err != nil {
-		return PollinationFormResponse{}, utils.NotFoundError("pole not found")
-	}
-	poleId := poleRecord.PoleID
-
-	// Check if the cluster exists
-	clusterRecord, err := s.clusterRepo.FindClusterByPoleAndClusterNo(poleId, form.ClusterNo)
+	yearId, clusterId, err := s.validator.ValidateClusterContext(
+		form.Year,
+		form.ZoneNo,
+		form.PoleNo,
+		form.ClusterNo,
+		"pollination",
+	)
 	if err != nil {
 		return PollinationFormResponse{}, utils.NotFoundError("cluster not found")
 	}
-	clusterId := clusterRecord.ClusterID
 
 	// Get Flower Record
 	flowerRecord, err := s.flowerRepo.GetFlowerFormByClusterID(s.db, clusterId)
@@ -121,9 +97,7 @@ func (s *service) CreateOrUpdatePollinationForm(form PollinationFormRequest, use
 			log.Println(successMessage)
 
 			// Pollination form done, update cluster record
-			clusterRecord.PollinationFormDone = true
-
-			err = s.clusterRepo.UpdateCluster(tx, clusterRecord)
+			err = s.clusterRepo.UpdateFormStatusByClusterId(tx, clusterId, true, "pollination")
 			if err != nil {
 				tx.Rollback()
 				return PollinationFormResponse{}, utils.SystemError("failed to update cluster record")

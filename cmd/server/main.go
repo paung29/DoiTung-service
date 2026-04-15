@@ -8,7 +8,10 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/auth"
 	"github.com/doitung/DoiTung-service/internal/modules/cluster"
 	"github.com/doitung/DoiTung-service/internal/modules/forms/flower"
+	harvestgrading "github.com/doitung/DoiTung-service/internal/modules/forms/harvestGrading"
+	"github.com/doitung/DoiTung-service/internal/modules/forms/pod"
 	"github.com/doitung/DoiTung-service/internal/modules/forms/pollination"
+	preharvest "github.com/doitung/DoiTung-service/internal/modules/forms/preHarvest"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/modules/zone"
 	"github.com/gofiber/fiber/v2"
@@ -45,7 +48,7 @@ func main() {
 	app.Use(logger.New())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "http://localhost:3000", // frontend URL
-		AllowCredentials: true,                   // ✅ REQUIRED
+		AllowCredentials: true,                    // ✅ REQUIRED
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
 	}))
@@ -57,6 +60,9 @@ func main() {
 	cluster.Setup(app, config.DB)
 	flower.Setup(app, config.DB)
 	pollination.Setup(app, config.DB)
+	pod.Setup(app, config.DB)
+	preharvest.Setup(app, config.DB)
+	harvestgrading.Setup(app, config.DB)
 
 	log.Fatal(app.Listen(":8080"))
 }
