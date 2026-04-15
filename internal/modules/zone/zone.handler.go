@@ -1,6 +1,8 @@
 package zone
 
 import (
+	"strconv"
+
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -32,13 +34,17 @@ func (h ZoneHandler) CreateZone (context *fiber.Ctx) error {
 
 func (h ZoneHandler) GetAllZone (context *fiber.Ctx) error {
 
-	var form GetAllZoneForm
-
-	if err := utils.ParseAndValidate(context, &form); err != nil {
-		return utils.HandleError(context, err)
+	yearStr := context.Query("year")
+	if yearStr == "" {
+		return utils.BadRequestError("year is required")
 	}
 
-	response, err := h.service.GetAllZone(uint(form.Year))
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		return utils.BadRequestError("invalid year")
+	}
+
+	response, err := h.service.GetAllZone(uint(year))
 	if err != nil {
 		return utils.HandleError(context, err)
 	}
