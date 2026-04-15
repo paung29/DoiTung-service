@@ -2,10 +2,10 @@ package pod
 
 type PodFormRequest struct {
 	Year      uint   `json:"year" validate:"required,number"`
-	ZoneNo    uint   `json:"zone-no" validate:"required,number"`
-	PoleNo    uint   `json:"pole-no" validate:"required,number"`
-	ClusterNo uint   `json:"cluster-no" validate:"required,number"`
-	LostPods  *uint  `json:"lost-pods" validate:"required,number"`
+	ZoneNo    uint   `json:"zoneNo" validate:"required,number"`
+	PoleNo    uint   `json:"poleNo" validate:"required,number"`
+	ClusterNo uint   `json:"clusterNo" validate:"required,number"`
+	LostPods  *uint  `json:"lostPods" validate:"required,number"`
 	Condition string `json:"condition" validate:"required,oneof=GOOD INSECT ROTTEN"`
 }
 
