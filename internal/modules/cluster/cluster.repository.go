@@ -15,4 +15,6 @@ type ClusterRepository interface {
 	UpdateCluster(db *gorm.DB, cluster *models.Cluster) error
 	UpdateFormStatusByClusterId(db *gorm.DB, clusterId uint, status bool, formName string) error
 	FindClusterById(clusterId uint) (*models.Cluster, error)
+	GetAllClustersByPoleId(poleId uint) ([]models.Cluster, error)
+	GetClusterFormByClusterId(clusterId uint) (*models.ClusterForm, error)
 }

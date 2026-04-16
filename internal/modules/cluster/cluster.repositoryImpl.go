@@ -89,3 +89,19 @@ func (r *repository) UpdateFormStatusByClusterId(db *gorm.DB, clusterId uint, st
 
 	return commonrepo.Save(db, &cluster)
 }
+
+func (r *repository) GetAllClustersByPoleId(poleId uint) ([]models.Cluster, error) {
+	var clusters []models.Cluster
+	if err := r.db.Preload("Pole").Preload("Pole.Zone").Where("pole_id = ?", poleId).Find(&clusters).Error; err != nil {
+		return nil, err
+	}
+	return clusters, nil
+}
+
+func (r *repository) GetClusterFormByClusterId(clusterId uint) (*models.ClusterForm, error) {
+	var form models.ClusterForm
+	if err := r.db.Where("cluster_id = ?", clusterId).First(&form).Error; err != nil {
+		return nil, err
+	}
+	return &form, nil
+}

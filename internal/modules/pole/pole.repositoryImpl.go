@@ -38,3 +38,12 @@ func (r *repository) UpdateHarvestGradingStatusByPoleId(poleId uint, status bool
 func (r *repository) UpdatePole(db *gorm.DB, pole *models.Pole) error {
 	return commonRepo.Save(db, pole)
 }
+
+func (r *repository) GetAllPolesByZoneId(zoneId uint) ([]models.Pole, error) {
+	var poles []models.Pole
+	err := r.db.Where("zone_id = ?", zoneId).Find(&poles).Error
+	if err != nil {
+		return nil, err
+	}
+	return poles, nil
+}

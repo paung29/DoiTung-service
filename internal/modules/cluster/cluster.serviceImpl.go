@@ -5,6 +5,7 @@ import (
 
 	"github.com/doitung/DoiTung-service/internal/models"
 	"github.com/doitung/DoiTung-service/internal/modules/account"
+	"github.com/doitung/DoiTung-service/internal/modules/pole"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/modules/zone"
 	"github.com/doitung/DoiTung-service/internal/types/enums"
@@ -17,14 +18,16 @@ type service struct {
 	accountRepo *account.AccountRepository
 	yearRepo    year.YearRepository
 	zoneRepo    zone.ZoneRepository
+	poleRepo    pole.PoleRepository
 	clusterRepo ClusterRepository
 }
 
-func NewClusterService(db *gorm.DB, yearRepo year.YearRepository, zoneRepo zone.ZoneRepository, clusterRepo ClusterRepository) ClusterService {
+func NewClusterService(db *gorm.DB, yearRepo year.YearRepository, zoneRepo zone.ZoneRepository, poleRepo pole.PoleRepository, clusterRepo ClusterRepository) ClusterService {
 	return &service{
 		db:          db,
 		yearRepo:    yearRepo,
 		zoneRepo:    zoneRepo,
+		poleRepo:    poleRepo,
 		clusterRepo: clusterRepo,
 	}
 }
@@ -140,4 +143,67 @@ func (s *service) CreateCluster(form ClusterCreateRequest, userId uint) (Cluster
 	return ClusterCreateResponse{
 		Message: "cluster created successfully",
 	}, nil
+}
+
+func (s *service) GetClustersByZone(form GetClustersByZoneRequest) (ClustersByZoneResponse, error) {
+	// Check if the year exists
+	yearRecord, err := s.yearRepo.FindByYear(int(form.Year))
+	if err != nil {
+		return ClustersByZoneResponse{}, utils.NotFoundError("year not found")
+	}
+	yearId := yearRecord.YearID
+
+	// Check if the zone exists
+	zoneRecord, err := s.zoneRepo.FindByYearAndZoneNo(yearId, int(form.ZoneNo))
+	if err != nil {
+		return ClustersByZoneResponse{}, utils.NotFoundError("zone not found")
+	}
+	zoneId := zoneRecord.ZoneID
+
+	// Get all poles by zone id
+	poles, err := s.poleRepo.GetAllPolesByZoneId(zoneId)
+	if err != nil {
+		return ClustersByZoneResponse{}, utils.SystemError("Failed to get poles by zone id")
+	}
+
+	var clusters []models.Cluster
+	for _, pole := range poles {
+		poleClusters, err := s.clusterRepo.GetAllClustersByPoleId(pole.PoleID)
+		if err != nil {
+			return ClustersByZoneResponse{}, utils.SystemError("Failed to get clusters by pole id")
+		}
+		clusters = append(clusters, poleClusters...)
+	}
+	var clusterResponses []ClusterInfo
+
+	for i, cluster := range clusters {
+		progressDone := 0
+		if cluster.ClusterFormDone {
+			progressDone++
+		}
+		if cluster.FlowerFormDone {
+			progressDone++
+		}
+		if cluster.PollinationFormDone {
+			progressDone++
+		}
+		if cluster.PodFormDone {
+			progressDone++
+		}
+		if cluster.PreHarvestFormDone {
+			progressDone++
+		}
+
+		clusterResponses = append(clusterResponses, ClusterInfo{
+			No:           i + 1,
+			ClusterId:    cluster.ClusterID,
+			PoleNo:       cluster.Pole.PoleNo,
+			ClusterNo:    cluster.ClusterNo,
+			Location:     cluster.Pole.Zone.ZoneName,
+			ProgressDone: progressDone,
+		})
+
+	}
+
+	return ClustersByZoneResponse{Clusters: clusterResponses}, nil
 }

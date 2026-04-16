@@ -29,3 +29,19 @@ func (h *ClusterHandler) CreateCluster(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusCreated).JSON(response)
 }
+
+func (h *ClusterHandler) GetClustersByZone(context *fiber.Ctx) error {
+	var form GetClustersByZoneRequest
+
+	if err := utils.ParseAndValidate(context, &form); err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	response, err := h.service.GetClustersByZone(form)
+
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}
