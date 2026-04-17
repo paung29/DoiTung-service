@@ -9,4 +9,5 @@ func ClusterRoutes(app *fiber.App, handler *ClusterHandler) {
 	cluster := app.Group("/clusters")
 
 	cluster.Post("/create", middleware.RequiredAuth, handler.CreateCluster)
+	cluster.Get("/get-by-zone", middleware.RequiredAuth, handler.GetClustersByZone)
 }

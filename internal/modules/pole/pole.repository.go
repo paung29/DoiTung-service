@@ -10,4 +10,5 @@ type PoleRepository interface {
 	GetPoleByZoneIdAndPoleNo(zoneId uint, poleNo uint) (*models.Pole, error)
 	UpdatePole(db *gorm.DB, pole *models.Pole) error
 	UpdateHarvestGradingStatusByPoleId(poleId uint, status bool) error
+	GetAllPolesByZoneId(zoneId uint) ([]models.Pole, error)
 }
