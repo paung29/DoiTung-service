@@ -145,16 +145,16 @@ func (s *service) CreateCluster(form ClusterCreateRequest, userId uint) (Cluster
 	}, nil
 }
 
-func (s *service) GetClustersByZone(form GetClustersByZoneRequest) (ClustersByZoneResponse, error) {
+func (s *service) GetClustersByZone(year int, zoneNo int) (ClustersByZoneResponse, error) {
 	// Check if the year exists
-	yearRecord, err := s.yearRepo.FindByYear(int(form.Year))
+	yearRecord, err := s.yearRepo.FindByYear(year)
 	if err != nil {
 		return ClustersByZoneResponse{}, utils.NotFoundError("year not found")
 	}
 	yearId := yearRecord.YearID
 
 	// Check if the zone exists
-	zoneRecord, err := s.zoneRepo.FindByYearAndZoneNo(yearId, int(form.ZoneNo))
+	zoneRecord, err := s.zoneRepo.FindByYearAndZoneNo(yearId, zoneNo)
 	if err != nil {
 		return ClustersByZoneResponse{}, utils.NotFoundError("zone not found")
 	}
