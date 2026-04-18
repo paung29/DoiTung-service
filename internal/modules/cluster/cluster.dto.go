@@ -28,4 +28,5 @@ type ClusterInfo struct {
 	PoleNo       int    `json:"poleNo"`
 	ClusterNo    int    `json:"clusterNo"`
 	ProgressDone int    `json:"progressDone"`
+	RecordedDate string `json:"recordedDate"`
 }
