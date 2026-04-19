@@ -208,3 +208,21 @@ func (s *service) GetClustersByZone(year int, zoneNo int) (ClustersByZoneRespons
 
 	return ClustersByZoneResponse{Clusters: clusterResponses}, nil
 }
+
+func (s *service) GetClusterFormByClusterId(clusterId int) (ClusterFormResponse, error) {
+
+	clusterRecord, err := s.clusterRepo.GetAllClusterFormDetailsByClusterId(uint(clusterId))
+	if err != nil {
+		return ClusterFormResponse{}, utils.NotFoundError("cluster form not found")
+	}
+
+	var clusterFormResponse ClusterFormResponse
+	clusterFormResponse.ClusterId = clusterRecord.ClusterID
+	clusterFormResponse.Location = clusterRecord.Cluster.Pole.Zone.ZoneName
+	clusterFormResponse.ClusterId = clusterRecord.ClusterID
+	clusterFormResponse.PoleNo = clusterRecord.Cluster.Pole.PoleNo
+	clusterFormResponse.ClusterNo = clusterRecord.Cluster.ClusterNo
+	clusterFormResponse.Condition = string(clusterRecord.Condition)
+
+	return clusterFormResponse, nil
+}

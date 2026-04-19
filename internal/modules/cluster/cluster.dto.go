@@ -30,3 +30,11 @@ type ClusterInfo struct {
 	ProgressDone int    `json:"progressDone"`
 	RecordedDate string `json:"recordedDate"`
 }
+
+type ClusterFormResponse struct {
+	ClusterId uint   `json:"clusterId"`
+	Location  string `json:"location"`
+	PoleNo    int    `json:"poleNo"`
+	ClusterNo int    `json:"clusterNo"`
+	Condition string `json:"condition"`
+}

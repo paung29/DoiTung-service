@@ -17,4 +17,5 @@ type ClusterRepository interface {
 	FindClusterById(clusterId uint) (*models.Cluster, error)
 	GetAllClustersByPoleId(poleId uint) ([]models.Cluster, error)
 	GetClusterFormByClusterId(clusterId uint) (*models.ClusterForm, error)
+	GetAllClusterFormDetailsByClusterId(clusterId uint) (*models.ClusterForm, error)
 }
