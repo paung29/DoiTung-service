@@ -105,3 +105,11 @@ func (r *repository) GetClusterFormByClusterId(clusterId uint) (*models.ClusterF
 	}
 	return &form, nil
 }
+
+func (r *repository) GetAllClusterFormDetailsByClusterId(clusterId uint) (*models.ClusterForm, error) {
+	var form models.ClusterForm
+	if err := r.db.Preload("Cluster").Preload("Cluster.Pole").Preload("Cluster.Pole.Zone").Where("cluster_id = ?", clusterId).First(&form).Error; err != nil {
+		return nil, err
+	}
+	return &form, nil
+}
