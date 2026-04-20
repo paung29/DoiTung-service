@@ -5,7 +5,7 @@ type FlowerFormRequest struct {
 	ZoneNo       uint   `json:"zoneNo" validate:"required,number"`
 	PoleNo       uint   `json:"poleNo" validate:"required,number"`
 	ClusterNo    uint   `json:"clusterNo" validate:"required,number"`
-	TotalFlowers *uint  `json:"total_flowers" validate:"required,number"`
+	TotalFlowers *uint  `json:"totalFlowers" validate:"required,number"`
 	Condition    string `json:"condition" validate:"required,oneof=GOOD INSECT ROTTEN"`
 }
 
@@ -14,11 +14,11 @@ type FlowerFormResponse struct {
 }
 
 type FlowerFormDetails struct {
-	ClusterId    uint   `json:"clusterId"`
-	Location     string `json:"location"`
-	PoleNo       int    `json:"poleNo"`
-	ClusterNo    int    `json:"clusterNo"`
-	TotalFlowers uint   `json:"total_flowers"`
-	Condition    string `json:"condition"`
-	IsRecorded   bool   `json:"is_recorded"`
+	ClusterId      uint   `json:"clusterId"`
+	Location       string `json:"location"`
+	PoleNo         int    `json:"poleNo"`
+	ClusterNo      int    `json:"clusterNo"`
+	TotalFlowers   uint   `json:"totalFlowers"`
+	Condition      string `json:"condition"`
+	FlowerFormDone bool   `json:"flowerFormDone"`
 }

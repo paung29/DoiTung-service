@@ -125,14 +125,14 @@ func (s *service) GetFlowerFormDetailsByClusterID(clusterId uint) (FlowerFormDet
 	}
 
 	flowerDetails = &FlowerFormDetails{
-		ClusterId:  clusterInfo.ClusterID,
-		Location:   clusterInfo.Pole.Zone.ZoneName,
-		PoleNo:     clusterInfo.Pole.PoleNo,
-		ClusterNo:  clusterInfo.ClusterNo,
-		IsRecorded: clusterInfo.FlowerFormDone,
+		ClusterId:      clusterInfo.ClusterID,
+		Location:       clusterInfo.Pole.Zone.ZoneName,
+		PoleNo:         clusterInfo.Pole.PoleNo,
+		ClusterNo:      clusterInfo.ClusterNo,
+		FlowerFormDone: clusterInfo.FlowerFormDone,
 	}
 
-	if !flowerDetails.IsRecorded {
+	if !flowerDetails.FlowerFormDone {
 		return *flowerDetails, nil
 	}
 
