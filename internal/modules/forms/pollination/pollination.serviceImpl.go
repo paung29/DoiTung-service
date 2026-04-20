@@ -132,3 +132,39 @@ func (s *service) CreateOrUpdatePollinationForm(form PollinationFormRequest, use
 	return PollinationFormResponse{Message: successMessage}, nil
 
 }
+
+func (s *service) GetPollinationFormDetails(clusterId uint) (PollinationFormDetails, error) {
+
+	clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(clusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PollinationFormDetails{}, utils.BadRequestError("cluster not found")
+		}
+		return PollinationFormDetails{}, utils.SystemError("failed to get cluster information")
+	}
+
+	pollinationDetails := PollinationFormDetails{
+		ClusterId:           clusterInfo.ClusterID,
+		Location:            clusterInfo.Pole.Zone.ZoneName,
+		PoleNo:              uint(clusterInfo.Pole.PoleNo),
+		ClusterNo:           uint(clusterInfo.ClusterNo),
+		PollinationFormDone: clusterInfo.PollinationFormDone,
+	}
+	pollinationFormRecord, err := s.pollinationRepo.GetPollinationFormByClusterID(s.db, clusterId)
+
+	if err != nil {
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return pollinationDetails, nil
+		}
+		return PollinationFormDetails{}, utils.SystemError("failed to get pollination form")
+
+	}
+	pollinationDetails.NumberPods = uint(pollinationFormRecord.NumberPods)
+	pollinationDetails.UnsuccessfulPollination = uint(pollinationFormRecord.UnsuccessfulPollination)
+	pollinationDetails.GoodFlowers = uint(pollinationFormRecord.GoodFlowers)
+	pollinationDetails.BadFlowers = uint(pollinationFormRecord.BadFlowers)
+	pollinationDetails.Condition = string(pollinationFormRecord.Condition)
+
+	return pollinationDetails, nil
+}

@@ -115,7 +115,6 @@ func (s *service) CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) 
 }
 
 func (s *service) GetFlowerFormDetailsByClusterID(clusterId uint) (FlowerFormDetails, error) {
-	var flowerDetails *FlowerFormDetails
 	clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(clusterId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -124,7 +123,7 @@ func (s *service) GetFlowerFormDetailsByClusterID(clusterId uint) (FlowerFormDet
 		return FlowerFormDetails{}, utils.SystemError("failed to get cluster information")
 	}
 
-	flowerDetails = &FlowerFormDetails{
+	flowerDetails := FlowerFormDetails{
 		ClusterId:      clusterInfo.ClusterID,
 		Location:       clusterInfo.Pole.Zone.ZoneName,
 		PoleNo:         clusterInfo.Pole.PoleNo,
@@ -132,16 +131,15 @@ func (s *service) GetFlowerFormDetailsByClusterID(clusterId uint) (FlowerFormDet
 		FlowerFormDone: clusterInfo.FlowerFormDone,
 	}
 
-	if !flowerDetails.FlowerFormDone {
-		return *flowerDetails, nil
-	}
-
 	flowerFormRecord, err := s.flowerRepo.GetFlowerFormByClusterID(s.db, clusterId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return flowerDetails, nil
+		}
 		return FlowerFormDetails{}, utils.SystemError("failed to get flower form record")
 	}
 	flowerDetails.TotalFlowers = uint(flowerFormRecord.TotalFlowers)
 	flowerDetails.Condition = string(flowerFormRecord.Condition)
 
-	return *flowerDetails, nil
+	return flowerDetails, nil
 }

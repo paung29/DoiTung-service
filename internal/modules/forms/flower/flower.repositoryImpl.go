@@ -17,7 +17,7 @@ func NewFlowerRepository(db *gorm.DB) FlowerRepository {
 // GetFlowerFormByClusterID implements [FlowerRepository].
 func (r *repository) GetFlowerFormByClusterID(db *gorm.DB, clusterId uint) (*models.FlowerForm, error) {
 	var form models.FlowerForm
-	err := r.db.Where("cluster_id = ?", clusterId).First(&form).Error
+	err := db.Where("cluster_id = ?", clusterId).First(&form).Error
 	if err != nil {
 		return nil, err
 	}

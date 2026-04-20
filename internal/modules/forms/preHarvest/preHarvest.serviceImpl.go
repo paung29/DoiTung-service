@@ -92,7 +92,7 @@ func (s *service) CreateOreUpdatePreHarvestForm(form PreHarvestFormRequest, user
 			}
 
 			// Update the cluster's preHarvest form status to done
-			if err := s.clusterRepo.UpdateFormStatusByClusterId(tx, clusterId, true, "preHarvest-form"); err != nil {
+			if err := s.clusterRepo.UpdateFormStatusByClusterId(tx, clusterId, true, "preHarvest"); err != nil {
 				tx.Rollback()
 				return PreHarvestFormResponse{}, utils.SystemError("failed to update cluster form status")
 			}

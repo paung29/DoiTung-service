@@ -75,15 +75,15 @@ func (r *repository) UpdateFormStatusByClusterId(db *gorm.DB, clusterId uint, st
 	}
 
 	switch formName {
-	case "cluster-form":
+	case "cluster":
 		cluster.ClusterFormDone = status
-	case "flower-form":
+	case "flower":
 		cluster.FlowerFormDone = status
-	case "pollination-form":
+	case "pollination":
 		cluster.PollinationFormDone = status
-	case "pod-form":
+	case "pod":
 		cluster.PodFormDone = status
-	case "pre-harvest-form":
+	case "preHarvest":
 		cluster.PreHarvestFormDone = status
 	}
 
