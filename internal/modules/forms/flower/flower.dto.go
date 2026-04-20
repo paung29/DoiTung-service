@@ -12,3 +12,13 @@ type FlowerFormRequest struct {
 type FlowerFormResponse struct {
 	Message string `json:"message"`
 }
+
+type FlowerFormDetails struct {
+	ClusterId    uint   `json:"clusterId"`
+	Location     string `json:"location"`
+	PoleNo       int    `json:"poleNo"`
+	ClusterNo    int    `json:"clusterNo"`
+	TotalFlowers uint   `json:"total_flowers"`
+	Condition    string `json:"condition"`
+	IsRecorded   bool   `json:"is_recorded"`
+}

@@ -1,6 +1,8 @@
 package flower
 
 import (
+	"strconv"
+
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -28,4 +30,28 @@ func (h *FlowerHandler) CreateOrUpdateFlowerForm(context *fiber.Ctx) error {
 		return utils.HandleError(context, err)
 	}
 	return context.Status(fiber.StatusCreated).JSON(response)
+}
+
+func (h *FlowerHandler) GetFlowerFormDetails(context *fiber.Ctx) error {
+
+	clusterIdStr := context.Query("clusterId")
+	if clusterIdStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("clusterId is required"))
+	}
+
+	clusterId, err := strconv.Atoi(clusterIdStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid clusterId"))
+	}
+
+	if clusterId <= 0 {
+		return utils.HandleError(context, utils.BadRequestError("clusterId must be a positive integer"))
+	}
+
+	response, err := h.service.GetFlowerFormDetailsByClusterID(uint(clusterId))
+
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.JSON(response)
 }

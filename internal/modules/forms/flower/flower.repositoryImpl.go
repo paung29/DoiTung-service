@@ -33,3 +33,12 @@ func (r *repository) UpdateFlowerForm(db *gorm.DB, form *models.FlowerForm) erro
 func (r *repository) CreateFlowerForm(db *gorm.DB, form *models.FlowerForm) error {
 	return commonRepo.Create(db, form)
 }
+
+// GetFlowerFormDetailsByClusterID implements [FlowerRepository].
+func (r *repository) GetFlowerFormDetailsByClusterID(db *gorm.DB, clusterId uint) (*models.FlowerForm, error) {
+	var form models.FlowerForm
+	if error := r.db.Preload("Cluster").Preload("Cluster.Pole").Preload("Cluster.Pole.Zone").Where("cluster_id = ?", clusterId).First(&form).Error; error != nil {
+		return nil, error
+	}
+	return &form, nil
+}

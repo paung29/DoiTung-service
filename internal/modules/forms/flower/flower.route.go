@@ -9,4 +9,5 @@ func FlowerRoutes(app *fiber.App, handler *FlowerHandler) {
 	flower := app.Group("/flowers")
 
 	flower.Post("/create", middleware.RequiredAuth, handler.CreateOrUpdateFlowerForm)
+	flower.Get("/get-flower-form", middleware.RequiredAuth, handler.GetFlowerFormDetails)
 }

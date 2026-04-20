@@ -113,3 +113,35 @@ func (s *service) CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) 
 		Message: "flower form updated successfully",
 	}, nil
 }
+
+func (s *service) GetFlowerFormDetailsByClusterID(clusterId uint) (FlowerFormDetails, error) {
+	var flowerDetails *FlowerFormDetails
+	clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(clusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return FlowerFormDetails{}, utils.BadRequestError("cluster not found")
+		}
+		return FlowerFormDetails{}, utils.SystemError("failed to get cluster information")
+	}
+
+	flowerDetails = &FlowerFormDetails{
+		ClusterId:  clusterInfo.ClusterID,
+		Location:   clusterInfo.Pole.Zone.ZoneName,
+		PoleNo:     clusterInfo.Pole.PoleNo,
+		ClusterNo:  clusterInfo.ClusterNo,
+		IsRecorded: clusterInfo.FlowerFormDone,
+	}
+
+	if !flowerDetails.IsRecorded {
+		return *flowerDetails, nil
+	}
+
+	flowerFormRecord, err := s.flowerRepo.GetFlowerFormByClusterID(s.db, clusterId)
+	if err != nil {
+		return FlowerFormDetails{}, utils.SystemError("failed to get flower form record")
+	}
+	flowerDetails.TotalFlowers = uint(flowerFormRecord.TotalFlowers)
+	flowerDetails.Condition = string(flowerFormRecord.Condition)
+
+	return *flowerDetails, nil
+}
