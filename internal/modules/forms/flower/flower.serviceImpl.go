@@ -46,16 +46,16 @@ func (s *service) CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) 
 		return FlowerFormResponse{}, utils.SystemError("failed to get cluster information")
 	}
 
-	// Validate the cluster context
-	yearId, clusterId, err := s.validator.ValidateClusterContext(
-		uint(cluserInfo.Pole.Zone.Year.Year),
-		uint(cluserInfo.Pole.Zone.ZoneNo),
-		uint(cluserInfo.Pole.PoleNo),
-		uint(cluserInfo.ClusterNo),
-		"flower",
-	)
+	clusterId := cluserInfo.ClusterID
+	yearId := cluserInfo.Pole.Zone.Year.YearID
+	// Check if the form setting is open for the year
+	yearSetting, err := s.yearRepo.FindFormSettingByYear(yearId)
 	if err != nil {
-		return FlowerFormResponse{}, utils.SystemError("failed to validate cluster context")
+		return FlowerFormResponse{}, utils.NotFoundError("year setting not found")
+	}
+
+	if !yearSetting.FlowerActive {
+		return FlowerFormResponse{}, utils.BadRequestError("flower form is not open")
 	}
 
 	// Check if the flower form already exists for the cluster
