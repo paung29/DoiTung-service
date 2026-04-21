@@ -11,7 +11,6 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/zone"
 	"github.com/doitung/DoiTung-service/internal/types/enums"
 	"github.com/doitung/DoiTung-service/internal/utils"
-	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
 )
 
@@ -60,8 +59,6 @@ func (s *service) CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) 
 
 	// Check if the flower form already exists for the cluster
 	existingForm, err := s.flowerRepo.GetFlowerFormByClusterID(s.db, clusterId)
-
-	log.Infof("Existing flower form: %+v, error: %v", existingForm, err)
 
 	// If form does not exist, create it
 	if err != nil {

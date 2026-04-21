@@ -36,18 +36,26 @@ func NewPreHarvestService(db *gorm.DB, yearRepo year.YearRepository, zoneRepo zo
 	}
 }
 
-func (s *service) CreateOreUpdatePreHarvestForm(form PreHarvestFormRequest, userId uint) (PreHarvestFormResponse, error) {
+func (s *service) CreateOrUpdatePreHarvestForm(form PreHarvestFormRequest, userId uint) (PreHarvestFormResponse, error) {
 
-	// Validate the cluster context (year, zone, pole, cluster)
-	yearId, clusterId, err := s.validator.ValidateClusterContext(
-		form.Year,
-		form.ZoneId,
-		form.PoleId,
-		form.ClusterId,
-		"preHarvest",
-	)
+	clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(form.ClusterId)
 	if err != nil {
-		return PreHarvestFormResponse{}, utils.SystemError("Cannot validate the cluster")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PreHarvestFormResponse{}, utils.BadRequestError("cluster not found")
+		}
+		return PreHarvestFormResponse{}, utils.SystemError("failed to get cluster information")
+	}
+
+	clusterId := clusterInfo.ClusterID
+	yearId := clusterInfo.Pole.Zone.Year.YearID
+
+	// Check if the form setting is open for the year
+	yearSetting, err := s.yearRepo.FindFormSettingByYear(yearId)
+	if err != nil {
+		return PreHarvestFormResponse{}, utils.NotFoundError("year setting not found")
+	}
+	if !yearSetting.PreHarvestActive {
+		return PreHarvestFormResponse{}, utils.BadRequestError("preHarvest form is not open for this year")
 	}
 
 	// Get the number of pods for the cluster

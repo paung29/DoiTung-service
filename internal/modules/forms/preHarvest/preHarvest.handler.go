@@ -21,7 +21,7 @@ func (h *preHarvestHandler) CreateOrUpdatePreHarvestForm(context *fiber.Ctx) err
 		return utils.HandleError(context, err)
 	}
 
-	response, err := h.service.CreateOreUpdatePreHarvestForm(form, userId)
+	response, err := h.service.CreateOrUpdatePreHarvestForm(form, userId)
 	if err != nil {
 		return utils.HandleError(context, err)
 	}

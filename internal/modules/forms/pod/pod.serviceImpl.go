@@ -41,18 +41,26 @@ func NewPodService(db *gorm.DB, yearRepo year.YearRepository, zoneRepo zone.Zone
 
 func (s *service) CreateOrUpdatePodForm(form PodFormRequest, userId uint) (PodFormResponse, error) {
 
-	// Validate the cluster context (year, zone, pole, cluster)
-	yearId, clusterId, err := s.validator.ValidateClusterContext(
-		form.Year,
-		form.ZoneNo,
-		form.PoleNo,
-		form.ClusterNo,
-		"pod",
-	)
+	clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(form.ClusterId)
 	if err != nil {
-		return PodFormResponse{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PodFormResponse{}, utils.BadRequestError("cluster not found")
+		}
+		return PodFormResponse{}, utils.SystemError("failed to get cluster information")
 	}
 
+	clusterId := clusterInfo.ClusterID
+	yearId := clusterInfo.Pole.Zone.Year.YearID
+
+	// Check if the form setting is open for the year
+	yearSetting, err := s.yearRepo.FindFormSettingByYear(yearId)
+	if err != nil {
+		return PodFormResponse{}, utils.NotFoundError("year setting not found")
+	}
+
+	if !yearSetting.PodActive {
+		return PodFormResponse{}, utils.BadRequestError("pod form is not open")
+	}
 	// Get the number of pods for the cluster
 
 	pollinationForm, err := s.pollinationRepo.GetPollinationFormByClusterID(s.db, clusterId)
