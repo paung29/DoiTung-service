@@ -1,10 +1,7 @@
 package flower
 
 type FlowerFormRequest struct {
-	Year         uint   `json:"year" validate:"required,number"`
-	ZoneNo       uint   `json:"zoneNo" validate:"required,number"`
-	PoleNo       uint   `json:"poleNo" validate:"required,number"`
-	ClusterNo    uint   `json:"clusterNo" validate:"required,number"`
+	ClusterId    uint   `json:"clusterId" validate:"required"`
 	TotalFlowers *uint  `json:"totalFlowers" validate:"required,number"`
 	Condition    string `json:"condition" validate:"required,oneof=GOOD INSECT ROTTEN"`
 }

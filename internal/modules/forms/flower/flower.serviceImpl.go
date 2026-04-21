@@ -38,13 +38,20 @@ func NewFlowerService(db *gorm.DB, yearRepo year.YearRepository, zoneRepo zone.Z
 
 func (s *service) CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) (FlowerFormResponse, error) {
 
-	// Validate the cluster context
+	cluserInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(form.ClusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return FlowerFormResponse{}, utils.BadRequestError("cluster not found")
+		}
+		return FlowerFormResponse{}, utils.SystemError("failed to get cluster information")
+	}
 
+	// Validate the cluster context
 	yearId, clusterId, err := s.validator.ValidateClusterContext(
-		form.Year,
-		form.ZoneNo,
-		form.PoleNo,
-		form.ClusterNo,
+		uint(cluserInfo.Pole.Zone.Year.Year),
+		uint(cluserInfo.Pole.Zone.ZoneNo),
+		uint(cluserInfo.Pole.PoleNo),
+		uint(cluserInfo.ClusterNo),
 		"flower",
 	)
 	if err != nil {
