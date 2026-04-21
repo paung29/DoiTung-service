@@ -38,13 +38,20 @@ func NewFlowerService(db *gorm.DB, yearRepo year.YearRepository, zoneRepo zone.Z
 
 func (s *service) CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) (FlowerFormResponse, error) {
 
-	// Validate the cluster context
+	cluserInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(form.ClusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return FlowerFormResponse{}, utils.BadRequestError("cluster not found")
+		}
+		return FlowerFormResponse{}, utils.SystemError("failed to get cluster information")
+	}
 
+	// Validate the cluster context
 	yearId, clusterId, err := s.validator.ValidateClusterContext(
-		form.Year,
-		form.ZoneNo,
-		form.PoleNo,
-		form.ClusterNo,
+		uint(cluserInfo.Pole.Zone.Year.Year),
+		uint(cluserInfo.Pole.Zone.ZoneNo),
+		uint(cluserInfo.Pole.PoleNo),
+		uint(cluserInfo.ClusterNo),
 		"flower",
 	)
 	if err != nil {
@@ -112,4 +119,34 @@ func (s *service) CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) 
 	return FlowerFormResponse{
 		Message: "flower form updated successfully",
 	}, nil
+}
+
+func (s *service) GetFlowerFormDetailsByClusterID(clusterId uint) (FlowerFormDetails, error) {
+	clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(clusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return FlowerFormDetails{}, utils.BadRequestError("cluster not found")
+		}
+		return FlowerFormDetails{}, utils.SystemError("failed to get cluster information")
+	}
+
+	flowerDetails := FlowerFormDetails{
+		ClusterId:      clusterInfo.ClusterID,
+		Location:       clusterInfo.Pole.Zone.ZoneName,
+		PoleNo:         clusterInfo.Pole.PoleNo,
+		ClusterNo:      clusterInfo.ClusterNo,
+		FlowerFormDone: clusterInfo.FlowerFormDone,
+	}
+
+	flowerFormRecord, err := s.flowerRepo.GetFlowerFormByClusterID(s.db, clusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return flowerDetails, nil
+		}
+		return FlowerFormDetails{}, utils.SystemError("failed to get flower form record")
+	}
+	flowerDetails.TotalFlowers = uint(flowerFormRecord.TotalFlowers)
+	flowerDetails.Condition = string(flowerFormRecord.Condition)
+
+	return flowerDetails, nil
 }

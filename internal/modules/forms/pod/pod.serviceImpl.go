@@ -91,7 +91,7 @@ func (s *service) CreateOrUpdatePodForm(form PodFormRequest, userId uint) (PodFo
 			}
 
 			// Update the cluster's pod form status to done
-			if err := s.clusterRepo.UpdateFormStatusByClusterId(tx, clusterId, true, "pod-form"); err != nil {
+			if err := s.clusterRepo.UpdateFormStatusByClusterId(tx, clusterId, true, "pod"); err != nil {
 				tx.Rollback()
 				return PodFormResponse{}, err
 			}

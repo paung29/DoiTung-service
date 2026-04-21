@@ -75,15 +75,15 @@ func (r *repository) UpdateFormStatusByClusterId(db *gorm.DB, clusterId uint, st
 	}
 
 	switch formName {
-	case "cluster-form":
+	case "cluster":
 		cluster.ClusterFormDone = status
-	case "flower-form":
+	case "flower":
 		cluster.FlowerFormDone = status
-	case "pollination-form":
+	case "pollination":
 		cluster.PollinationFormDone = status
-	case "pod-form":
+	case "pod":
 		cluster.PodFormDone = status
-	case "pre-harvest-form":
+	case "preHarvest":
 		cluster.PreHarvestFormDone = status
 	}
 
@@ -112,4 +112,12 @@ func (r *repository) GetAllClusterFormDetailsByClusterId(clusterId uint) (*model
 		return nil, err
 	}
 	return &form, nil
+}
+
+func (r *repository) GetClusterBasicInfoByClusterId(clusterId uint) (*models.Cluster, error) {
+	var cluster models.Cluster
+	if err := r.db.Preload("Pole").Preload("Pole.Zone").Preload("Pole.Zone.Year").Where("cluster_id = ?", clusterId).First(&cluster).Error; err != nil {
+		return nil, err
+	}
+	return &cluster, nil
 }

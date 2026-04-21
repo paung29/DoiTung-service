@@ -22,7 +22,7 @@ func (r *repository) CreatePollinationForm(db *gorm.DB, form *models.Pollination
 // GetPollinationFormByClusterID implements [PollinationRepository].
 func (r *repository) GetPollinationFormByClusterID(db *gorm.DB, clusterId uint) (*models.PollinationForm, error) {
 	var form models.PollinationForm
-	err := r.db.Where("cluster_id = ?", clusterId).First(&form).Error
+	err := db.Where("cluster_id = ?", clusterId).First(&form).Error
 	if err != nil {
 		return nil, err
 	}
