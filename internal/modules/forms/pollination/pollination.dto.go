@@ -16,6 +16,7 @@ type PollinationFormDetails struct {
 	Location                string `json:"location"`
 	PoleNo                  uint   `json:"poleNo"`
 	ClusterNo               uint   `json:"clusterNo"`
+	TotalFlowers            uint   `json:"totalFlowers"`
 	NumberPods              uint   `json:"numberPods"`
 	UnsuccessfulPollination uint   `json:"unsuccessfulPollination"`
 	GoodFlowers             uint   `json:"goodFlowers"`

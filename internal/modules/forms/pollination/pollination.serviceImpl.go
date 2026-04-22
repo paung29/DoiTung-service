@@ -152,11 +152,20 @@ func (s *service) GetPollinationFormDetails(clusterId uint) (PollinationFormDeta
 		return PollinationFormDetails{}, utils.SystemError("failed to get cluster information")
 	}
 
+	flowerRecord, err := s.flowerRepo.GetFlowerFormByClusterID(s.db, clusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PollinationFormDetails{}, utils.BadRequestError("pollination form not found for the cluster")
+		}
+		return PollinationFormDetails{}, utils.SystemError("failed to get pollination form")
+	}
+
 	pollinationDetails := PollinationFormDetails{
 		ClusterId:           clusterInfo.ClusterID,
 		Location:            clusterInfo.Pole.Zone.ZoneName,
 		PoleNo:              uint(clusterInfo.Pole.PoleNo),
 		ClusterNo:           uint(clusterInfo.ClusterNo),
+		TotalFlowers:        uint(flowerRecord.TotalFlowers),
 		PollinationFormDone: clusterInfo.PollinationFormDone,
 	}
 	pollinationFormRecord, err := s.pollinationRepo.GetPollinationFormByClusterID(s.db, clusterId)
