@@ -41,15 +41,24 @@ func NewPollinationService(db *gorm.DB, yearRepo year.YearRepository, zoneRepo z
 
 func (s *service) CreateOrUpdatePollinationForm(form PollinationFormRequest, userId uint) (PollinationFormResponse, error) {
 
-	yearId, clusterId, err := s.validator.ValidateClusterContext(
-		form.Year,
-		form.ZoneNo,
-		form.PoleNo,
-		form.ClusterNo,
-		"pollination",
-	)
+	clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(form.ClusterId)
 	if err != nil {
-		return PollinationFormResponse{}, utils.NotFoundError("cluster not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PollinationFormResponse{}, utils.BadRequestError("cluster not found")
+		}
+		return PollinationFormResponse{}, utils.SystemError("failed to get cluster information")
+	}
+
+	clusterId := clusterInfo.ClusterID
+	yearId := clusterInfo.Pole.Zone.Year.YearID
+
+	// Check if the form setting is open for the year
+	yearSetting, err := s.yearRepo.FindFormSettingByYear(yearId)
+	if err != nil {
+		return PollinationFormResponse{}, utils.NotFoundError("year setting not found")
+	}
+	if !yearSetting.PollinationActive {
+		return PollinationFormResponse{}, utils.BadRequestError("pollination form is not open for this year")
 	}
 
 	// Get Flower Record
@@ -143,11 +152,20 @@ func (s *service) GetPollinationFormDetails(clusterId uint) (PollinationFormDeta
 		return PollinationFormDetails{}, utils.SystemError("failed to get cluster information")
 	}
 
+	flowerRecord, err := s.flowerRepo.GetFlowerFormByClusterID(s.db, clusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PollinationFormDetails{}, utils.BadRequestError("pollination form not found for the cluster")
+		}
+		return PollinationFormDetails{}, utils.SystemError("failed to get pollination form")
+	}
+
 	pollinationDetails := PollinationFormDetails{
 		ClusterId:           clusterInfo.ClusterID,
 		Location:            clusterInfo.Pole.Zone.ZoneName,
 		PoleNo:              uint(clusterInfo.Pole.PoleNo),
 		ClusterNo:           uint(clusterInfo.ClusterNo),
+		TotalFlowers:        uint(flowerRecord.TotalFlowers),
 		PollinationFormDone: clusterInfo.PollinationFormDone,
 	}
 	pollinationFormRecord, err := s.pollinationRepo.GetPollinationFormByClusterID(s.db, clusterId)

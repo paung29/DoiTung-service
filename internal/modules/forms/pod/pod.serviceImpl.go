@@ -41,18 +41,26 @@ func NewPodService(db *gorm.DB, yearRepo year.YearRepository, zoneRepo zone.Zone
 
 func (s *service) CreateOrUpdatePodForm(form PodFormRequest, userId uint) (PodFormResponse, error) {
 
-	// Validate the cluster context (year, zone, pole, cluster)
-	yearId, clusterId, err := s.validator.ValidateClusterContext(
-		form.Year,
-		form.ZoneNo,
-		form.PoleNo,
-		form.ClusterNo,
-		"pod",
-	)
+	clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(form.ClusterId)
 	if err != nil {
-		return PodFormResponse{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PodFormResponse{}, utils.BadRequestError("cluster not found")
+		}
+		return PodFormResponse{}, utils.SystemError("failed to get cluster information")
 	}
 
+	clusterId := clusterInfo.ClusterID
+	yearId := clusterInfo.Pole.Zone.Year.YearID
+
+	// Check if the form setting is open for the year
+	yearSetting, err := s.yearRepo.FindFormSettingByYear(yearId)
+	if err != nil {
+		return PodFormResponse{}, utils.NotFoundError("year setting not found")
+	}
+
+	if !yearSetting.PodActive {
+		return PodFormResponse{}, utils.BadRequestError("pod form is not open")
+	}
 	// Get the number of pods for the cluster
 
 	pollinationForm, err := s.pollinationRepo.GetPollinationFormByClusterID(s.db, clusterId)
@@ -119,4 +127,37 @@ func (s *service) CreateOrUpdatePodForm(form PodFormRequest, userId uint) (PodFo
 	}
 
 	return PodFormResponse{Message: "Pod form updated successfully"}, nil
+}
+
+func (s *service) GetPodFormDetails(clusterId uint) (PodFormDetails, error) {
+	clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(clusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PodFormDetails{}, utils.BadRequestError("cluster not found")
+		}
+		return PodFormDetails{}, utils.SystemError("failed to get cluster information")
+	}
+
+	podDetails := PodFormDetails{
+		ClusterId:   clusterInfo.ClusterID,
+		Location:    clusterInfo.Pole.Zone.ZoneName,
+		PoleNo:      uint(clusterInfo.Pole.PoleNo),
+		ClusterNo:   uint(clusterInfo.ClusterNo),
+		PodFormDone: clusterInfo.PodFormDone,
+	}
+
+	podFormRecord, err := s.podRepo.GetPodFormByClusterId(s.db, clusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return podDetails, nil // return basic details with PodFormDone = false
+		}
+		return PodFormDetails{}, utils.SystemError("failed to get pod form details")
+	}
+
+	podDetails.NumberPods = uint(podFormRecord.NumberPods)
+	podDetails.LostPods = uint(podFormRecord.LostPods)
+	podDetails.RemainingPods = uint(podFormRecord.RemainingPods)
+	podDetails.Condition = string(podFormRecord.Condition)
+
+	return podDetails, nil
 }
