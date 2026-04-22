@@ -28,3 +28,17 @@ func (h *PodHandler) CreateOrUpdatePodForm(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusCreated).JSON(response)
 }
+
+func (h *PodHandler) GetPodFormDetails(context *fiber.Ctx) error {
+
+	clusterId, err := utils.GetClusterIDFromQuery(context)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	response, err := h.service.GetPodFormDetails(uint(clusterId))
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.JSON(response)
+}

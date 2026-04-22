@@ -9,4 +9,5 @@ func PodRoutes(app *fiber.App, handler *PodHandler) {
 	podGroup := app.Group("pods")
 
 	podGroup.Post("/create", middleware.RequiredAuth, handler.CreateOrUpdatePodForm)
+	podGroup.Get("/get-pod-form", middleware.RequiredAuth, handler.GetPodFormDetails)
 }

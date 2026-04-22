@@ -128,3 +128,36 @@ func (s *service) CreateOrUpdatePodForm(form PodFormRequest, userId uint) (PodFo
 
 	return PodFormResponse{Message: "Pod form updated successfully"}, nil
 }
+
+func (s *service) GetPodFormDetails(clusterId uint) (PodFormDetails, error) {
+	clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(clusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PodFormDetails{}, utils.BadRequestError("cluster not found")
+		}
+		return PodFormDetails{}, utils.SystemError("failed to get cluster information")
+	}
+
+	podDetails := PodFormDetails{
+		ClusterId:   clusterInfo.ClusterID,
+		Location:    clusterInfo.Pole.Zone.ZoneName,
+		PoleNo:      uint(clusterInfo.Pole.PoleNo),
+		ClusterNo:   uint(clusterInfo.ClusterNo),
+		PodFormDone: clusterInfo.PodFormDone,
+	}
+
+	podFormRecord, err := s.podRepo.GetPodFormByClusterId(s.db, clusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return podDetails, nil // return basic details with PodFormDone = false
+		}
+		return PodFormDetails{}, utils.SystemError("failed to get pod form details")
+	}
+
+	podDetails.NumberPods = uint(podFormRecord.NumberPods)
+	podDetails.LostPods = uint(podFormRecord.LostPods)
+	podDetails.RemainingPods = uint(podFormRecord.RemainingPods)
+	podDetails.Condition = string(podFormRecord.Condition)
+
+	return podDetails, nil
+}
