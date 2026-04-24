@@ -129,3 +129,47 @@ func (s *service) CreateOrUpdatePreHarvestForm(form PreHarvestFormRequest, userI
 
 	return PreHarvestFormResponse{Message: "preHarvest form updated successfully"}, nil
 }
+
+func (s *service) GetPreHarvestFormDetails(clusterId uint) (PreHarvestFormDetails, error) {
+
+	clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(clusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PreHarvestFormDetails{}, utils.BadRequestError("cluster not found")
+		}
+		return PreHarvestFormDetails{}, utils.SystemError("failed to get cluster information")
+	}
+
+	podRecord, err := s.podRepo.GetPodFormByClusterId(s.db, clusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PreHarvestFormDetails{}, utils.BadRequestError("pod form not found for the cluster")
+		}
+		return PreHarvestFormDetails{}, utils.SystemError("failed to get pod form")
+	}
+
+	preHarvestDetails := PreHarvestFormDetails{
+		ClusterId:          clusterInfo.ClusterID,
+		Location:           clusterInfo.Pole.Zone.ZoneName,
+		PoleNo:             uint(clusterInfo.Pole.PoleNo),
+		ClusterNo:          uint(clusterInfo.ClusterNo),
+		RemainingPods:      uint(podRecord.RemainingPods),
+		PreHarvestFormDone: clusterInfo.PreHarvestFormDone,
+	}
+
+	preHarvestFormRecord, err := s.preHarvestRepo.GetPreHarvestFormByClusterId(s.db, clusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return preHarvestDetails, nil // Return basic details with form done status
+		}
+		return PreHarvestFormDetails{}, utils.SystemError("failed to get preHarvest form")
+	}
+
+	preHarvestDetails.NumberPodsSecondRound = uint(preHarvestFormRecord.NumberPodsSecondRound)
+	preHarvestDetails.LostPodsBeforeHarvest = uint(preHarvestFormRecord.LostPodsBeforeHarvest)
+	preHarvestDetails.RemovedPods = uint(preHarvestFormRecord.RemovedPods)
+	preHarvestDetails.PlantsRemoved = uint(preHarvestFormRecord.PlantsRemoved)
+	preHarvestDetails.Condition = string(preHarvestFormRecord.Condition)
+
+	return preHarvestDetails, nil
+}
