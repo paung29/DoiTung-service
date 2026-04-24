@@ -71,6 +71,9 @@ func (s *service) CreateOrUpdatePreHarvestForm(form PreHarvestFormRequest, userI
 
 	numberPodsSecondRound := int(*form.NumberPodsSecondRound)
 	lostPodsBeforeHarvest := remainPods - numberPodsSecondRound
+	if lostPodsBeforeHarvest < 0 {
+		return PreHarvestFormResponse{}, utils.BadRequestError("number of pods in the second round cannot be greater than remaining pods")
+	}
 	removedPods := int(*form.RemovedPods)
 	plantsRemoved := int(*form.PlantsRemoved)
 	condition := enums.Condition(form.Condition)

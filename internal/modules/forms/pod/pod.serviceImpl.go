@@ -74,6 +74,9 @@ func (s *service) CreateOrUpdatePodForm(form PodFormRequest, userId uint) (PodFo
 	numberPods := pollinationForm.NumberPods
 	lostPods := int(*form.LostPods)
 	remainingPods := numberPods - lostPods
+	if remainingPods < 0 {
+		return PodFormResponse{}, utils.BadRequestError("number of lost pods cannot be greater than number of pods in pollination form")
+	}
 	condition := enums.Condition(form.Condition)
 
 	// check if the pod form already exist for the cluster
