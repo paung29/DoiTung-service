@@ -11,7 +11,6 @@ func Setup(app *fiber.App, db *gorm.DB) {
 	yearRepo := year.NewYearRepository(db)
 	zoneRepo := zone.NewZoneRepository(db)
 	poleRepo := NewPoleRepository(db)
-
 	poleService := NewPoleService(db, yearRepo, zoneRepo, poleRepo)
 	poleHandler := NewPoleHandler(poleService)
 

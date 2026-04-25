@@ -19,4 +19,5 @@ type ClusterRepository interface {
 	GetClusterFormByClusterId(clusterId uint) (*models.ClusterForm, error)
 	GetAllClusterFormDetailsByClusterId(clusterId uint) (*models.ClusterForm, error)
 	GetClusterBasicInfoByClusterId(clusterId uint) (*models.Cluster, error)
+	UpdateClusterFormByClusterId(db *gorm.DB, form *models.ClusterForm) error
 }

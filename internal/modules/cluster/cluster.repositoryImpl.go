@@ -121,3 +121,7 @@ func (r *repository) GetClusterBasicInfoByClusterId(clusterId uint) (*models.Clu
 	}
 	return &cluster, nil
 }
+
+func (r *repository) UpdateClusterFormByClusterId(db *gorm.DB, form *models.ClusterForm) error {
+	return commonrepo.Save(db, form)
+}
