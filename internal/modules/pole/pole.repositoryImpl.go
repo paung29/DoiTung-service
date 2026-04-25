@@ -47,3 +47,12 @@ func (r *repository) GetAllPolesByZoneId(zoneId uint) ([]models.Pole, error) {
 	}
 	return poles, nil
 }
+
+func (r *repository) GetPoleById(poleId uint) (*models.Pole, error) {
+	var pole models.Pole
+	err := r.db.Preload("Zone").Where("pole_id = ?", poleId).First(&pole).Error
+	if err != nil {
+		return nil, err
+	}
+	return &pole, nil
+}
