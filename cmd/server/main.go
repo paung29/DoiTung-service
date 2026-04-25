@@ -12,6 +12,7 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/forms/pod"
 	"github.com/doitung/DoiTung-service/internal/modules/forms/pollination"
 	preharvest "github.com/doitung/DoiTung-service/internal/modules/forms/preHarvest"
+	"github.com/doitung/DoiTung-service/internal/modules/pole"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/modules/zone"
 	"github.com/gofiber/fiber/v2"
@@ -57,6 +58,7 @@ func main() {
 	account.Setup(app, config.DB)
 	year.Setup(app, config.DB)
 	zone.Setup(app, config.DB)
+	pole.Setup(app, config.DB)
 	cluster.Setup(app, config.DB)
 	flower.Setup(app, config.DB)
 	pollination.Setup(app, config.DB)
