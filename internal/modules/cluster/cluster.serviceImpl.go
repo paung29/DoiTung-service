@@ -248,3 +248,27 @@ func (s *service) UpdateClusterForm(form ClusterUpdateRequest) (ClusterUpdateRes
 		Message: "cluster form updated successfully!!!",
 	}, nil
 }
+
+func (s *service) GetClusterFormHistories(userId uint) (ClusterFormHistoriesResponse, error) {
+
+	clusterFormHistories, err := s.clusterRepo.GetClusterFormHistoriesByUserId(userId)
+	if err != nil {
+		return ClusterFormHistoriesResponse{}, utils.SystemError("failed to get cluster form histories")
+	}
+
+	var clusterFormHistoryResponses []ClusterFormHistory
+	for _, history := range clusterFormHistories {
+		clusterFormHistoryResponses = append(clusterFormHistoryResponses, ClusterFormHistory{
+			ClusterId: history.ClusterID,
+			Location:  history.Cluster.Pole.Zone.ZoneName,
+			PoleNo:    history.Cluster.Pole.PoleNo,
+			ClusterNo: history.Cluster.ClusterNo,
+			CreatedAt: history.CreatedAt.Format("2006-01-02 15:04"),
+			UpdatedAt: history.UpdatedAt.Format("2006-01-02 15:04"),
+		})
+	}
+
+	return ClusterFormHistoriesResponse{
+		ClusterFormHistories: clusterFormHistoryResponses,
+	}, nil
+}

@@ -46,3 +46,16 @@ type ClusterUpdateRequest struct {
 type ClusterUpdateResponse struct {
 	Message string `json:"message"`
 }
+
+type ClusterFormHistoriesResponse struct {
+	ClusterFormHistories []ClusterFormHistory `json:"clusterFormHistories"`
+}
+
+type ClusterFormHistory struct {
+	ClusterId uint   `json:"clusterId"`
+	Location  string `json:"location"`
+	PoleNo    int    `json:"poleNo"`
+	ClusterNo int    `json:"clusterNo"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
+}

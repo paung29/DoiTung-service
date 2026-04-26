@@ -13,4 +13,5 @@ func ClusterRoutes(app *fiber.App, handler *ClusterHandler) {
 
 	cluster.Get("/get-cluster-form", middleware.RequiredAuth, handler.GetClusterForm)
 	cluster.Put("/update-cluster-form", middleware.RequiredAuth, handler.UpdateClusterForm)
+	cluster.Get("/get-cluster-form-histories", middleware.RequiredAuth, handler.GetClusterFormHistories)
 }

@@ -97,3 +97,15 @@ func (h *ClusterHandler) UpdateClusterForm(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *ClusterHandler) GetClusterFormHistories(context *fiber.Ctx) error {
+	userId := context.Locals("account_id").(uint)
+
+	response, err := h.service.GetClusterFormHistories(userId)
+
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}
