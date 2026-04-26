@@ -55,3 +55,15 @@ func (h *FlowerHandler) GetFlowerFormDetails(context *fiber.Ctx) error {
 	}
 	return context.JSON(response)
 }
+
+func (h *FlowerHandler) GetFlowerFormHistories(context *fiber.Ctx) error {
+
+	userId := context.Locals("account_id").(uint)
+
+	response, err := h.service.GetFlowerFormHistories(userId)
+
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.JSON(response)
+}

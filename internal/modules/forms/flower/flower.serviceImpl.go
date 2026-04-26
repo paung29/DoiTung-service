@@ -147,3 +147,31 @@ func (s *service) GetFlowerFormDetailsByClusterID(clusterId uint) (FlowerFormDet
 
 	return flowerDetails, nil
 }
+
+func (s *service) GetFlowerFormHistories(userId uint) (FlowerFormHistoriesResponse, error) {
+	flowerFormRecords, err := s.flowerRepo.GetFlowerFormHistoriesByUserId(s.db, userId)
+	if err != nil {
+		return FlowerFormHistoriesResponse{}, utils.SystemError("failed to get flower form histories")
+	}
+
+	var flowerFormHistories []FlowerFormHistory
+	for _, record := range flowerFormRecords {
+		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(record.ClusterID)
+		if err != nil {
+			return FlowerFormHistoriesResponse{}, utils.SystemError("failed to get cluster information")
+		}
+		history := FlowerFormHistory{
+			ClusterId: record.ClusterID,
+			Location:  clusterInfo.Pole.Zone.ZoneName,
+			PoleNo:    clusterInfo.Pole.PoleNo,
+			ClusterNo: clusterInfo.ClusterNo,
+			CreatedAt: record.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt: record.UpdatedAt.Format("2006-01-02 15:04:05"),
+		}
+		flowerFormHistories = append(flowerFormHistories, history)
+	}
+
+	return FlowerFormHistoriesResponse{
+		FlowerFormHistories: flowerFormHistories,
+	}, nil
+}

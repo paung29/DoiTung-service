@@ -10,4 +10,5 @@ func FlowerRoutes(app *fiber.App, handler *FlowerHandler) {
 
 	flower.Post("/create", middleware.RequiredAuth, handler.CreateOrUpdateFlowerForm)
 	flower.Get("/get-flower-form", middleware.RequiredAuth, handler.GetFlowerFormDetails)
+	flower.Get("/get-flower-form-histories", middleware.RequiredAuth, handler.GetFlowerFormHistories)
 }
