@@ -2,6 +2,7 @@ package year
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/doitung/DoiTung-service/internal/models"
 	"github.com/doitung/DoiTung-service/internal/utils"
@@ -100,4 +101,21 @@ func (s *service) ChangeYearFormSettingStatus(form YearFormSettingStatusChange) 
 	return YearFormSettingStatusChangeResponse{
 		Message: "year form setting updated successfully",
 	}, nil
+}
+
+func (s *service) GetYear() (GetYearResponse, error) {
+
+	yearsModles, err := s.yearRepo.findAll()
+
+	if err != nil {
+		return  GetYearResponse{}, err
+	}
+
+	var years []string
+
+	for _, y := range yearsModles {
+		years = append(years, fmt.Sprintf("%d", y.Year))
+	}
+
+	return GetYearResponse{Years: years}, nil
 }

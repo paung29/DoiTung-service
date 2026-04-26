@@ -38,8 +38,23 @@ func (s *service) Login(form LoginRequest) (string, AuthResponse, error) {
 	}
 
 	return token, AuthResponse{
+		Role: string(account.Role),
 		Success: true,
 		Message: "login successful",
 	}, nil
 
+}
+
+func (s *service) GetUserInfo(userId uint) (UserInfoResponse, error) {
+
+	account, err := s.accountRepo.FindByID(userId)
+	if err != nil {
+		return UserInfoResponse{}, utils.SystemError("failed to query user info")
+	}
+
+	return UserInfoResponse{
+		ID:    account.AccountID,
+		Email: account.Email,
+		Role:  string(account.Role),
+	}, nil
 }

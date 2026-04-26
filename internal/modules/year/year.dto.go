@@ -17,3 +17,7 @@ type YearFormSettingStatusChange struct {
 type YearFormSettingStatusChangeResponse struct {
 	Message string `json:"message"`
 }
+
+type GetYearResponse struct {
+	Years []string `json:"years"`
+}

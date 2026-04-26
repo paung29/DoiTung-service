@@ -67,3 +67,31 @@ func (s service) CreateZone(form CreateZoneRequest) (CreateZoneResponse, error) 
 		Message: "zone created successfully",
 	}, nil
 }
+
+func (s service) GetAllZone(yearID uint) (GetAllZoneResponse, error) {
+	yearRecord, err := s.yearRepo.FindByYear(int(yearID))
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return GetAllZoneResponse{}, utils.NotFoundError("year not found")
+		}
+		return GetAllZoneResponse{}, utils.SystemError("failed to check year")
+	}
+
+	zones, err := s.zoneRepo.FindByYearID(yearRecord.YearID)
+	if err != nil {
+		return GetAllZoneResponse{}, utils.SystemError("failed to get zones")
+	}
+
+	var zoneResponses []ZoneResponse
+	for _, z := range zones {
+		zoneResponses = append(zoneResponses, ZoneResponse{
+			ZoneID: z.ZoneID,
+			ZoneName: z.ZoneName,
+		})
+	}
+
+	return GetAllZoneResponse{
+		Zones: zoneResponses,
+	}, nil
+}

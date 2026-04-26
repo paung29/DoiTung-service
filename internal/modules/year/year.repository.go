@@ -12,6 +12,7 @@ type YearRepository interface {
 	FindByID(id uint) (*models.Year, error)
 	FindFormSettingByYear(id uint) (*models.YearFormSetting, error)
 	UpdateFormSetting(db *gorm.DB, setting *models.YearFormSetting) error
+	findAll() ([]models.Year, error)
 }
 
 

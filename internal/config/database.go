@@ -1,10 +1,14 @@
 package config
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"time"
+
 	"github.com/doitung/DoiTung-service/internal/models"
-	"gorm.io/driver/sqlite"
+	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -13,23 +17,46 @@ var DB *gorm.DB
 
 func ConnectDatabase() {
 	newLogger := logger.New(
-		log.New(log.Writer(), "\r\n", log.LstdFlags), // io writer
+		log.New(log.Writer(), "\r\n", log.LstdFlags),
 		logger.Config{
-			SlowThreshold: time.Second,   // Slow SQL threshold
-			LogLevel:      logger.Info,   // Log level
-			Colorful:      true,          // Color
+			SlowThreshold: time.Second,
+			LogLevel:      logger.Info,
+			Colorful:      true,
 		},
 	)
 
-	db, err := gorm.Open(sqlite.Open("app.db"), &gorm.Config{
-		Logger: newLogger,
-	})
+	godotenv.Load(".env")
+
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=Asia/Bangkok",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_SSLMODE"),
+	)
+
+	var db *gorm.DB
+	var err error
+
+	for i := 1; i <= 10; i++ {
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+			Logger: newLogger,
+		})
+		if err == nil {
+			break
+		}
+
+		log.Printf("database connection attempt %d failed: %v", i, err)
+		time.Sleep(3 * time.Second)
+	}
 
 	if err != nil {
 		log.Fatalf("failed to connect database: %v", err)
 	}
 
-	db.AutoMigrate(
+	err = db.AutoMigrate(
 		&models.Account{},
 		&models.Year{},
 		&models.YearFormSetting{},
@@ -45,9 +72,10 @@ func ConnectDatabase() {
 		&models.Warehouse{},
 		&models.StockMovement{},
 	)
+	if err != nil {
+		log.Fatalf("failed to migrate database: %v", err)
+	}
 
 	DB = db
-
 	SeedAccounts()
-
 }

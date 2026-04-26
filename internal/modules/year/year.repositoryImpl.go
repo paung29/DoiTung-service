@@ -41,3 +41,15 @@ func (repo *repository) FindFormSettingByYear(id uint) (*models.YearFormSetting,
 func (repo *repository) UpdateFormSetting(db *gorm.DB, setting *models.YearFormSetting) error {
 	return commonrepo.Save(db,setting )
 }
+
+func (repo *repository) findAll() ([]models.Year, error) {
+	var years []models.Year
+
+	err := repo.db.Order("year asc").Find(&years).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return years, nil
+}

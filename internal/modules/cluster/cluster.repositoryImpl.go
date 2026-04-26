@@ -67,3 +67,61 @@ func (r *repository) FindClusterById(clusterId uint) (*models.Cluster, error) {
 	}
 	return &form, nil
 }
+
+func (r *repository) UpdateFormStatusByClusterId(db *gorm.DB, clusterId uint, status bool, formName string) error {
+	var cluster models.Cluster
+	if err := db.Where("cluster_id = ?", clusterId).First(&cluster).Error; err != nil {
+		return err
+	}
+
+	switch formName {
+	case "cluster":
+		cluster.ClusterFormDone = status
+	case "flower":
+		cluster.FlowerFormDone = status
+	case "pollination":
+		cluster.PollinationFormDone = status
+	case "pod":
+		cluster.PodFormDone = status
+	case "preHarvest":
+		cluster.PreHarvestFormDone = status
+	}
+
+	return commonrepo.Save(db, &cluster)
+}
+
+func (r *repository) GetAllClustersByPoleId(poleId uint) ([]models.Cluster, error) {
+	var clusters []models.Cluster
+	if err := r.db.Preload("Pole").Preload("Pole.Zone").Where("pole_id = ?", poleId).Find(&clusters).Error; err != nil {
+		return nil, err
+	}
+	return clusters, nil
+}
+
+func (r *repository) GetClusterFormByClusterId(clusterId uint) (*models.ClusterForm, error) {
+	var form models.ClusterForm
+	if err := r.db.Where("cluster_id = ?", clusterId).First(&form).Error; err != nil {
+		return nil, err
+	}
+	return &form, nil
+}
+
+func (r *repository) GetAllClusterFormDetailsByClusterId(clusterId uint) (*models.ClusterForm, error) {
+	var form models.ClusterForm
+	if err := r.db.Preload("Cluster").Preload("Cluster.Pole").Preload("Cluster.Pole.Zone").Where("cluster_id = ?", clusterId).First(&form).Error; err != nil {
+		return nil, err
+	}
+	return &form, nil
+}
+
+func (r *repository) GetClusterBasicInfoByClusterId(clusterId uint) (*models.Cluster, error) {
+	var cluster models.Cluster
+	if err := r.db.Preload("Pole").Preload("Pole.Zone").Preload("Pole.Zone.Year").Where("cluster_id = ?", clusterId).First(&cluster).Error; err != nil {
+		return nil, err
+	}
+	return &cluster, nil
+}
+
+func (r *repository) UpdateClusterFormByClusterId(db *gorm.DB, form *models.ClusterForm) error {
+	return commonrepo.Save(db, form)
+}
