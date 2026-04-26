@@ -38,3 +38,12 @@ type ClusterFormResponse struct {
 	ClusterNo int    `json:"clusterNo"`
 	Condition string `json:"condition"`
 }
+
+type ClusterUpdateRequest struct {
+	ClusterId uint   `json:"clusterId" validate:"required,number"`
+	Condition string `json:"condition" validate:"required,oneof=GOOD INSECT ROTTEN"`
+}
+
+type ClusterUpdateResponse struct {
+	Message string `json:"message"`
+}

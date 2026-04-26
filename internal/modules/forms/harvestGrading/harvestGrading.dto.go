@@ -21,3 +21,23 @@ type HarvestGradingFormRequest struct {
 type HarvestGradingFormResponse struct {
 	Message string `json:"message"`
 }
+
+type HarvestGradingFormDetails struct {
+	PoleId                 uint   `json:"poleId"`
+	Year                   uint   `json:"year"`
+	Location               string `json:"location"`
+	PoleNo                 uint   `json:"poleNo"`
+	GradeAPlusCount        uint   `json:"gradeAPlusCount"`
+	GradeAPlusWeight       uint   `json:"gradeAPlusWeight"`
+	GradeACount            uint   `json:"gradeACount"`
+	GradeAWeight           uint   `json:"gradeAWeight"`
+	GradeBCount            uint   `json:"gradeBCount"`
+	GradeBWeight           uint   `json:"gradeBWeight"`
+	GradeCCount            uint   `json:"gradeCCount"`
+	GradeCWeight           uint   `json:"gradeCWeight"`
+	GradeDPlusCount        uint   `json:"gradeDPlusCount"`
+	GradeDPlusWeight       uint   `json:"gradeDPlusWeight"`
+	UndersizedCount        uint   `json:"undersizedCount"`
+	UndersizedWeight       uint   `json:"undersizedWeight"`
+	HarvestGradingFormDone bool   `json:"harvestGradingFormDone"`
+}

@@ -6,7 +6,8 @@ import (
 )
 
 func PreHarvestRoute(app *fiber.App, handler *preHarvestHandler) {
-	preHarvestGroup := app.Group("pre-harvest")
+	preHarvestGroup := app.Group("preHarvest")
 
 	preHarvestGroup.Post("/create", middleware.RequiredAuth, handler.CreateOrUpdatePreHarvestForm)
+	preHarvestGroup.Get("/get-preHarvest-form", middleware.RequiredAuth, handler.GetPreHarvestFormDetails)
 }

@@ -155,3 +155,47 @@ func (s *service) CreateOrUpdateHarvestGradingForm(form HarvestGradingFormReques
 		Message: "harvest grading form updated successfully!!!",
 	}, nil
 }
+
+func (s *service) GetHarvestGradingFormDetailsByPoleID(poleId uint) (HarvestGradingFormDetails, error) {
+
+	// Check if the pole exists
+	poleRecord, err := s.poleRepo.GetPoleById(poleId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return HarvestGradingFormDetails{}, utils.NotFoundError("pole not found")
+		}
+		return HarvestGradingFormDetails{}, utils.SystemError("failed to check pole")
+	}
+
+	harvestGradingDetails := HarvestGradingFormDetails{
+		PoleId:                 poleId,
+		Location:               poleRecord.Zone.ZoneName,
+		PoleNo:                 uint(poleRecord.PoleNo),
+		HarvestGradingFormDone: poleRecord.HarvestGradingFormDone,
+	}
+
+	harvestGradingForm, err := s.harvestGradingRepo.GetHarvestGradingFormByPoleId(poleId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			harvestGradingDetails.HarvestGradingFormDone = false
+			return harvestGradingDetails, nil
+		}
+		return HarvestGradingFormDetails{}, utils.SystemError("failed to get harvest grading form")
+	}
+
+	harvestGradingDetails.Year = harvestGradingForm.YearID
+	harvestGradingDetails.GradeAPlusCount = uint(harvestGradingForm.GradeAPlusCount)
+	harvestGradingDetails.GradeAPlusWeight = uint(harvestGradingForm.GradeAPlusWeight)
+	harvestGradingDetails.GradeACount = uint(harvestGradingForm.GradeACount)
+	harvestGradingDetails.GradeAWeight = uint(harvestGradingForm.GradeAWeight)
+	harvestGradingDetails.GradeBCount = uint(harvestGradingForm.GradeBCount)
+	harvestGradingDetails.GradeBWeight = uint(harvestGradingForm.GradeBWeight)
+	harvestGradingDetails.GradeCCount = uint(harvestGradingForm.GradeCCount)
+	harvestGradingDetails.GradeCWeight = uint(harvestGradingForm.GradeCWeight)
+	harvestGradingDetails.GradeDPlusCount = uint(harvestGradingForm.GradeDPlusCount)
+	harvestGradingDetails.GradeDPlusWeight = uint(harvestGradingForm.GradeDPlusWeight)
+	harvestGradingDetails.UndersizedCount = uint(harvestGradingForm.UndersizedCount)
+	harvestGradingDetails.UndersizedWeight = uint(harvestGradingForm.UndersizedWeight)
+
+	return harvestGradingDetails, nil
+}

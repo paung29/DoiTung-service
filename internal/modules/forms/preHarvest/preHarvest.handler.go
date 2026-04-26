@@ -28,3 +28,17 @@ func (h *preHarvestHandler) CreateOrUpdatePreHarvestForm(context *fiber.Ctx) err
 
 	return context.Status(fiber.StatusCreated).JSON(response)
 }
+
+func (h *preHarvestHandler) GetPreHarvestFormDetails(context *fiber.Ctx) error {
+
+	clusterId, err := utils.GetClusterIDFromQuery(context)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	response, err := h.service.GetPreHarvestFormDetails(uint(clusterId))
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.JSON(response)
+}

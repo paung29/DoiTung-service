@@ -226,3 +226,26 @@ func (s *service) GetClusterFormByClusterId(clusterId int) (ClusterFormResponse,
 
 	return clusterFormResponse, nil
 }
+
+func (s *service) UpdateClusterForm(form ClusterUpdateRequest) (ClusterUpdateResponse, error) {
+
+	clusterId := form.ClusterId
+	// Check if the cluster form exists
+	existingForm, err := s.clusterRepo.FindClusterFormByClusterId(clusterId)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return ClusterUpdateResponse{}, utils.NotFoundError("cluster form not found")
+		}
+		return ClusterUpdateResponse{}, utils.SystemError("failed to check cluster form")
+	}
+
+	existingForm.Condition = enums.Condition(form.Condition)
+
+	if err := s.clusterRepo.UpdateClusterFormByClusterId(s.db, existingForm); err != nil {
+		return ClusterUpdateResponse{}, utils.SystemError("failed to update cluster form")
+	}
+
+	return ClusterUpdateResponse{
+		Message: "cluster form updated successfully!!!",
+	}, nil
+}

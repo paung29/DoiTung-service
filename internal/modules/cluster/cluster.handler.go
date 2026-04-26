@@ -81,3 +81,19 @@ func (h *ClusterHandler) GetClusterForm(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *ClusterHandler) UpdateClusterForm(context *fiber.Ctx) error {
+	var form ClusterUpdateRequest
+
+	if err := utils.ParseAndValidate(context, &form); err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	response, err := h.service.UpdateClusterForm(form)
+
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}

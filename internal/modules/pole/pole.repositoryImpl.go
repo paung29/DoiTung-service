@@ -41,9 +41,18 @@ func (r *repository) UpdatePole(db *gorm.DB, pole *models.Pole) error {
 
 func (r *repository) GetAllPolesByZoneId(zoneId uint) ([]models.Pole, error) {
 	var poles []models.Pole
-	err := r.db.Where("zone_id = ?", zoneId).Find(&poles).Error
+	err := r.db.Preload("Zone").Where("zone_id = ?", zoneId).Find(&poles).Error
 	if err != nil {
 		return nil, err
 	}
 	return poles, nil
+}
+
+func (r *repository) GetPoleById(poleId uint) (*models.Pole, error) {
+	var pole models.Pole
+	err := r.db.Preload("Zone").Where("pole_id = ?", poleId).First(&pole).Error
+	if err != nil {
+		return nil, err
+	}
+	return &pole, nil
 }
