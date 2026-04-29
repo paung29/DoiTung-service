@@ -41,3 +41,14 @@ func (h *PollinationHandler) GetPollinationFormDetails(context *fiber.Ctx) error
 	}
 	return context.JSON(response)
 }
+
+func (h *PollinationHandler) GetPollinationFormHistories(context *fiber.Ctx) error {
+
+	var userId uint = context.Locals("account_id").(uint)
+
+	response, err := h.service.GetPollinationFormHistories(userId)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.JSON(response)
+}

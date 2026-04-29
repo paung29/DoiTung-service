@@ -186,3 +186,31 @@ func (s *service) GetPollinationFormDetails(clusterId uint) (PollinationFormDeta
 
 	return pollinationDetails, nil
 }
+
+func (s *service) GetPollinationFormHistories(userId uint) (PollinationFormHistoriesResponse, error) {
+
+	pollinationFormHistories, err := s.pollinationRepo.GetPollinationFormHistoriesByUserId(s.db, userId)
+	if err != nil {
+		return PollinationFormHistoriesResponse{}, utils.SystemError("failed to get pollination form histories")
+	}
+
+	var pollinationFormHistoriesResponse []PollinationFormHistory
+	for _, history := range pollinationFormHistories {
+		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(history.ClusterID)
+		if err != nil {
+			return PollinationFormHistoriesResponse{}, utils.SystemError("failed to get cluster information for pollination form history")
+		}
+
+		clusterProgress := utils.CalculateClusterProgress(clusterInfo.ClusterFormDone, clusterInfo.FlowerFormDone, clusterInfo.PollinationFormDone, clusterInfo.PodFormDone, clusterInfo.PreHarvestFormDone)
+		pollinationFormHistoriesResponse = append(pollinationFormHistoriesResponse, PollinationFormHistory{
+			ClusterId:    history.ClusterID,
+			Location:     clusterInfo.Pole.Zone.ZoneName,
+			PoleNo:       uint(clusterInfo.Pole.PoleNo),
+			ClusterNo:    uint(clusterInfo.ClusterNo),
+			ProgressDone: clusterProgress,
+			CreatedAt:    history.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:    history.UpdatedAt.Format(time.RFC3339),
+		})
+	}
+	return PollinationFormHistoriesResponse{PollinationFormHistories: pollinationFormHistoriesResponse}, nil
+}

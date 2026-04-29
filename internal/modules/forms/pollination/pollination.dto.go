@@ -24,3 +24,17 @@ type PollinationFormDetails struct {
 	Condition               string `json:"condition"`
 	PollinationFormDone     bool   `json:"pollinationFormDone"`
 }
+
+type PollinationFormHistoriesResponse struct {
+	PollinationFormHistories []PollinationFormHistory `json:"pollinationFormHistories"`
+}
+
+type PollinationFormHistory struct {
+	ClusterId    uint   `json:"clusterId"`
+	Location     string `json:"location"`
+	PoleNo       uint   `json:"poleNo"`
+	ClusterNo    uint   `json:"clusterNo"`
+	ProgressDone uint   `json:"progressDone"`
+	CreatedAt    string `json:"createdAt"`
+	UpdatedAt    string `json:"updatedAt"`
+}
