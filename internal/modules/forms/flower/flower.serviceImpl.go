@@ -160,13 +160,15 @@ func (s *service) GetFlowerFormHistories(userId uint) (FlowerFormHistoriesRespon
 		if err != nil {
 			return FlowerFormHistoriesResponse{}, utils.SystemError("failed to get cluster information")
 		}
+		clusterProgress := utils.CalculateClusterProgress(clusterInfo.ClusterFormDone, clusterInfo.FlowerFormDone, clusterInfo.PollinationFormDone, clusterInfo.PodFormDone, clusterInfo.PreHarvestFormDone)
 		history := FlowerFormHistory{
-			ClusterId: record.ClusterID,
-			Location:  clusterInfo.Pole.Zone.ZoneName,
-			PoleNo:    clusterInfo.Pole.PoleNo,
-			ClusterNo: clusterInfo.ClusterNo,
-			CreatedAt: record.CreatedAt.Format("2006-01-02 15:04:05"),
-			UpdatedAt: record.UpdatedAt.Format("2006-01-02 15:04:05"),
+			ClusterId:    record.ClusterID,
+			Location:     clusterInfo.Pole.Zone.ZoneName,
+			PoleNo:       clusterInfo.Pole.PoleNo,
+			ClusterNo:    clusterInfo.ClusterNo,
+			ProgressDone: clusterProgress,
+			CreatedAt:    record.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt:    record.UpdatedAt.Format("2006-01-02 15:04:05"),
 		}
 		flowerFormHistories = append(flowerFormHistories, history)
 	}
