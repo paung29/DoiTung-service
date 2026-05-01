@@ -243,13 +243,15 @@ func (s *service) GetClusterFormHistories(userId uint) (ClusterFormHistoriesResp
 
 	var clusterFormHistoryResponses []ClusterFormHistory
 	for _, history := range clusterFormHistories {
+		progressDone := utils.CalculateClusterProgress(history.Cluster.ClusterFormDone, history.Cluster.FlowerFormDone, history.Cluster.PollinationFormDone, history.Cluster.PodFormDone, history.Cluster.PreHarvestFormDone)
 		clusterFormHistoryResponses = append(clusterFormHistoryResponses, ClusterFormHistory{
-			ClusterId: history.ClusterID,
-			Location:  history.Cluster.Pole.Zone.ZoneName,
-			PoleNo:    history.Cluster.Pole.PoleNo,
-			ClusterNo: history.Cluster.ClusterNo,
-			CreatedAt: history.CreatedAt.Format("2006-01-02 15:04"),
-			UpdatedAt: history.UpdatedAt.Format("2006-01-02 15:04"),
+			ClusterId:    history.ClusterID,
+			Location:     history.Cluster.Pole.Zone.ZoneName,
+			PoleNo:       history.Cluster.Pole.PoleNo,
+			ProgressDone: progressDone,
+			ClusterNo:    history.Cluster.ClusterNo,
+			CreatedAt:    history.CreatedAt.Format("2006-01-02 15:04"),
+			UpdatedAt:    history.UpdatedAt.Format("2006-01-02 15:04"),
 		})
 	}
 

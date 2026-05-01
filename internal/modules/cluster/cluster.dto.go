@@ -52,10 +52,11 @@ type ClusterFormHistoriesResponse struct {
 }
 
 type ClusterFormHistory struct {
-	ClusterId uint   `json:"clusterId"`
-	Location  string `json:"location"`
-	PoleNo    int    `json:"poleNo"`
-	ClusterNo int    `json:"clusterNo"`
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
+	ClusterId    uint   `json:"clusterId"`
+	Location     string `json:"location"`
+	PoleNo       int    `json:"poleNo"`
+	ClusterNo    int    `json:"clusterNo"`
+	ProgressDone uint   `json:"progressDone"`
+	CreatedAt    string `json:"createdAt"`
+	UpdatedAt    string `json:"updatedAt"`
 }
