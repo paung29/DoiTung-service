@@ -169,17 +169,25 @@ func (s *service) GetPodFormHistories(userId uint) (PodFormHistoriesResponse, er
 
 	podFormHistories, err := s.podRepo.GetPodFormHistoriesByUserId(s.db, userId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PodFormHistoriesResponse{PodFormHistories: []cluster.ClusterInfo{}}, nil
+		}
 		return PodFormHistoriesResponse{}, utils.SystemError("failed to get pod form histories")
 	}
 
 	var podFormHistoriesResponse []cluster.ClusterInfo
-	for _, history := range podFormHistories {
-		clusterProgress := utils.CalculateClusterProgress(history.Cluster.ClusterFormDone, history.Cluster.FlowerFormDone, history.Cluster.PollinationFormDone, history.Cluster.PodFormDone, history.Cluster.PreHarvestFormDone)
+	for i, history := range podFormHistories {
+		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(history.ClusterID)
+		if err != nil {
+			return PodFormHistoriesResponse{}, utils.SystemError("failed to get cluster information for pod form history")
+		}
+		clusterProgress := utils.CalculateClusterProgress(clusterInfo.ClusterFormDone, clusterInfo.FlowerFormDone, clusterInfo.PollinationFormDone, clusterInfo.PodFormDone, clusterInfo.PreHarvestFormDone)
 		podFormHistoriesResponse = append(podFormHistoriesResponse, cluster.ClusterInfo{
+			No:           i + 1,
 			ClusterId:    history.ClusterID,
-			Location:     history.Cluster.Pole.Zone.ZoneName,
-			PoleNo:       history.Cluster.Pole.PoleNo,
-			ClusterNo:    history.Cluster.ClusterNo,
+			Location:     clusterInfo.Pole.Zone.ZoneName,
+			PoleNo:       clusterInfo.Pole.PoleNo,
+			ClusterNo:    clusterInfo.ClusterNo,
 			ProgressDone: int(clusterProgress),
 			CreatedAt:    history.CreatedAt.Format("2006-01-02 15:04"),
 			UpdatedAt:    history.UpdatedAt.Format("2006-01-02 15:04"),
