@@ -208,8 +208,8 @@ func (s *service) GetPollinationFormHistories(userId uint) (PollinationFormHisto
 			PoleNo:       uint(clusterInfo.Pole.PoleNo),
 			ClusterNo:    uint(clusterInfo.ClusterNo),
 			ProgressDone: clusterProgress,
-			CreatedAt:    history.CreatedAt.Format(time.RFC3339),
-			UpdatedAt:    history.UpdatedAt.Format(time.RFC3339),
+			CreatedAt:    history.CreatedAt.Format("2006-01-02 15:04"),
+			UpdatedAt:    history.UpdatedAt.Format("2006-01-02 15:04"),
 		})
 	}
 	return PollinationFormHistoriesResponse{PollinationFormHistories: pollinationFormHistoriesResponse}, nil

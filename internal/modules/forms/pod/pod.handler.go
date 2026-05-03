@@ -42,3 +42,13 @@ func (h *PodHandler) GetPodFormDetails(context *fiber.Ctx) error {
 	}
 	return context.JSON(response)
 }
+
+func (h *PodHandler) GetPodFormHistories(context *fiber.Ctx) error {
+	userId := context.Locals("account_id").(uint)
+
+	response, err := h.service.GetPodFormHistories(userId)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.JSON(response)
+}

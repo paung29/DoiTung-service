@@ -164,3 +164,27 @@ func (s *service) GetPodFormDetails(clusterId uint) (PodFormDetails, error) {
 
 	return podDetails, nil
 }
+
+func (s *service) GetPodFormHistories(userId uint) (PodFormHistoriesResponse, error) {
+
+	podFormHistories, err := s.podRepo.GetPodFormHistoriesByUserId(s.db, userId)
+	if err != nil {
+		return PodFormHistoriesResponse{}, utils.SystemError("failed to get pod form histories")
+	}
+
+	var podFormHistoriesResponse []cluster.ClusterInfo
+	for _, history := range podFormHistories {
+		clusterProgress := utils.CalculateClusterProgress(history.Cluster.ClusterFormDone, history.Cluster.FlowerFormDone, history.Cluster.PollinationFormDone, history.Cluster.PodFormDone, history.Cluster.PreHarvestFormDone)
+		podFormHistoriesResponse = append(podFormHistoriesResponse, cluster.ClusterInfo{
+			ClusterId:    history.ClusterID,
+			Location:     history.Cluster.Pole.Zone.ZoneName,
+			PoleNo:       history.Cluster.Pole.PoleNo,
+			ClusterNo:    history.Cluster.ClusterNo,
+			ProgressDone: int(clusterProgress),
+			CreatedAt:    history.CreatedAt.Format("2006-01-02 15:04"),
+			UpdatedAt:    history.UpdatedAt.Format("2006-01-02 15:04"),
+		})
+	}
+
+	return PodFormHistoriesResponse{PodFormHistories: podFormHistoriesResponse}, nil
+}

@@ -33,3 +33,13 @@ func (r *repository) GetPodFormByClusterId(db *gorm.DB, clusterId uint) (*models
 func (r *repository) UpdatePodForm(db *gorm.DB, form *models.PodForm) error {
 	return commonRepo.Save(db, form)
 }
+
+// GetPodFormHistoriesByUserId implements [PodRepository].
+func (r *repository) GetPodFormHistoriesByUserId(db *gorm.DB, userId uint) ([]models.PodForm, error) {
+	var forms []models.PodForm
+	err := db.Where("recorded_by_id = ?", userId).Find(&forms).Error
+	if err != nil {
+		return nil, err
+	}
+	return forms, nil
+}
