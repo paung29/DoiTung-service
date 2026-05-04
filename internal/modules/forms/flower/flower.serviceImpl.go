@@ -160,7 +160,7 @@ func (s *service) GetFlowerFormHistories(userId uint) (FlowerFormHistoriesRespon
 		if err != nil {
 			return FlowerFormHistoriesResponse{}, utils.SystemError("failed to get cluster information")
 		}
-		clusterProgress := utils.CalculateClusterProgress(clusterInfo.ClusterFormDone, clusterInfo.FlowerFormDone, clusterInfo.PollinationFormDone, clusterInfo.PodFormDone, clusterInfo.PreHarvestFormDone)
+		clusterProgress := utils.CalculateClusterProgress(*clusterInfo)
 		history := FlowerFormHistory{
 			ClusterId:    record.ClusterID,
 			Location:     clusterInfo.Pole.Zone.ZoneName,

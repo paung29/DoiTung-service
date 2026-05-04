@@ -201,7 +201,7 @@ func (s *service) GetPollinationFormHistories(userId uint) (PollinationFormHisto
 			return PollinationFormHistoriesResponse{}, utils.SystemError("failed to get cluster information for pollination form history")
 		}
 
-		clusterProgress := utils.CalculateClusterProgress(clusterInfo.ClusterFormDone, clusterInfo.FlowerFormDone, clusterInfo.PollinationFormDone, clusterInfo.PodFormDone, clusterInfo.PreHarvestFormDone)
+		clusterProgress := utils.CalculateClusterProgress(*clusterInfo)
 		pollinationFormHistoriesResponse = append(pollinationFormHistoriesResponse, PollinationFormHistory{
 			ClusterId:    history.ClusterID,
 			Location:     clusterInfo.Pole.Zone.ZoneName,

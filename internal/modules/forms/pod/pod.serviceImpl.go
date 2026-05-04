@@ -176,14 +176,14 @@ func (s *service) GetPodFormHistories(userId uint) (PodFormHistoriesResponse, er
 	}
 
 	var podFormHistoriesResponse []cluster.ClusterInfo
-	for i, history := range podFormHistories {
+	for number, history := range podFormHistories {
 		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(history.ClusterID)
 		if err != nil {
 			return PodFormHistoriesResponse{}, utils.SystemError("failed to get cluster information for pod form history")
 		}
-		clusterProgress := utils.CalculateClusterProgress(clusterInfo.ClusterFormDone, clusterInfo.FlowerFormDone, clusterInfo.PollinationFormDone, clusterInfo.PodFormDone, clusterInfo.PreHarvestFormDone)
+		clusterProgress := utils.CalculateClusterProgress(*clusterInfo)
 		podFormHistoriesResponse = append(podFormHistoriesResponse, cluster.ClusterInfo{
-			No:           i + 1,
+			No:           number + 1,
 			ClusterId:    history.ClusterID,
 			Location:     clusterInfo.Pole.Zone.ZoneName,
 			PoleNo:       clusterInfo.Pole.PoleNo,

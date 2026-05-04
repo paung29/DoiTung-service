@@ -177,7 +177,7 @@ func (s *service) GetClustersByZone(year int, zoneNo int) (ClustersByZoneRespons
 	var clusterResponses []ClusterInfo
 
 	for i, cluster := range clusters {
-		clusterProgress := utils.CalculateClusterProgress(cluster.ClusterFormDone, cluster.FlowerFormDone, cluster.PollinationFormDone, cluster.PodFormDone, cluster.PreHarvestFormDone)
+		clusterProgress := utils.CalculateClusterProgress(cluster)
 
 		clusterResponses = append(clusterResponses, ClusterInfo{
 			No:           i + 1,
@@ -242,9 +242,10 @@ func (s *service) GetClusterFormHistories(userId uint) (ClusterFormHistoriesResp
 	}
 
 	var clusterFormHistoryResponses []ClusterInfo
-	for _, history := range clusterFormHistories {
-		progressDone := utils.CalculateClusterProgress(history.Cluster.ClusterFormDone, history.Cluster.FlowerFormDone, history.Cluster.PollinationFormDone, history.Cluster.PodFormDone, history.Cluster.PreHarvestFormDone)
+	for number, history := range clusterFormHistories {
+		progressDone := utils.CalculateClusterProgress(history.Cluster)
 		clusterFormHistoryResponses = append(clusterFormHistoryResponses, ClusterInfo{
+			No:           number + 1,
 			ClusterId:    history.ClusterID,
 			Location:     history.Cluster.Pole.Zone.ZoneName,
 			PoleNo:       history.Cluster.Pole.PoleNo,

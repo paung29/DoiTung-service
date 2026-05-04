@@ -1,21 +1,23 @@
 package utils
 
-func CalculateClusterProgress(clusterFormDone, flowerFormDone, pollinationFormDone, podFormDone, preHarvestFormDone bool) uint {
+import "github.com/doitung/DoiTung-service/internal/models"
+
+func CalculateClusterProgress(clusterInfo models.Cluster) uint {
 	done := uint(0)
 
-	if clusterFormDone {
+	if clusterInfo.ClusterFormDone {
 		done++
 	}
-	if flowerFormDone {
+	if clusterInfo.FlowerFormDone {
 		done++
 	}
-	if pollinationFormDone {
+	if clusterInfo.PollinationFormDone {
 		done++
 	}
-	if podFormDone {
+	if clusterInfo.PodFormDone {
 		done++
 	}
-	if preHarvestFormDone {
+	if clusterInfo.PreHarvestFormDone {
 		done++
 	}
 
