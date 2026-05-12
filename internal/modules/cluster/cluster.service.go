@@ -5,5 +5,5 @@ type ClusterService interface {
 	GetClustersByZone(year int, zoneNo int) (ClustersByZoneResponse, error)
 	GetClusterFormByClusterId(clusterId int) (ClusterFormResponse, error)
 	UpdateClusterForm(form ClusterUpdateRequest) (ClusterUpdateResponse, error)
-	GetClusterFormHistories(userId uint) (ClusterFormHistoriesResponse, error)
+	GetClusterFormHistories(userId uint, year uint) (ClusterFormHistoriesResponse, error)
 }

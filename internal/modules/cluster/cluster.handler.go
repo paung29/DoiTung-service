@@ -101,7 +101,17 @@ func (h *ClusterHandler) UpdateClusterForm(context *fiber.Ctx) error {
 func (h *ClusterHandler) GetClusterFormHistories(context *fiber.Ctx) error {
 	userId := context.Locals("account_id").(uint)
 
-	response, err := h.service.GetClusterFormHistories(userId)
+	currentYear := context.Query("year")
+	if currentYear == "" {
+		return utils.HandleError(context, utils.BadRequestError("year is required"))
+	}
+
+	year, err := strconv.Atoi(currentYear)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid year"))
+	}
+
+	response, err := h.service.GetClusterFormHistories(userId, uint(year))
 
 	if err != nil {
 		return utils.HandleError(context, err)

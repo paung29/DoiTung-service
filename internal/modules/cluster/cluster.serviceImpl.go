@@ -234,9 +234,14 @@ func (s *service) UpdateClusterForm(form ClusterUpdateRequest) (ClusterUpdateRes
 	}, nil
 }
 
-func (s *service) GetClusterFormHistories(userId uint) (ClusterFormHistoriesResponse, error) {
+func (s *service) GetClusterFormHistories(userId uint, year uint) (ClusterFormHistoriesResponse, error) {
 
-	clusterFormHistories, err := s.clusterRepo.GetClusterFormHistoriesByUserId(userId)
+	yearModel, err := s.yearRepo.FindByYear(int(year))
+	if err != nil {
+		return ClusterFormHistoriesResponse{}, utils.NotFoundError("year not found")
+	}
+
+	clusterFormHistories, err := s.clusterRepo.GetClusterFormHistoriesByUserIdAndYear(userId, int(yearModel.YearID))
 	if err != nil {
 		return ClusterFormHistoriesResponse{}, utils.SystemError("failed to get cluster form histories")
 	}

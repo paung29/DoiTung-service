@@ -126,9 +126,9 @@ func (r *repository) UpdateClusterFormByClusterId(db *gorm.DB, form *models.Clus
 	return commonrepo.Save(db, form)
 }
 
-func (r *repository) GetClusterFormHistoriesByUserId(userId uint) ([]models.ClusterForm, error) {
+func (r *repository) GetClusterFormHistoriesByUserIdAndYear(userId uint, year int) ([]models.ClusterForm, error) {
 	var forms []models.ClusterForm
-	if err := r.db.Preload("Cluster").Preload("Cluster.Pole").Preload("Cluster.Pole.Zone").Where("recorded_by_id = ?", userId).Find(&forms).Error; err != nil {
+	if err := r.db.Preload("Cluster").Preload("Cluster.Pole").Preload("Cluster.Pole.Zone").Where("recorded_by_id = ? AND year_id = ?", userId, year).Find(&forms).Error; err != nil {
 		return nil, err
 	}
 	return forms, nil
