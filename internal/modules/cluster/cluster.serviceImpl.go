@@ -241,7 +241,7 @@ func (s *service) GetClusterFormHistories(userId uint, year uint) (ClusterFormHi
 		return ClusterFormHistoriesResponse{}, utils.NotFoundError("year not found")
 	}
 
-	clusterFormHistories, err := s.clusterRepo.GetClusterFormHistoriesByUserIdAndYear(userId, int(yearModel.YearID))
+	clusterFormHistories, err := s.clusterRepo.GetClusterFormHistoriesByUserIdAndYearId(userId, yearModel.YearID)
 	if err != nil {
 		return ClusterFormHistoriesResponse{}, utils.SystemError("failed to get cluster form histories")
 	}

@@ -20,5 +20,5 @@ type ClusterRepository interface {
 	GetAllClusterFormDetailsByClusterId(clusterId uint) (*models.ClusterForm, error)
 	GetClusterBasicInfoByClusterId(clusterId uint) (*models.Cluster, error)
 	UpdateClusterFormByClusterId(db *gorm.DB, form *models.ClusterForm) error
-	GetClusterFormHistoriesByUserIdAndYear(userId uint, year int) ([]models.ClusterForm, error)
+	GetClusterFormHistoriesByUserIdAndYearId(userId uint, yearId uint) ([]models.ClusterForm, error)
 }
