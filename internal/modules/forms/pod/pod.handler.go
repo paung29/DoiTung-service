@@ -1,6 +1,8 @@
 package pod
 
 import (
+	"strconv"
+
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -46,7 +48,17 @@ func (h *PodHandler) GetPodFormDetails(context *fiber.Ctx) error {
 func (h *PodHandler) GetPodFormHistories(context *fiber.Ctx) error {
 	userId := context.Locals("account_id").(uint)
 
-	response, err := h.service.GetPodFormHistories(userId)
+	yearStr := context.Query("year")
+	if yearStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("year is required"))
+	}
+
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid year"))
+	}
+
+	response, err := h.service.GetPodFormHistories(userId, uint(year))
 	if err != nil {
 		return utils.HandleError(context, err)
 	}

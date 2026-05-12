@@ -165,9 +165,17 @@ func (s *service) GetPodFormDetails(clusterId uint) (PodFormDetails, error) {
 	return podDetails, nil
 }
 
-func (s *service) GetPodFormHistories(userId uint) (PodFormHistoriesResponse, error) {
+func (s *service) GetPodFormHistories(userId uint, year uint) (PodFormHistoriesResponse, error) {
 
-	podFormHistories, err := s.podRepo.GetPodFormHistoriesByUserId(s.db, userId)
+	yearRecord, err := s.yearRepo.FindByYear(int(year))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PodFormHistoriesResponse{}, utils.BadRequestError("year not found")
+		}
+		return PodFormHistoriesResponse{}, utils.SystemError("failed to get year information")
+	}
+
+	podFormHistories, err := s.podRepo.GetPodFormHistoriesByUserIdAndYearId(s.db, userId, yearRecord.YearID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return PodFormHistoriesResponse{PodFormHistories: []cluster.ClusterInfo{}}, nil
