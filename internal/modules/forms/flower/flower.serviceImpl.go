@@ -148,8 +148,15 @@ func (s *service) GetFlowerFormDetailsByClusterID(clusterId uint) (FlowerFormDet
 	return flowerDetails, nil
 }
 
-func (s *service) GetFlowerFormHistories(userId uint) (FlowerFormHistoriesResponse, error) {
-	flowerFormRecords, err := s.flowerRepo.GetFlowerFormHistoriesByUserId(s.db, userId)
+func (s *service) GetFlowerFormHistories(userId uint, year uint) (FlowerFormHistoriesResponse, error) {
+	yearRecord, err := s.yearRepo.FindByYear(int(year))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return FlowerFormHistoriesResponse{}, utils.BadRequestError("year not found")
+		}
+		return FlowerFormHistoriesResponse{}, utils.SystemError("failed to get year information")
+	}
+	flowerFormRecords, err := s.flowerRepo.GetFlowerFormHistoriesByUserIdAndYear(s.db, userId, yearRecord.YearID)
 	if err != nil {
 		return FlowerFormHistoriesResponse{}, utils.SystemError("failed to get flower form histories")
 	}

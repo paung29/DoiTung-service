@@ -10,5 +10,5 @@ type FlowerRepository interface {
 	GetFlowerFormByClusterID(db *gorm.DB, clusterId uint) (*models.FlowerForm, error)
 	UpdateFlowerForm(db *gorm.DB, form *models.FlowerForm) error
 	GetFlowerFormDetailsByClusterID(db *gorm.DB, clusterId uint) (*models.FlowerForm, error)
-	GetFlowerFormHistoriesByUserId(db *gorm.DB, userId uint) ([]models.FlowerForm, error)
+	GetFlowerFormHistoriesByUserIdAndYear(db *gorm.DB, userId uint, year uint) ([]models.FlowerForm, error)
 }
