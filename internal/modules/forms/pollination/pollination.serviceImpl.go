@@ -187,9 +187,17 @@ func (s *service) GetPollinationFormDetails(clusterId uint) (PollinationFormDeta
 	return pollinationDetails, nil
 }
 
-func (s *service) GetPollinationFormHistories(userId uint) (PollinationFormHistoriesResponse, error) {
+func (s *service) GetPollinationFormHistories(userId uint, year uint) (PollinationFormHistoriesResponse, error) {
 
-	pollinationFormHistories, err := s.pollinationRepo.GetPollinationFormHistoriesByUserId(s.db, userId)
+	yearRecord, err := s.yearRepo.FindByYear(int(year))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PollinationFormHistoriesResponse{}, utils.BadRequestError("year not found")
+		}
+		return PollinationFormHistoriesResponse{}, utils.SystemError("failed to get year information")
+	}
+
+	pollinationFormHistories, err := s.pollinationRepo.GetPollinationFormHistoriesByUserIdAndYearId(s.db, userId, yearRecord.YearID)
 	if err != nil {
 		return PollinationFormHistoriesResponse{}, utils.SystemError("failed to get pollination form histories")
 	}

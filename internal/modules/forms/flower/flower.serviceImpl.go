@@ -156,7 +156,7 @@ func (s *service) GetFlowerFormHistories(userId uint, year uint) (FlowerFormHist
 		}
 		return FlowerFormHistoriesResponse{}, utils.SystemError("failed to get year information")
 	}
-	flowerFormRecords, err := s.flowerRepo.GetFlowerFormHistoriesByUserIdAndYear(s.db, userId, yearRecord.YearID)
+	flowerFormRecords, err := s.flowerRepo.GetFlowerFormHistoriesByUserIdAndYearId(s.db, userId, yearRecord.YearID)
 	if err != nil {
 		return FlowerFormHistoriesResponse{}, utils.SystemError("failed to get flower form histories")
 	}

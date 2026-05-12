@@ -1,6 +1,8 @@
 package pollination
 
 import (
+	"strconv"
+
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -44,9 +46,18 @@ func (h *PollinationHandler) GetPollinationFormDetails(context *fiber.Ctx) error
 
 func (h *PollinationHandler) GetPollinationFormHistories(context *fiber.Ctx) error {
 
-	var userId uint = context.Locals("account_id").(uint)
+	userId := context.Locals("account_id").(uint)
+	yearStr := context.Query("year")
+	if yearStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("year is required"))
+	}
 
-	response, err := h.service.GetPollinationFormHistories(userId)
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid year"))
+	}
+
+	response, err := h.service.GetPollinationFormHistories(userId, uint(year))
 	if err != nil {
 		return utils.HandleError(context, err)
 	}

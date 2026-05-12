@@ -44,9 +44,9 @@ func (r *repository) GetFlowerFormDetailsByClusterID(db *gorm.DB, clusterId uint
 }
 
 // GetFlowerFormHistoriesByUserId implements [FlowerRepository].
-func (r *repository) GetFlowerFormHistoriesByUserIdAndYear(db *gorm.DB, userId uint, year int) ([]models.FlowerForm, error) {
+func (r *repository) GetFlowerFormHistoriesByUserIdAndYearId(db *gorm.DB, userId uint, yearId uint) ([]models.FlowerForm, error) {
 	var forms []models.FlowerForm
-	if err := r.db.Preload("Cluster").Preload("Cluster.Pole").Preload("Cluster.Pole.Zone").Where("recorded_by_id = ? AND year_id = ?", userId, year).Find(&forms).Error; err != nil {
+	if err := r.db.Preload("Cluster").Preload("Cluster.Pole").Preload("Cluster.Pole.Zone").Where("recorded_by_id = ? AND year_id = ?", userId, yearId).Find(&forms).Error; err != nil {
 		return nil, err
 	}
 	return forms, nil

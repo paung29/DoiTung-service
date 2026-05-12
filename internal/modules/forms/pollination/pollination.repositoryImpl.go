@@ -34,10 +34,10 @@ func (r *repository) UpdatePollinationForm(db *gorm.DB, form *models.Pollination
 	return commonRepo.Save(db, form)
 }
 
-// GetPollinationFormHistoriesByUserId implements [PollinationRepository].
-func (r *repository) GetPollinationFormHistoriesByUserId(db *gorm.DB, userId uint) ([]models.PollinationForm, error) {
+// GetPollinationFormHistoriesByUserIdAndYearId implements [PollinationRepository].
+func (r *repository) GetPollinationFormHistoriesByUserIdAndYearId(db *gorm.DB, userId uint, yearId uint) ([]models.PollinationForm, error) {
 	var forms []models.PollinationForm
-	err := db.Where("recorded_by_id = ?", userId).Find(&forms).Error
+	err := db.Where("recorded_by_id = ? AND year_id = ?", userId, yearId).Find(&forms).Error
 	if err != nil {
 		return nil, err
 	}

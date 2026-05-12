@@ -9,5 +9,5 @@ type PollinationRepository interface {
 	CreatePollinationForm(db *gorm.DB, form *models.PollinationForm) error
 	GetPollinationFormByClusterID(db *gorm.DB, clusterId uint) (*models.PollinationForm, error)
 	UpdatePollinationForm(db *gorm.DB, form *models.PollinationForm) error
-	GetPollinationFormHistoriesByUserId(db *gorm.DB, userId uint) ([]models.PollinationForm, error)
+	GetPollinationFormHistoriesByUserIdAndYearId(db *gorm.DB, userId uint, yearId uint) ([]models.PollinationForm, error)
 }
