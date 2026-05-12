@@ -25,3 +25,18 @@ type PreHarvestFormDetails struct {
 	Condition             string `json:"condition"`
 	PreHarvestFormDone    bool   `json:"preHarvestFormDone"`
 }
+
+type PreHarvestFormHistoriesResponse struct {
+	PreHarvestForms []PreHarvestFormHistory `json:"preHarvestForms"`
+}
+
+type PreHarvestFormHistory struct {
+	No           uint   `json:"no"`
+	ClusterId    uint   `json:"clusterId"`
+	Location     string `json:"location"`
+	PoleNo       uint   `json:"poleNo"`
+	ClusterNo    uint   `json:"clusterNo"`
+	ProgressDone uint   `json:"progressDone"`
+	CreatedAt    string `json:"createdAt"`
+	UpdatedAt    string `json:"updatedAt"`
+}

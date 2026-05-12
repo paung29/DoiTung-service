@@ -33,3 +33,13 @@ func (r *repository) GetPreHarvestFormByClusterId(db *gorm.DB, clusterId uint) (
 func (r *repository) UpdatePreHarvestForm(db *gorm.DB, form *models.PreHarvestForm) error {
 	return commonRepo.Save(db, form)
 }
+
+// GetPreHarvestFormsByUserIdAndYear implements [PreHarvestRepository].
+func (r *repository) GetPreHarvestFormsByUserIdAndYear(db *gorm.DB, userId uint, year uint) ([]models.PreHarvestForm, error) {
+	var forms []models.PreHarvestForm
+	err := db.Where("recorded_by_id = ? AND year_id = ?", userId, year).Find(&forms).Error
+	if err != nil {
+		return nil, err
+	}
+	return forms, nil
+}
