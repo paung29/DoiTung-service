@@ -141,11 +141,23 @@ func (s *service) GetPodFormDetails(clusterId uint) (PodFormDetails, error) {
 		return PodFormDetails{}, utils.SystemError("failed to get cluster information")
 	}
 
+	clusterId = clusterInfo.ClusterID
+
+	// Get the pollination data
+	pollinationRecord, err := s.pollinationRepo.GetPollinationFormByClusterID(s.db, clusterId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PodFormDetails{}, utils.BadRequestError("pollination form not found for the cluster. Please submit pollination form first.")
+		}
+		return PodFormDetails{}, utils.SystemError("failed to get pollination form")
+	}
+
 	podDetails := PodFormDetails{
 		ClusterId:   clusterInfo.ClusterID,
 		Location:    clusterInfo.Pole.Zone.ZoneName,
 		PoleNo:      uint(clusterInfo.Pole.PoleNo),
 		ClusterNo:   uint(clusterInfo.ClusterNo),
+		NumberPods:  uint(pollinationRecord.NumberPods),
 		PodFormDone: clusterInfo.PodFormDone,
 	}
 
@@ -157,7 +169,6 @@ func (s *service) GetPodFormDetails(clusterId uint) (PodFormDetails, error) {
 		return PodFormDetails{}, utils.SystemError("failed to get pod form details")
 	}
 
-	podDetails.NumberPods = uint(podFormRecord.NumberPods)
 	podDetails.LostPods = uint(podFormRecord.LostPods)
 	podDetails.RemainingPods = uint(podFormRecord.RemainingPods)
 	podDetails.Condition = string(podFormRecord.Condition)
