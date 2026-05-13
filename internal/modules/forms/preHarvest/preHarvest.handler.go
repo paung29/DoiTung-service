@@ -1,6 +1,8 @@
 package preharvest
 
 import (
+	"strconv"
+
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -37,6 +39,26 @@ func (h *preHarvestHandler) GetPreHarvestFormDetails(context *fiber.Ctx) error {
 	}
 
 	response, err := h.service.GetPreHarvestFormDetails(uint(clusterId))
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.JSON(response)
+}
+
+func (h *preHarvestHandler) GetPreHarvestFormHistories(context *fiber.Ctx) error {
+	userId := context.Locals("account_id").(uint)
+
+	yearStr := context.Query("year")
+	if yearStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("year query parameter is required"))
+	}
+
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid year format"))
+	}
+
+	response, err := h.service.GetPreHarvestFormHistories(userId, uint(year))
 	if err != nil {
 		return utils.HandleError(context, err)
 	}

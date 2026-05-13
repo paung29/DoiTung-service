@@ -186,3 +186,39 @@ func (s *service) GetPollinationFormDetails(clusterId uint) (PollinationFormDeta
 
 	return pollinationDetails, nil
 }
+
+func (s *service) GetPollinationFormHistories(userId uint, year uint) (PollinationFormHistoriesResponse, error) {
+
+	yearRecord, err := s.yearRepo.FindByYear(int(year))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PollinationFormHistoriesResponse{}, utils.BadRequestError("year not found")
+		}
+		return PollinationFormHistoriesResponse{}, utils.SystemError("failed to get year information")
+	}
+
+	pollinationFormHistories, err := s.pollinationRepo.GetPollinationFormHistoriesByUserIdAndYearId(s.db, userId, yearRecord.YearID)
+	if err != nil {
+		return PollinationFormHistoriesResponse{}, utils.SystemError("failed to get pollination form histories")
+	}
+
+	var pollinationFormHistoriesResponse []PollinationFormHistory
+	for _, history := range pollinationFormHistories {
+		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(history.ClusterID)
+		if err != nil {
+			return PollinationFormHistoriesResponse{}, utils.SystemError("failed to get cluster information for pollination form history")
+		}
+
+		clusterProgress := utils.CalculateClusterProgress(*clusterInfo)
+		pollinationFormHistoriesResponse = append(pollinationFormHistoriesResponse, PollinationFormHistory{
+			ClusterId:    history.ClusterID,
+			Location:     clusterInfo.Pole.Zone.ZoneName,
+			PoleNo:       uint(clusterInfo.Pole.PoleNo),
+			ClusterNo:    uint(clusterInfo.ClusterNo),
+			ProgressDone: clusterProgress,
+			CreatedAt:    history.CreatedAt.Format("2006-01-02 15:04"),
+			UpdatedAt:    history.UpdatedAt.Format("2006-01-02 15:04"),
+		})
+	}
+	return PollinationFormHistoriesResponse{PollinationFormHistories: pollinationFormHistoriesResponse}, nil
+}

@@ -125,3 +125,11 @@ func (r *repository) GetClusterBasicInfoByClusterId(clusterId uint) (*models.Clu
 func (r *repository) UpdateClusterFormByClusterId(db *gorm.DB, form *models.ClusterForm) error {
 	return commonrepo.Save(db, form)
 }
+
+func (r *repository) GetClusterFormHistoriesByUserIdAndYearId(userId uint, yearId uint) ([]models.ClusterForm, error) {
+	var forms []models.ClusterForm
+	if err := r.db.Preload("Cluster").Preload("Cluster.Pole").Preload("Cluster.Pole.Zone").Where("recorded_by_id = ? AND year_id = ?", userId, yearId).Find(&forms).Error; err != nil {
+		return nil, err
+	}
+	return forms, nil
+}

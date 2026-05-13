@@ -1,5 +1,7 @@
 package pod
 
+import "github.com/doitung/DoiTung-service/internal/modules/cluster"
+
 type PodFormRequest struct {
 	ClusterId uint   `json:"clusterId" validate:"required"`
 	LostPods  *uint  `json:"lostPods" validate:"required,number"`
@@ -20,4 +22,8 @@ type PodFormDetails struct {
 	RemainingPods uint   `json:"remainingPods"`
 	Condition     string `json:"condition"`
 	PodFormDone   bool   `json:"podFormDone"`
+}
+
+type PodFormHistoriesResponse struct {
+	PodFormHistories []cluster.ClusterInfo `json:"podFormHistories"`
 }

@@ -10,4 +10,5 @@ func PreHarvestRoute(app *fiber.App, handler *preHarvestHandler) {
 
 	preHarvestGroup.Post("/create", middleware.RequiredAuth, handler.CreateOrUpdatePreHarvestForm)
 	preHarvestGroup.Get("/get-preHarvest-form", middleware.RequiredAuth, handler.GetPreHarvestFormDetails)
+	preHarvestGroup.Get("/get-preHarvest-form-histories", middleware.RequiredAuth, handler.GetPreHarvestFormHistories)
 }

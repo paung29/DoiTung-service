@@ -55,3 +55,24 @@ func (h *FlowerHandler) GetFlowerFormDetails(context *fiber.Ctx) error {
 	}
 	return context.JSON(response)
 }
+
+func (h *FlowerHandler) GetFlowerFormHistories(context *fiber.Ctx) error {
+
+	userId := context.Locals("account_id").(uint)
+	yearStr := context.Query("year")
+	if yearStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("year is required"))
+	}
+
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid year"))
+	}
+
+	response, err := h.service.GetFlowerFormHistories(userId, uint(year))
+
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.JSON(response)
+}

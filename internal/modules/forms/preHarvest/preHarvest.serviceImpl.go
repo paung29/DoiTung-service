@@ -176,3 +176,39 @@ func (s *service) GetPreHarvestFormDetails(clusterId uint) (PreHarvestFormDetail
 
 	return preHarvestDetails, nil
 }
+
+func (s *service) GetPreHarvestFormHistories(userId uint, year uint) (PreHarvestFormHistoriesResponse, error) {
+
+	yearRecord, err := s.yearRepo.FindByYear(int(year))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PreHarvestFormHistoriesResponse{}, utils.BadRequestError("year not found")
+		}
+		return PreHarvestFormHistoriesResponse{}, utils.SystemError("failed to get year information")
+	}
+
+	preHarvestFormRecords, err := s.preHarvestRepo.GetPreHarvestFormsByUserIdAndYear(s.db, userId, yearRecord.YearID)
+	if err != nil {
+		return PreHarvestFormHistoriesResponse{}, utils.SystemError("failed to get preHarvest form histories")
+	}
+
+	var preHarvestFormHistories []PreHarvestFormHistory
+	for number, record := range preHarvestFormRecords {
+		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(record.ClusterID)
+		if err != nil {
+			return PreHarvestFormHistoriesResponse{}, utils.SystemError("failed to get cluster information for form history")
+		}
+
+		preHarvestFormHistories = append(preHarvestFormHistories, PreHarvestFormHistory{
+			No:           uint(number + 1),
+			ClusterId:    record.ClusterID,
+			Location:     clusterInfo.Pole.Zone.ZoneName,
+			PoleNo:       uint(clusterInfo.Pole.PoleNo),
+			ClusterNo:    uint(clusterInfo.ClusterNo),
+			ProgressDone: utils.CalculateClusterProgress(*clusterInfo),
+			CreatedAt:    record.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt:    record.UpdatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+	return PreHarvestFormHistoriesResponse{PreHarvestForms: preHarvestFormHistories}, nil
+}

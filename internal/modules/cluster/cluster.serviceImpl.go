@@ -177,22 +177,7 @@ func (s *service) GetClustersByZone(year int, zoneNo int) (ClustersByZoneRespons
 	var clusterResponses []ClusterInfo
 
 	for i, cluster := range clusters {
-		progressDone := 0
-		if cluster.ClusterFormDone {
-			progressDone++
-		}
-		if cluster.FlowerFormDone {
-			progressDone++
-		}
-		if cluster.PollinationFormDone {
-			progressDone++
-		}
-		if cluster.PodFormDone {
-			progressDone++
-		}
-		if cluster.PreHarvestFormDone {
-			progressDone++
-		}
+		clusterProgress := utils.CalculateClusterProgress(cluster)
 
 		clusterResponses = append(clusterResponses, ClusterInfo{
 			No:           i + 1,
@@ -200,8 +185,7 @@ func (s *service) GetClustersByZone(year int, zoneNo int) (ClustersByZoneRespons
 			PoleNo:       cluster.Pole.PoleNo,
 			ClusterNo:    cluster.ClusterNo,
 			Location:     cluster.Pole.Zone.ZoneName,
-			ProgressDone: progressDone,
-			RecordedDate: cluster.CreatedAt.Local().Format("02 Jan 2006 15:04"),
+			ProgressDone: int(clusterProgress),
 		})
 
 	}
@@ -247,5 +231,37 @@ func (s *service) UpdateClusterForm(form ClusterUpdateRequest) (ClusterUpdateRes
 
 	return ClusterUpdateResponse{
 		Message: "cluster form updated successfully!!!",
+	}, nil
+}
+
+func (s *service) GetClusterFormHistories(userId uint, year uint) (ClusterFormHistoriesResponse, error) {
+
+	yearModel, err := s.yearRepo.FindByYear(int(year))
+	if err != nil {
+		return ClusterFormHistoriesResponse{}, utils.NotFoundError("year not found")
+	}
+
+	clusterFormHistories, err := s.clusterRepo.GetClusterFormHistoriesByUserIdAndYearId(userId, yearModel.YearID)
+	if err != nil {
+		return ClusterFormHistoriesResponse{}, utils.SystemError("failed to get cluster form histories")
+	}
+
+	var clusterFormHistoryResponses []ClusterInfo
+	for number, history := range clusterFormHistories {
+		progressDone := utils.CalculateClusterProgress(history.Cluster)
+		clusterFormHistoryResponses = append(clusterFormHistoryResponses, ClusterInfo{
+			No:           number + 1,
+			ClusterId:    history.ClusterID,
+			Location:     history.Cluster.Pole.Zone.ZoneName,
+			PoleNo:       history.Cluster.Pole.PoleNo,
+			ProgressDone: int(progressDone),
+			ClusterNo:    history.Cluster.ClusterNo,
+			CreatedAt:    history.CreatedAt.Format("2006-01-02 15:04"),
+			UpdatedAt:    history.UpdatedAt.Format("2006-01-02 15:04"),
+		})
+	}
+
+	return ClusterFormHistoriesResponse{
+		ClusterFormHistories: clusterFormHistoryResponses,
 	}, nil
 }

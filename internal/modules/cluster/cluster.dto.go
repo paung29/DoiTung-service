@@ -28,7 +28,8 @@ type ClusterInfo struct {
 	PoleNo       int    `json:"poleNo"`
 	ClusterNo    int    `json:"clusterNo"`
 	ProgressDone int    `json:"progressDone"`
-	RecordedDate string `json:"recordedDate"`
+	CreatedAt    string `json:"createdAt"`
+	UpdatedAt    string `json:"updatedAt"`
 }
 
 type ClusterFormResponse struct {
@@ -46,4 +47,8 @@ type ClusterUpdateRequest struct {
 
 type ClusterUpdateResponse struct {
 	Message string `json:"message"`
+}
+
+type ClusterFormHistoriesResponse struct {
+	ClusterFormHistories []ClusterInfo `json:"clusterFormHistories"`
 }
