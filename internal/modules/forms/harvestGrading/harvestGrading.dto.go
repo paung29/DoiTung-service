@@ -1,9 +1,7 @@
 package harvestgrading
 
 type HarvestGradingFormRequest struct {
-	Year             uint  `json:"year" validate:"required,number"`
-	ZoneNo           uint  `json:"zoneNo" validate:"required,number"`
-	PoleNo           uint  `json:"poleNo" validate:"required,number"`
+	PoleId           uint  `json:"poleId" validate:"required,number"`
 	GradeAPlusCount  *uint `json:"gradeAPlusCount" validate:"required,number"`
 	GradeAPlusWeight *uint `json:"gradeAPlusWeight" validate:"required,number"`
 	GradeACount      *uint `json:"gradeACount" validate:"required,number"`

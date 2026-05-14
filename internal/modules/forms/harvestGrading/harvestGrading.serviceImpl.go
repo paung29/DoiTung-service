@@ -33,36 +33,17 @@ func NewHarvestGradingService(db *gorm.DB, yearRepo year.YearRepository, zoneRep
 func (s *service) CreateOrUpdateHarvestGradingForm(form HarvestGradingFormRequest, userId uint) (HarvestGradingFormResponse, error) {
 
 	// Check if the year exists
-	yearRecord, err := s.yearRepo.FindByYear(int(form.Year))
+	poleId := form.PoleId
+
+	poleRecord, err := s.poleRepo.GetPoleById(poleId)
 	if err != nil {
-		return HarvestGradingFormResponse{}, utils.NotFoundError("year not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return HarvestGradingFormResponse{}, utils.NotFoundError("pole not found")
+		}
+		return HarvestGradingFormResponse{}, utils.SystemError("failed to check pole")
 	}
 
-	yearId := yearRecord.YearID
-
-	// Check if the form setting is open for the year
-	yearSetting, err := s.yearRepo.FindFormSettingByYear(yearId)
-	if err != nil {
-		return HarvestGradingFormResponse{}, utils.NotFoundError("year setting not found")
-	}
-
-	if !yearSetting.HarvestGradingActive {
-		return HarvestGradingFormResponse{}, utils.BadRequestError("harvest grading form is not open for this year")
-	}
-
-	// Check if the zone exists
-	zoneRecord, err := s.zoneRepo.FindByYearAndZoneNo(uint(yearId), int(form.ZoneNo))
-	if err != nil {
-		return HarvestGradingFormResponse{}, utils.NotFoundError("zone not found")
-	}
-	zoneId := zoneRecord.ZoneID
-
-	// Check if the pole exists
-	poleRecord, err := s.poleRepo.GetPoleByZoneIdAndPoleNo(zoneId, form.PoleNo)
-	if err != nil {
-		return HarvestGradingFormResponse{}, utils.NotFoundError("pole not found")
-	}
-	poleId := poleRecord.PoleID
+	yearId := poleRecord.Zone.YearID
 
 	gradeAPlusCount := int(*form.GradeAPlusCount)
 	gradeAPlusWeight := int(*form.GradeAPlusWeight)
