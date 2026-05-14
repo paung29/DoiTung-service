@@ -41,3 +41,16 @@ type HarvestGradingFormDetails struct {
 	UndersizedWeight       uint   `json:"undersizedWeight"`
 	HarvestGradingFormDone bool   `json:"harvestGradingFormDone"`
 }
+
+type HarvestGradingFormHistoriesResponse struct {
+	HarvestGradingFormHistories []HarvestGradingFormHistory `json:"harvestGradingFormHistories"`
+}
+
+type HarvestGradingFormHistory struct {
+	PoleId                 uint   `json:"poleId"`
+	Location               string `json:"location"`
+	PoleNo                 uint   `json:"poleNo"`
+	HarvestGradingFormDone bool   `json:"harvestGradingFormDone"`
+	CreatedAt              string `json:"createdAt"`
+	UpdatedAt              string `json:"updatedAt"`
+}

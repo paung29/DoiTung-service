@@ -57,3 +57,28 @@ func (h *HarvestGradingHandler) GetHarvestGradingFormDetails(context *fiber.Ctx)
 	}
 	return context.JSON(response)
 }
+
+func (h *HarvestGradingHandler) GetHarvestGradingFormHistories(context *fiber.Ctx) error {
+
+	userId := context.Locals("account_id").(uint)
+
+	yearStr := context.Query("year")
+	if yearStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("year is required"))
+	}
+
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid year"))
+	}
+
+	if year <= 0 {
+		return utils.HandleError(context, utils.BadRequestError("year must be a positive integer"))
+	}
+
+	response, err := h.service.GetHarvestGradingFormHistories(userId, uint(year))
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.JSON(response)
+}

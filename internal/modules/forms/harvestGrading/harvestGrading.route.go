@@ -10,4 +10,5 @@ func HarvestGradingRoute(app *fiber.App, handler *HarvestGradingHandler) {
 
 	harvestGradingGroup.Post("/create", middleware.RequiredAuth, handler.CreateOrUpdateHarvestGradingForm)
 	harvestGradingGroup.Get("/get-harvest-grading-form", middleware.RequiredAuth, handler.GetHarvestGradingFormDetails)
+	harvestGradingGroup.Get("/get-harvest-grading-form-histories", middleware.RequiredAuth, handler.GetHarvestGradingFormHistories)
 }

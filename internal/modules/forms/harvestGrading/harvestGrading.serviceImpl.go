@@ -199,3 +199,46 @@ func (s *service) GetHarvestGradingFormDetailsByPoleID(poleId uint) (HarvestGrad
 
 	return harvestGradingDetails, nil
 }
+
+func (s *service) GetHarvestGradingFormHistories(userId uint, year uint) (HarvestGradingFormHistoriesResponse, error) {
+
+	// Check if the year exists
+	yearRecord, err := s.yearRepo.FindByYear(int(year))
+	if err != nil {
+		return HarvestGradingFormHistoriesResponse{}, utils.NotFoundError("year not found")
+	}
+
+	yearId := yearRecord.YearID
+
+	harvestGradingForms, err := s.harvestGradingRepo.GetHarvestGradingFormsByUserIdAndYearId(s.db, userId, yearId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return HarvestGradingFormHistoriesResponse{
+				HarvestGradingFormHistories: []HarvestGradingFormHistory{},
+			}, nil
+		}
+		return HarvestGradingFormHistoriesResponse{}, utils.SystemError("failed to get harvest grading form histories")
+	}
+
+	var harvestGradingFormHistories []HarvestGradingFormHistory
+	for _, form := range harvestGradingForms {
+		poleRecord, err := s.poleRepo.GetPoleById(form.PoleID)
+		if err != nil {
+			return HarvestGradingFormHistoriesResponse{}, utils.SystemError("failed to get pole record")
+		}
+
+		harvestGradingFormHistory := HarvestGradingFormHistory{
+			PoleId:                 form.PoleID,
+			Location:               poleRecord.Zone.ZoneName,
+			PoleNo:                 uint(poleRecord.PoleNo),
+			HarvestGradingFormDone: poleRecord.HarvestGradingFormDone,
+			CreatedAt:              form.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt:              form.UpdatedAt.Format("2006-01-02 15:04:05"),
+		}
+		harvestGradingFormHistories = append(harvestGradingFormHistories, harvestGradingFormHistory)
+	}
+
+	return HarvestGradingFormHistoriesResponse{
+		HarvestGradingFormHistories: harvestGradingFormHistories,
+	}, nil
+}
