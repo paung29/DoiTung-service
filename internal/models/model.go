@@ -14,6 +14,8 @@ type Account struct {
 	Email        string     `gorm:"uniqueIndex;not null"`
 	PasswordHash string     `gorm:"not null"`
 	Role         enums.Role `gorm:"type:varchar(20);not null"`
+	PhoneNo      string     `gorm:"size:20"`
+	ActiveStatus bool       `gorm:"default:true"`
 
 	types.Timestamp
 }

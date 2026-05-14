@@ -32,13 +32,13 @@ func (s *service) CreateAccount(form AccountCreateForm) (AccountCreateResponse, 
 	hashedPassword, err := utils.HashedPassword(form.Password)
 
 	if err != nil {
-		return  AccountCreateResponse{}, utils.SystemError("failed to hash password")
+		return AccountCreateResponse{}, utils.SystemError("failed to hash password")
 	}
 
 	account := &models.Account{
-		Email: form.Email,
+		Email:        form.Email,
 		PasswordHash: hashedPassword,
-		Role: role,
+		Role:         role,
 	}
 
 	if err := s.accountRepo.Create(account); err != nil {
@@ -48,5 +48,48 @@ func (s *service) CreateAccount(form AccountCreateForm) (AccountCreateResponse, 
 	return AccountCreateResponse{
 		Success: true,
 		Message: "account created successfully",
+	}, nil
+}
+
+func (s *service) UpdateAccount(form AccountUpdateForm) (AccountUpdateResponse, error) {
+	account, err := s.accountRepo.FindByID(form.UserId)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return AccountUpdateResponse{}, utils.BadRequestError("account not found")
+		}
+		return AccountUpdateResponse{}, utils.SystemError("failed to find account")
+	}
+
+	if form.Name != nil {
+		account.Name = *form.Name
+	}
+
+	if form.PhoneNo != nil {
+		account.PhoneNo = *form.PhoneNo
+	}
+
+	if form.Password != nil {
+		hashedPassword, err := utils.HashedPassword(*form.Password)
+		if err != nil {
+			return AccountUpdateResponse{}, utils.SystemError("failed to hash password")
+		}
+		account.PasswordHash = hashedPassword
+	}
+
+	if form.ActiveStatus != nil {
+		account.ActiveStatus = *form.ActiveStatus
+	}
+
+	if err := s.accountRepo.Update(account); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return AccountUpdateResponse{}, utils.BadRequestError("account not found")
+		}
+		return AccountUpdateResponse{}, utils.SystemError("failed to update account")
+	}
+
+	return AccountUpdateResponse{
+		Success: true,
+		Message: "account updated successfully",
 	}, nil
 }
