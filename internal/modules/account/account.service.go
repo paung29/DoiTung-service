@@ -2,7 +2,7 @@ package account
 
 type AccountService interface {
 	CreateAccount(form AccountCreateForm) (AccountCreateResponse, error)
-	UpdateAccount(form AccountUpdateForm) (AccountUpdateResponse, error)
+	UpdateAccountInfo(form AccountUpdateInfoForm) (AccountUpdateInfoResponse, error)
 }
 
 type service struct {

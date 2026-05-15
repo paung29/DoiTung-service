@@ -31,14 +31,14 @@ func (h *AccountHandler) CreateAccount(context *fiber.Ctx) error {
 	return context.Status(fiber.StatusCreated).JSON(response)
 }
 
-func (h *AccountHandler) UpdateAccount(context *fiber.Ctx) error {
-	var form AccountUpdateForm
+func (h *AccountHandler) UpdateAccountInfo(context *fiber.Ctx) error {
+	var form AccountUpdateInfoForm
 
 	if err := utils.ParseAndValidate(context, &form); err != nil {
 		return utils.HandleError(context, err)
 	}
 
-	response, err := h.service.UpdateAccount(form)
+	response, err := h.service.UpdateAccountInfo(form)
 
 	if err != nil {
 		return utils.HandleError(context, err)

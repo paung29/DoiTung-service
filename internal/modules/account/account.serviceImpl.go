@@ -51,14 +51,14 @@ func (s *service) CreateAccount(form AccountCreateForm) (AccountCreateResponse, 
 	}, nil
 }
 
-func (s *service) UpdateAccount(form AccountUpdateForm) (AccountUpdateResponse, error) {
+func (s *service) UpdateAccountInfo(form AccountUpdateInfoForm) (AccountUpdateInfoResponse, error) {
 	account, err := s.accountRepo.FindByID(form.UserId)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return AccountUpdateResponse{}, utils.BadRequestError("account not found")
+			return AccountUpdateInfoResponse{}, utils.BadRequestError("account not found")
 		}
-		return AccountUpdateResponse{}, utils.SystemError("failed to find account")
+		return AccountUpdateInfoResponse{}, utils.SystemError("failed to find account")
 	}
 
 	if form.Name != nil {
@@ -69,13 +69,13 @@ func (s *service) UpdateAccount(form AccountUpdateForm) (AccountUpdateResponse, 
 		account.PhoneNo = *form.PhoneNo
 	}
 
-	if form.Password != nil {
-		hashedPassword, err := utils.HashedPassword(*form.Password)
-		if err != nil {
-			return AccountUpdateResponse{}, utils.SystemError("failed to hash password")
-		}
-		account.PasswordHash = hashedPassword
-	}
+	// if form.Password != nil {
+	// 	hashedPassword, err := utils.HashedPassword(*form.Password)
+	// 	if err != nil {
+	// 		return AccountUpdateResponse{}, utils.SystemError("failed to hash password")
+	// 	}
+	// 	account.PasswordHash = hashedPassword
+	// }
 
 	if form.ActiveStatus != nil {
 		account.ActiveStatus = *form.ActiveStatus
@@ -83,12 +83,12 @@ func (s *service) UpdateAccount(form AccountUpdateForm) (AccountUpdateResponse, 
 
 	if err := s.accountRepo.Update(account); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return AccountUpdateResponse{}, utils.BadRequestError("account not found")
+			return AccountUpdateInfoResponse{}, utils.BadRequestError("account not found")
 		}
-		return AccountUpdateResponse{}, utils.SystemError("failed to update account")
+		return AccountUpdateInfoResponse{}, utils.SystemError("failed to update account")
 	}
 
-	return AccountUpdateResponse{
+	return AccountUpdateInfoResponse{
 		Success: true,
 		Message: "account updated successfully",
 	}, nil

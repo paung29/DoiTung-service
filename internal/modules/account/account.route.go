@@ -10,6 +10,6 @@ func RegisterRoutes(app *fiber.App, handler *AccountHandler) {
 	account := app.Group("/accounts")
 
 	account.Post("/create", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.CreateAccount)
-	account.Put("/update", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.UpdateAccount)
+	account.Put("/update-info", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.UpdateAccountInfo)
 
 }
