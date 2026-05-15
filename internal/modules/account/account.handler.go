@@ -46,3 +46,19 @@ func (h *AccountHandler) UpdateAccountInfo(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *AccountHandler) UpdateAccountPassword(context *fiber.Ctx) error {
+	var form AccountPasswordUpdateForm
+
+	if err := utils.ParseAndValidate(context, &form); err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	response, err := h.service.UpdatePassword(form)
+
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}

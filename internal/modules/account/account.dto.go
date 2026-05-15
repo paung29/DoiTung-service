@@ -23,3 +23,13 @@ type AccountUpdateInfoResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
 }
+
+type AccountPasswordUpdateForm struct {
+	UserId   uint   `json:"user_id" validate:"required"`
+	Password string `json:"password" validate:"required,min=6"`
+}
+
+type AccountPasswordUpdateResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}

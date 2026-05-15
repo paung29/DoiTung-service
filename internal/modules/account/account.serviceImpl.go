@@ -69,14 +69,6 @@ func (s *service) UpdateAccountInfo(form AccountUpdateInfoForm) (AccountUpdateIn
 		account.PhoneNo = *form.PhoneNo
 	}
 
-	// if form.Password != nil {
-	// 	hashedPassword, err := utils.HashedPassword(*form.Password)
-	// 	if err != nil {
-	// 		return AccountUpdateResponse{}, utils.SystemError("failed to hash password")
-	// 	}
-	// 	account.PasswordHash = hashedPassword
-	// }
-
 	if form.Role != nil {
 		role := enums.Role(*form.Role)
 		switch role {
@@ -101,5 +93,36 @@ func (s *service) UpdateAccountInfo(form AccountUpdateInfoForm) (AccountUpdateIn
 	return AccountUpdateInfoResponse{
 		Success: true,
 		Message: "account updated successfully",
+	}, nil
+}
+
+func (s *service) UpdatePassword(form AccountPasswordUpdateForm) (AccountPasswordUpdateResponse, error) {
+	account, err := s.accountRepo.FindByID(form.UserId)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return AccountPasswordUpdateResponse{}, utils.BadRequestError("account not found")
+		}
+		return AccountPasswordUpdateResponse{}, utils.SystemError("failed to find account")
+	}
+
+	hashedPassword, err := utils.HashedPassword(form.Password)
+
+	if err != nil {
+		return AccountPasswordUpdateResponse{}, utils.SystemError("failed to hash password")
+	}
+
+	account.PasswordHash = hashedPassword
+
+	if err := s.accountRepo.Update(account); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return AccountPasswordUpdateResponse{}, utils.BadRequestError("account not found")
+		}
+		return AccountPasswordUpdateResponse{}, utils.SystemError("failed to update password")
+	}
+
+	return AccountPasswordUpdateResponse{
+		Success: true,
+		Message: "password updated successfully",
 	}, nil
 }
