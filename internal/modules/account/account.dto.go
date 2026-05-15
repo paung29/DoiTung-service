@@ -14,6 +14,7 @@ type AccountCreateResponse struct {
 type AccountUpdateInfoForm struct {
 	UserId       uint    `json:"user_id" validate:"required"`
 	Name         *string `json:"name" validate:"omitempty,min=2,max=100"`
+	Role         *string `json:"role" validate:"omitempty,min=5"`
 	PhoneNo      *string `json:"phone_no" validate:"omitempty,min=8,max=20"`
 	ActiveStatus *bool   `json:"active_status"`
 }

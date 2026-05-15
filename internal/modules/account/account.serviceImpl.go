@@ -77,6 +77,16 @@ func (s *service) UpdateAccountInfo(form AccountUpdateInfoForm) (AccountUpdateIn
 	// 	account.PasswordHash = hashedPassword
 	// }
 
+	if form.Role != nil {
+		role := enums.Role(*form.Role)
+		switch role {
+		case enums.RoleAdmin, enums.RoleStaff:
+			account.Role = role
+		default:
+			return AccountUpdateInfoResponse{}, utils.BadRequestError("invalid role")
+		}
+	}
+
 	if form.ActiveStatus != nil {
 		account.ActiveStatus = *form.ActiveStatus
 	}
