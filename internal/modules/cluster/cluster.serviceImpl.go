@@ -185,6 +185,8 @@ func (s *service) GetClustersByZone(year int, zoneNo int) (ClustersByZoneRespons
 			PoleNo:       cluster.Pole.PoleNo,
 			ClusterNo:    cluster.ClusterNo,
 			Location:     cluster.Pole.Zone.ZoneName,
+			CreatedAt:    cluster.CreatedAt.Format("2006-01-02 15:04"),
+			UpdatedAt:    cluster.UpdatedAt.Format("2006-01-02 15:04"),
 			ProgressDone: int(clusterProgress),
 		})
 
