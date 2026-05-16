@@ -33,3 +33,16 @@ type AccountPasswordUpdateResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
 }
+
+type AccountDetails struct {
+	UserId       uint    `json:"user_id"`
+	Email        string  `json:"email"`
+	Name         *string `json:"name"`
+	Role         *string `json:"role"`
+	PhoneNo      *string `json:"phone_no"`
+	ActiveStatus *bool   `json:"active_status"`
+}
+
+type AccountLists struct {
+	Accounts []AccountDetails `json:"accounts"`
+}

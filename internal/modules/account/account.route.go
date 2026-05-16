@@ -12,5 +12,6 @@ func RegisterRoutes(app *fiber.App, handler *AccountHandler) {
 	account.Post("/create", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.CreateAccount)
 	account.Put("/update-info", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.UpdateAccountInfo)
 	account.Put("/update-password", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.UpdateAccountPassword)
+	account.Get("/get-all", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.GetAllAccounts)
 
 }

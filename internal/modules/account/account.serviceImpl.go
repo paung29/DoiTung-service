@@ -126,3 +126,27 @@ func (s *service) UpdatePassword(form AccountPasswordUpdateForm) (AccountPasswor
 		Message: "password updated successfully",
 	}, nil
 }
+
+func (s *service) GetAllAccounts() (AccountLists, error) {
+	accounts, err := s.accountRepo.GetAll()
+
+	if err != nil {
+		return AccountLists{}, utils.SystemError("failed to retrieve accounts")
+	}
+
+	accountDetailsList := make([]AccountDetails, len(accounts))
+
+	for i, account := range accounts {
+		accountDetailsList[i] = AccountDetails{
+			UserId:       account.AccountID,
+			Email:        account.Email,
+			Name:         &account.Name,
+			Role:         (*string)(&account.Role),
+			ActiveStatus: &account.ActiveStatus,
+		}
+	}
+
+	return AccountLists{
+		Accounts: accountDetailsList,
+	}, nil
+}

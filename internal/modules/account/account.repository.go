@@ -10,6 +10,7 @@ type AccountRepository interface {
 	FindByID(id uint) (*models.Account, error)
 	Create(account *models.Account) error
 	Update(account *models.Account) error
+	GetAll() ([]models.Account, error)
 }
 
 type repository struct {

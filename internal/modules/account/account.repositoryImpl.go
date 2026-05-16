@@ -24,3 +24,11 @@ func (repo *repository) Create(account *models.Account) error {
 func (repo *repository) Update(account *models.Account) error {
 	return commonrepo.Save(repo.db, account)
 }
+
+func (repo *repository) GetAll() ([]models.Account, error) {
+	var accounts []models.Account
+	if err := repo.db.Find(&accounts).Error; err != nil {
+		return nil, err
+	}
+	return accounts, nil
+}
