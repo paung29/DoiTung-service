@@ -141,6 +141,7 @@ func (s *service) GetAllAccounts() (AccountLists, error) {
 			UserId:       account.AccountID,
 			Email:        account.Email,
 			Name:         &account.Name,
+			PhoneNo:      &account.PhoneNo,
 			Role:         (*string)(&account.Role),
 			ActiveStatus: &account.ActiveStatus,
 		}
