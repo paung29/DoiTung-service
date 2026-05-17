@@ -5,6 +5,7 @@ type AccountService interface {
 	UpdateAccountInfo(form AccountUpdateInfoForm) (AccountUpdateInfoResponse, error)
 	UpdatePassword(form AccountPasswordUpdateForm) (AccountPasswordUpdateResponse, error)
 	GetAllAccounts() (AccountLists, error)
+	GetAccountById(userId uint) (AccountDetails, error)
 }
 
 type service struct {

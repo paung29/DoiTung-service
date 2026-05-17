@@ -151,3 +151,23 @@ func (s *service) GetAllAccounts() (AccountLists, error) {
 		Accounts: accountDetailsList,
 	}, nil
 }
+
+func (s *service) GetAccountById(userId uint) (AccountDetails, error) {
+	account, err := s.accountRepo.FindByID(userId)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return AccountDetails{}, utils.BadRequestError("account not found")
+		}
+		return AccountDetails{}, utils.SystemError("failed to find account")
+	}
+
+	return AccountDetails{
+		UserId:       account.AccountID,
+		Email:        account.Email,
+		Name:         &account.Name,
+		PhoneNo:      &account.PhoneNo,
+		Role:         (*string)(&account.Role),
+		ActiveStatus: &account.ActiveStatus,
+	}, nil
+}
