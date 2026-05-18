@@ -9,7 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-
 func (s *service) Login(form LoginRequest) (string, AuthResponse, error) {
 
 	account, err := s.accountRepo.FindByEmail(form.Email)
@@ -21,7 +20,13 @@ func (s *service) Login(form LoginRequest) (string, AuthResponse, error) {
 
 		return "", AuthResponse{}, utils.SystemError("failed to query account")
 	}
-		
+
+	activeStatus := account.ActiveStatus
+
+	if activeStatus == false {
+		return "", AuthResponse{}, utils.UnauthorizedError("account is inactive")
+	}
+
 	err = bcrypt.CompareHashAndPassword(
 		[]byte(account.PasswordHash),
 		[]byte(form.Password),
@@ -38,7 +43,7 @@ func (s *service) Login(form LoginRequest) (string, AuthResponse, error) {
 	}
 
 	return token, AuthResponse{
-		Role: string(account.Role),
+		Role:    string(account.Role),
 		Success: true,
 		Message: "login successful",
 	}, nil
@@ -49,6 +54,9 @@ func (s *service) GetUserInfo(userId uint) (UserInfoResponse, error) {
 
 	account, err := s.accountRepo.FindByID(userId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return UserInfoResponse{}, utils.UnauthorizedError("account not found")
+		}
 		return UserInfoResponse{}, utils.SystemError("failed to query user info")
 	}
 

@@ -33,3 +33,13 @@ func (r *repository) GetHarvestGradingFormByPoleId(poleId uint) (*models.Harvest
 func (r *repository) UpdateHarvestGradingForm(form *models.HarvestGradingForm) error {
 	return commonRepo.Save(r.db, form)
 }
+
+// GetHarvestGradingFormsByUserIdAndYear implements [HarvestGradingRepository].
+func (r *repository) GetHarvestGradingFormsByUserIdAndYearId(db *gorm.DB, userId uint, yearId uint) ([]models.HarvestGradingForm, error) {
+	var forms []models.HarvestGradingForm
+	err := db.Where("recorded_by_id = ? AND year_id = ?", userId, yearId).Find(&forms).Error
+	if err != nil {
+		return nil, err
+	}
+	return forms, nil
+}

@@ -9,4 +9,5 @@ type HarvestGradingRepository interface {
 	CreateHarvestGradingForm(db *gorm.DB, form *models.HarvestGradingForm) error
 	GetHarvestGradingFormByPoleId(poleId uint) (*models.HarvestGradingForm, error)
 	UpdateHarvestGradingForm(form *models.HarvestGradingForm) error
+	GetHarvestGradingFormsByUserIdAndYearId(db *gorm.DB, userId uint, yearId uint) ([]models.HarvestGradingForm, error)
 }

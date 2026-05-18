@@ -1,9 +1,7 @@
 package harvestgrading
 
 type HarvestGradingFormRequest struct {
-	Year             uint  `json:"year" validate:"required,number"`
-	ZoneNo           uint  `json:"zoneNo" validate:"required,number"`
-	PoleNo           uint  `json:"poleNo" validate:"required,number"`
+	PoleId           uint  `json:"poleId" validate:"required,number"`
 	GradeAPlusCount  *uint `json:"gradeAPlusCount" validate:"required,number"`
 	GradeAPlusWeight *uint `json:"gradeAPlusWeight" validate:"required,number"`
 	GradeACount      *uint `json:"gradeACount" validate:"required,number"`
@@ -40,4 +38,17 @@ type HarvestGradingFormDetails struct {
 	UndersizedCount        uint   `json:"undersizedCount"`
 	UndersizedWeight       uint   `json:"undersizedWeight"`
 	HarvestGradingFormDone bool   `json:"harvestGradingFormDone"`
+}
+
+type HarvestGradingFormHistoriesResponse struct {
+	HarvestGradingFormHistories []HarvestGradingFormHistory `json:"harvestGradingFormHistories"`
+}
+
+type HarvestGradingFormHistory struct {
+	PoleId                 uint   `json:"poleId"`
+	Location               string `json:"location"`
+	PoleNo                 uint   `json:"poleNo"`
+	HarvestGradingFormDone bool   `json:"harvestGradingFormDone"`
+	CreatedAt              string `json:"createdAt"`
+	UpdatedAt              string `json:"updatedAt"`
 }

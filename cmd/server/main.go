@@ -13,6 +13,7 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/forms/pollination"
 	preharvest "github.com/doitung/DoiTung-service/internal/modules/forms/preHarvest"
 	"github.com/doitung/DoiTung-service/internal/modules/pole"
+	"github.com/doitung/DoiTung-service/internal/modules/warehouse"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/modules/zone"
 	"github.com/gofiber/fiber/v2"
@@ -65,6 +66,7 @@ func main() {
 	pod.Setup(app, config.DB)
 	preharvest.Setup(app, config.DB)
 	harvestgrading.Setup(app, config.DB)
+	warehouse.Setup(app, config.DB)
 
 	log.Fatal(app.Listen(":8080"))
 }

@@ -32,13 +32,13 @@ func (s *service) CreateAccount(form AccountCreateForm) (AccountCreateResponse, 
 	hashedPassword, err := utils.HashedPassword(form.Password)
 
 	if err != nil {
-		return  AccountCreateResponse{}, utils.SystemError("failed to hash password")
+		return AccountCreateResponse{}, utils.SystemError("failed to hash password")
 	}
 
 	account := &models.Account{
-		Email: form.Email,
+		Email:        form.Email,
 		PasswordHash: hashedPassword,
-		Role: role,
+		Role:         role,
 	}
 
 	if err := s.accountRepo.Create(account); err != nil {
@@ -48,5 +48,126 @@ func (s *service) CreateAccount(form AccountCreateForm) (AccountCreateResponse, 
 	return AccountCreateResponse{
 		Success: true,
 		Message: "account created successfully",
+	}, nil
+}
+
+func (s *service) UpdateAccountInfo(form AccountUpdateInfoForm) (AccountUpdateInfoResponse, error) {
+	account, err := s.accountRepo.FindByID(form.UserId)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return AccountUpdateInfoResponse{}, utils.BadRequestError("account not found")
+		}
+		return AccountUpdateInfoResponse{}, utils.SystemError("failed to find account")
+	}
+
+	if form.Name != nil {
+		account.Name = *form.Name
+	}
+
+	if form.PhoneNo != nil {
+		account.PhoneNo = *form.PhoneNo
+	}
+
+	if form.Role != nil {
+		role := enums.Role(*form.Role)
+		switch role {
+		case enums.RoleAdmin, enums.RoleStaff:
+			account.Role = role
+		default:
+			return AccountUpdateInfoResponse{}, utils.BadRequestError("invalid role")
+		}
+	}
+
+	if form.ActiveStatus != nil {
+		account.ActiveStatus = *form.ActiveStatus
+	}
+
+	if err := s.accountRepo.Update(account); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return AccountUpdateInfoResponse{}, utils.BadRequestError("account not found")
+		}
+		return AccountUpdateInfoResponse{}, utils.SystemError("failed to update account")
+	}
+
+	return AccountUpdateInfoResponse{
+		Success: true,
+		Message: "account updated successfully",
+	}, nil
+}
+
+func (s *service) UpdatePassword(form AccountPasswordUpdateForm) (AccountPasswordUpdateResponse, error) {
+	account, err := s.accountRepo.FindByID(form.UserId)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return AccountPasswordUpdateResponse{}, utils.BadRequestError("account not found")
+		}
+		return AccountPasswordUpdateResponse{}, utils.SystemError("failed to find account")
+	}
+
+	hashedPassword, err := utils.HashedPassword(form.Password)
+
+	if err != nil {
+		return AccountPasswordUpdateResponse{}, utils.SystemError("failed to hash password")
+	}
+
+	account.PasswordHash = hashedPassword
+
+	if err := s.accountRepo.Update(account); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return AccountPasswordUpdateResponse{}, utils.BadRequestError("account not found")
+		}
+		return AccountPasswordUpdateResponse{}, utils.SystemError("failed to update password")
+	}
+
+	return AccountPasswordUpdateResponse{
+		Success: true,
+		Message: "password updated successfully",
+	}, nil
+}
+
+func (s *service) GetAllAccounts() (AccountLists, error) {
+	accounts, err := s.accountRepo.GetAll()
+
+	if err != nil {
+		return AccountLists{}, utils.SystemError("failed to retrieve accounts")
+	}
+
+	accountDetailsList := make([]AccountDetails, len(accounts))
+
+	for i, account := range accounts {
+		accountDetailsList[i] = AccountDetails{
+			UserId:       account.AccountID,
+			Email:        account.Email,
+			Name:         &account.Name,
+			PhoneNo:      &account.PhoneNo,
+			Role:         (*string)(&account.Role),
+			ActiveStatus: &account.ActiveStatus,
+		}
+	}
+
+	return AccountLists{
+		Accounts: accountDetailsList,
+	}, nil
+}
+
+func (s *service) GetAccountById(userId uint) (AccountDetails, error) {
+	account, err := s.accountRepo.FindByID(userId)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return AccountDetails{}, utils.BadRequestError("account not found")
+		}
+		return AccountDetails{}, utils.SystemError("failed to find account")
+	}
+
+	return AccountDetails{
+		UserId:       account.AccountID,
+		Email:        account.Email,
+		Name:         &account.Name,
+		PhoneNo:      &account.PhoneNo,
+		Role:         (*string)(&account.Role),
+		ActiveStatus: &account.ActiveStatus,
 	}, nil
 }

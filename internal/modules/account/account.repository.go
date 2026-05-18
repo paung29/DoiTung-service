@@ -9,6 +9,8 @@ type AccountRepository interface {
 	FindByEmail(email string) (*models.Account, error)
 	FindByID(id uint) (*models.Account, error)
 	Create(account *models.Account) error
+	Update(account *models.Account) error
+	GetAll() ([]models.Account, error)
 }
 
 type repository struct {
