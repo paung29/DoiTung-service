@@ -1,15 +1,16 @@
 package utils
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
-
 type RestError struct {
-	Status int	`json:"-"`
-	Message string `json:"message"`
+	Status  int          `json:"-"`
+	Message string       `json:"message"`
 	Errors  []FieldError `json:"errors,omitempty"`
 }
 
@@ -70,4 +71,12 @@ func ParseAndValidate[T any](context *fiber.Ctx, form *T) error {
 	}
 
 	return nil
+}
+
+func IsDuplicateError(err error) bool {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		return pgErr.Code == "23505"
+	}
+	return false
 }

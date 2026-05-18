@@ -237,6 +237,7 @@ type Warehouse struct {
 
 	YearID        uint   `gorm:"not null;uniqueIndex:ux_year_warehouse_name,priority:1"`
 	WarehouseName string `gorm:"not null;uniqueIndex:ux_year_warehouse_name,priority:2"`
+	ActiveStatus  bool   `gorm:"default:true"`
 
 	Year Year `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
