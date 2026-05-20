@@ -27,17 +27,17 @@ func (h *PoleHandler) GetPoleByZone(context *fiber.Ctx) error {
 		return utils.HandleError(context, utils.BadRequestError("invalid year"))
 	}
 
-	zoneNoStr := context.Query("zoneNo")
-	if zoneNoStr == "" {
-		return utils.HandleError(context, utils.BadRequestError("zoneNo is required"))
+	zoneIdStr := context.Query("zoneId")
+	if zoneIdStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("zoneId is required"))
 	}
 
-	zoneNo, err := strconv.Atoi(zoneNoStr)
+	zoneId, err := strconv.Atoi(zoneIdStr)
 	if err != nil {
-		return utils.HandleError(context, utils.BadRequestError("invalid zoneNo"))
+		return utils.HandleError(context, utils.BadRequestError("invalid zoneId"))
 	}
 
-	response, err := h.service.GetPoleByZone(year, zoneNo)
+	response, err := h.service.GetPoleByZone(year, zoneId)
 
 	if err != nil {
 		return utils.HandleError(context, err)

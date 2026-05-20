@@ -2,7 +2,7 @@ package cluster
 
 type ClusterCreateRequest struct {
 	Year      uint   `json:"year" validate:"required,number"`
-	ZoneNo    uint   `json:"zoneNo" validate:"required,number"`
+	ZoneId    uint   `json:"zoneId" validate:"required,number"`
 	PoleNo    uint   `json:"poleNo" validate:"required,number"`
 	ClusterNo uint   `json:"clusterNo" validate:"required,number"`
 	Condition string `json:"condition" validate:"required,oneof=GOOD INSECT ROTTEN"`
@@ -14,7 +14,7 @@ type ClusterCreateResponse struct {
 
 type GetClustersByZoneRequest struct {
 	Year   uint `json:"year" validate:"required,number"`
-	ZoneNo uint `json:"zoneNo" validate:"required,number"`
+	ZoneId uint `json:"zoneId" validate:"required,number"`
 }
 
 type ClustersByZoneResponse struct {

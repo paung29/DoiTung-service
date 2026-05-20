@@ -32,7 +32,7 @@ func (s *poleService) GetPoleByZone(year int, zoneNo int) (PolesByZoneResponse, 
 	yearId := yearRecord.YearID
 
 	// Check if the zone exists
-	zoneRecord, err := s.zoneRepo.FindByYearAndZoneNo(uint(yearId), zoneNo)
+	zoneRecord, err := s.zoneRepo.FindByYearAndZoneId(uint(yearId), zoneNo)
 	if err != nil {
 		return PolesByZoneResponse{}, utils.NotFoundError("zone not found")
 	}

@@ -75,7 +75,7 @@ func (v *ClusterValidator) ValidateClusterContext(
 	}
 
 	// Check if the zone exists
-	zoneRecord, err := v.zoneRepo.FindByYearAndZoneNo(yearId, int(zoneNo))
+	zoneRecord, err := v.zoneRepo.FindByYearAndZoneId(yearId, int(zoneNo))
 	if err != nil {
 		return 0, 0, utils.NotFoundError("zone not found")
 	}
