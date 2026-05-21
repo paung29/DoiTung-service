@@ -33,7 +33,6 @@ type Year struct {
 	PodForms         []PodForm
 	PreHarvestForms  []PreHarvestForm
 	HarvestForms     []HarvestGradingForm
-	Warehouses       []Warehouse
 	StockMovements   []StockMovement
 
 	types.Timestamp
@@ -233,13 +232,9 @@ type HarvestGradingForm struct {
 }
 
 type Warehouse struct {
-	WarehouseID uint `gorm:"primaryKey"`
-
-	YearID        uint   `gorm:"not null;uniqueIndex:ux_year_warehouse_name,priority:1"`
-	WarehouseName string `gorm:"not null;uniqueIndex:ux_year_warehouse_name,priority:2"`
+	WarehouseID   uint   `gorm:"primaryKey"`
+	WarehouseName string `gorm:"not null;uniqueIndex:ux_year_warehouse_name"`
 	ActiveStatus  bool   `gorm:"default:true"`
-
-	Year Year `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
 	types.Timestamp
 }
