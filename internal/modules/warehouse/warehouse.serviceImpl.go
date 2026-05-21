@@ -85,3 +85,34 @@ func (s *service) GetWarehouseById(warehouseId uint) (WarehouseDetail, error) {
 		ActiveStatus:  warehouse.ActiveStatus,
 	}, nil
 }
+
+func (s *service) UpdateWarehouse(form UpdateWarehouseRequest) (UpdateWarehouseResponse, error) {
+	warehouse, err := s.warehouseRepo.findById(form.WarehouseId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return UpdateWarehouseResponse{}, utils.ValidationError("Warehouse not found", nil)
+		}
+		return UpdateWarehouseResponse{}, utils.SystemError("Failed to retrieve warehouse")
+	}
+
+	warehouseRecord, err := s.warehouseRepo.findByName(form.WarehouseName)
+
+	if err == nil && warehouseRecord != nil && warehouseRecord.WarehouseID != form.WarehouseId {
+		return UpdateWarehouseResponse{}, utils.ValidationError("Warehouse name already exists", nil)
+	}
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return UpdateWarehouseResponse{}, utils.SystemError("Failed to check existing warehouse")
+	}
+
+	warehouse.WarehouseName = form.WarehouseName
+	warehouse.ActiveStatus = form.ActiveStatus
+
+	if err := s.warehouseRepo.UpdateWarehouse(warehouse); err != nil {
+		return UpdateWarehouseResponse{}, utils.SystemError("Failed to update warehouse")
+	}
+
+	return UpdateWarehouseResponse{
+		Message: "Warehouse updated successfully",
+	}, nil
+}

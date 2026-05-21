@@ -42,3 +42,7 @@ func (r *repository) findById(warehouseId uint) (*models.Warehouse, error) {
 	}
 	return &warehouse, nil
 }
+
+func (r *repository) UpdateWarehouse(warehouse *models.Warehouse) error {
+	return commonrepo.Save(r.db, warehouse)
+}

@@ -61,3 +61,19 @@ func (h *WarehouseHandler) GetWarehouseById(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *WarehouseHandler) UpdateWarehouse(context *fiber.Ctx) error {
+	var form UpdateWarehouseRequest
+
+	if err := utils.ParseAndValidate(context, &form); err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	response, err := h.service.UpdateWarehouse(form)
+
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}
