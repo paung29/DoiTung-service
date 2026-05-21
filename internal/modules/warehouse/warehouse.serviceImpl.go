@@ -69,3 +69,19 @@ func (s *service) GetAllWarehouses() (GetAllWarehousesResponse, error) {
 		Warehouses: warehouseDetails,
 	}, nil
 }
+
+func (s *service) GetWarehouseById(warehouseId uint) (WarehouseDetail, error) {
+	warehouse, err := s.warehouseRepo.findById(warehouseId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return WarehouseDetail{}, utils.ValidationError("Warehouse not found", nil)
+		}
+		return WarehouseDetail{}, utils.SystemError("Failed to retrieve warehouse")
+	}
+
+	return WarehouseDetail{
+		WarehouseId:   warehouse.WarehouseID,
+		WarehouseName: warehouse.WarehouseName,
+		ActiveStatus:  warehouse.ActiveStatus,
+	}, nil
+}

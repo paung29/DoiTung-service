@@ -1,6 +1,8 @@
 package warehouse
 
 import (
+	"strconv"
+
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -37,5 +39,25 @@ func (h *WarehouseHandler) GetWarehouses(context *fiber.Ctx) error {
 	if err != nil {
 		return utils.HandleError(context, err)
 	}
+	return context.Status(fiber.StatusOK).JSON(response)
+}
+
+func (h *WarehouseHandler) GetWarehouseById(context *fiber.Ctx) error {
+
+	warehouseIdStr := context.Query("warehouseId")
+	if warehouseIdStr == "" {
+		return utils.HandleError(context, utils.ValidationError("warehouseId query parameter is required", nil))
+	}
+
+	warehouseId, err := strconv.Atoi(warehouseIdStr)
+	if err != nil {
+		return utils.HandleError(context, utils.ValidationError("Invalid warehouse ID", nil))
+	}
+
+	response, err := h.service.GetWarehouseById(uint(warehouseId))
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
 	return context.Status(fiber.StatusOK).JSON(response)
 }

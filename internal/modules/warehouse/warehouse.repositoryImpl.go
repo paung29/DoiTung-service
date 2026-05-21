@@ -34,3 +34,11 @@ func (r *repository) findByName(warehouseName string) (*models.Warehouse, error)
 	}
 	return &warehouse, nil
 }
+
+func (r *repository) findById(warehouseId uint) (*models.Warehouse, error) {
+	var warehouse models.Warehouse
+	if err := r.db.Where("warehouse_id = ?", warehouseId).First(&warehouse).Error; err != nil {
+		return nil, err
+	}
+	return &warehouse, nil
+}
