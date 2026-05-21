@@ -26,3 +26,11 @@ func (r *repository) findAll() ([]models.Warehouse, error) {
 	}
 	return warehouses, nil
 }
+
+func (r *repository) findByName(warehouseName string) (*models.Warehouse, error) {
+	var warehouse models.Warehouse
+	if err := r.db.Where("warehouse_name = ?", warehouseName).First(&warehouse).Error; err != nil {
+		return nil, err
+	}
+	return &warehouse, nil
+}

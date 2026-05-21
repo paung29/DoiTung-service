@@ -1,6 +1,8 @@
 package warehouse
 
 import (
+	"errors"
+
 	"github.com/doitung/DoiTung-service/internal/models"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/utils"
@@ -23,6 +25,16 @@ func NewWarehouseService(db *gorm.DB, yearRepo year.YearRepository, warehouseRep
 
 func (s *service) CreateWarehouse(form CreateWarehouseRequest) (CreateWarehouseResponse, error) {
 
+	warehouseRecord, err := s.warehouseRepo.findByName(form.WarehouseName)
+
+	if err == nil && warehouseRecord != nil {
+		return CreateWarehouseResponse{}, utils.ValidationError("Warehouse already exists", nil)
+	}
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return CreateWarehouseResponse{}, utils.SystemError("Failed to check existing warehouse")
+	}
+
 	// Create the warehouse record
 	warehouse := &models.Warehouse{
 		WarehouseName: form.WarehouseName,
@@ -30,9 +42,6 @@ func (s *service) CreateWarehouse(form CreateWarehouseRequest) (CreateWarehouseR
 	}
 
 	if err := s.warehouseRepo.CreateNewWarehouse(warehouse); err != nil {
-		if utils.IsDuplicateError(err) {
-			return CreateWarehouseResponse{}, utils.ValidationError("Warehouse already exists", nil)
-		}
 		return CreateWarehouseResponse{}, utils.SystemError("Failed to create warehouse")
 	}
 
