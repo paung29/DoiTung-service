@@ -30,3 +30,12 @@ func (h *WarehouseHandler) CreateWarehouse(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusCreated).JSON(response)
 }
+
+func (h *WarehouseHandler) GetWarehouses(context *fiber.Ctx) error {
+	response, err := h.service.GetAllWarehouses()
+
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.Status(fiber.StatusOK).JSON(response)
+}

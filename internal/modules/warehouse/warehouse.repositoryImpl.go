@@ -18,3 +18,11 @@ func NewWarehouseRepository(db *gorm.DB) WarehouseRepository {
 func (r *repository) CreateNewWarehouse(form *models.Warehouse) error {
 	return commonrepo.Create(r.db, form)
 }
+
+func (r *repository) findAll() ([]models.Warehouse, error) {
+	var warehouses []models.Warehouse
+	if err := r.db.Find(&warehouses).Error; err != nil {
+		return nil, err
+	}
+	return warehouses, nil
+}

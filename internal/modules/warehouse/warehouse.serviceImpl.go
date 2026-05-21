@@ -40,3 +40,23 @@ func (s *service) CreateWarehouse(form CreateWarehouseRequest) (CreateWarehouseR
 		Message: "Warehouse created successfully",
 	}, nil
 }
+
+func (s *service) GetAllWarehouses() (GetAllWarehousesResponse, error) {
+	warehouses, err := s.warehouseRepo.findAll()
+	if err != nil {
+		return GetAllWarehousesResponse{}, utils.SystemError("Failed to retrieve warehouses")
+	}
+
+	var warehouseDetails []WarehouseDetail
+	for _, warehouse := range warehouses {
+		warehouseDetails = append(warehouseDetails, WarehouseDetail{
+			WarehouseId:   warehouse.WarehouseID,
+			WarehouseName: warehouse.WarehouseName,
+			ActiveStatus:  warehouse.ActiveStatus,
+		})
+	}
+
+	return GetAllWarehousesResponse{
+		Warehouses: warehouseDetails,
+	}, nil
+}
