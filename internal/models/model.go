@@ -247,20 +247,30 @@ type StockMovement struct {
 
 	Grade        enums.Grade        `gorm:"type:varchar(20)"`
 	MovementType enums.MovementType `gorm:"type:varchar(20);not null"`
-	PricePerGram int
-	TotalGrams   int
-	TotalPods    int
-	Details      string
+	PricePerGram *int
+	TotalGrams   *int
+	TotalPods    *int
+	Details      *string
 
 	FromWarehouseID *uint
 	ToWarehouseID   *uint
 
-	Year          Year       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	FromWarehouse *Warehouse `gorm:"foreignKey:FromWarehouseID;references:WarehouseID"`
-	ToWarehouse   *Warehouse `gorm:"foreignKey:ToWarehouseID;references:WarehouseID"`
-	RecordedBy    Account    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	IssuedToCustomerID *uint
+
+	IssuedToCustomer *Customer  `gorm:"foreignKey:IssuedToCustomerID;references:CustomerID"`
+	Year             Year       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	FromWarehouse    *Warehouse `gorm:"foreignKey:FromWarehouseID;references:WarehouseID"`
+	ToWarehouse      *Warehouse `gorm:"foreignKey:ToWarehouseID;references:WarehouseID"`
+	RecordedBy       Account    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
 	RecordedDate time.Time `gorm:"not null"`
 
+	types.Timestamp
+}
+
+type Customer struct {
+	CustomerID   uint   `gorm:"primaryKey"`
+	CustomerName string `gorm:"not null;size:100"`
+	Note         *string
 	types.Timestamp
 }
