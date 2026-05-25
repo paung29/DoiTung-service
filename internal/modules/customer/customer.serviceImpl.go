@@ -73,3 +73,28 @@ func (s *service) GetCustomerByID(customerID uint) (GetCustomerByIDResponse, err
 	}, nil
 
 }
+
+func (s *service) UpdateCustomer(form UpdateCustomerRequest) (UpdateCustomerResponse, error) {
+	customer, err := s.repo.FindByCustomerID(form.CustomerID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return UpdateCustomerResponse{}, utils.NotFoundError("Customer not found")
+		}
+		return UpdateCustomerResponse{}, utils.BadRequestError("Failed to get customer")
+	}
+
+	if form.CustomerName != nil {
+		customer.CustomerName = *form.CustomerName
+	}
+	if form.Note != nil {
+		customer.Note = form.Note
+	}
+
+	if err := s.repo.UpdateCustomer(customer); err != nil {
+		return UpdateCustomerResponse{}, utils.BadRequestError("Failed to update customer")
+	}
+
+	return UpdateCustomerResponse{
+		Message: "Customer updated successfully",
+	}, nil
+}

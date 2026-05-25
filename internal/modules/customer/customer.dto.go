@@ -6,6 +6,7 @@ type CreateCustomerRequest struct {
 }
 
 type UpdateCustomerRequest struct {
+	CustomerID   uint    `json:"customer_id" binding:"required"`
 	CustomerName *string `json:"customer_name"`
 	Note         *string `json:"note"`
 }
@@ -26,4 +27,8 @@ type CustomerDetails struct {
 
 type GetCustomerByIDResponse struct {
 	Customer CustomerDetails `json:"customer"`
+}
+
+type UpdateCustomerResponse struct {
+	Message string `json:"message"`
 }

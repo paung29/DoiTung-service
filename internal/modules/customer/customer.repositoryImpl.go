@@ -34,3 +34,7 @@ func (r *repository) FindByCustomerID(customerID uint) (*models.Customer, error)
 	}
 	return &customer, nil
 }
+
+func (r *repository) UpdateCustomer(form *models.Customer) error {
+	return commonrepo.Save(r.db, form)
+}

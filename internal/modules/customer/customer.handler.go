@@ -61,3 +61,19 @@ func (h *CustomerHandler) GetCustomerByID(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *CustomerHandler) UpdateCustomer(context *fiber.Ctx) error {
+	var request UpdateCustomerRequest
+
+	if err := utils.ParseAndValidate(context, &request); err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	response, err := h.service.UpdateCustomer(request)
+
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}
