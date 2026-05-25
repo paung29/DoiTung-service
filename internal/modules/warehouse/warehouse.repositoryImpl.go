@@ -19,7 +19,7 @@ func (r *repository) CreateNewWarehouse(form *models.Warehouse) error {
 	return commonrepo.Create(r.db, form)
 }
 
-func (r *repository) findAll() ([]models.Warehouse, error) {
+func (r *repository) FindAll() ([]models.Warehouse, error) {
 	var warehouses []models.Warehouse
 	if err := r.db.Find(&warehouses).Error; err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func (r *repository) findAll() ([]models.Warehouse, error) {
 	return warehouses, nil
 }
 
-func (r *repository) findByName(warehouseName string) (*models.Warehouse, error) {
+func (r *repository) FindByName(warehouseName string) (*models.Warehouse, error) {
 	var warehouse models.Warehouse
 	if err := r.db.Where("warehouse_name = ?", warehouseName).First(&warehouse).Error; err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (r *repository) findByName(warehouseName string) (*models.Warehouse, error)
 	return &warehouse, nil
 }
 
-func (r *repository) findById(warehouseId uint) (*models.Warehouse, error) {
+func (r *repository) FindByID(warehouseId uint) (*models.Warehouse, error) {
 	var warehouse models.Warehouse
 	if err := r.db.Where("warehouse_id = ?", warehouseId).First(&warehouse).Error; err != nil {
 		return nil, err

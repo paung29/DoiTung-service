@@ -25,7 +25,7 @@ func NewWarehouseService(db *gorm.DB, yearRepo year.YearRepository, warehouseRep
 
 func (s *service) CreateWarehouse(form CreateWarehouseRequest) (CreateWarehouseResponse, error) {
 
-	warehouseRecord, err := s.warehouseRepo.findByName(form.WarehouseName)
+	warehouseRecord, err := s.warehouseRepo.FindByName(form.WarehouseName)
 
 	if err == nil && warehouseRecord != nil {
 		return CreateWarehouseResponse{}, utils.ValidationError("Warehouse already exists", nil)
@@ -51,7 +51,7 @@ func (s *service) CreateWarehouse(form CreateWarehouseRequest) (CreateWarehouseR
 }
 
 func (s *service) GetAllWarehouses() (GetAllWarehousesResponse, error) {
-	warehouses, err := s.warehouseRepo.findAll()
+	warehouses, err := s.warehouseRepo.FindAll()
 	if err != nil {
 		return GetAllWarehousesResponse{}, utils.SystemError("Failed to retrieve warehouses")
 	}
@@ -71,7 +71,7 @@ func (s *service) GetAllWarehouses() (GetAllWarehousesResponse, error) {
 }
 
 func (s *service) GetWarehouseById(warehouseId uint) (WarehouseDetail, error) {
-	warehouse, err := s.warehouseRepo.findById(warehouseId)
+	warehouse, err := s.warehouseRepo.FindByID(warehouseId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return WarehouseDetail{}, utils.ValidationError("Warehouse not found", nil)
@@ -87,7 +87,7 @@ func (s *service) GetWarehouseById(warehouseId uint) (WarehouseDetail, error) {
 }
 
 func (s *service) UpdateWarehouse(form UpdateWarehouseRequest) (UpdateWarehouseResponse, error) {
-	warehouse, err := s.warehouseRepo.findById(form.WarehouseId)
+	warehouse, err := s.warehouseRepo.FindByID(form.WarehouseId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return UpdateWarehouseResponse{}, utils.ValidationError("Warehouse not found", nil)
@@ -95,7 +95,7 @@ func (s *service) UpdateWarehouse(form UpdateWarehouseRequest) (UpdateWarehouseR
 		return UpdateWarehouseResponse{}, utils.SystemError("Failed to retrieve warehouse")
 	}
 
-	warehouseRecord, err := s.warehouseRepo.findByName(form.WarehouseName)
+	warehouseRecord, err := s.warehouseRepo.FindByName(form.WarehouseName)
 
 	if err == nil && warehouseRecord != nil && warehouseRecord.WarehouseID != form.WarehouseId {
 		return UpdateWarehouseResponse{}, utils.ValidationError("Warehouse name already exists", nil)

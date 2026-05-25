@@ -245,6 +245,8 @@ type StockMovement struct {
 	YearID       uint `gorm:"index;not null"`
 	RecordedByID uint `gorm:"index;not null"`
 
+	ProductionYearID *uint `gorm:"index"`
+
 	Grade        enums.Grade        `gorm:"type:varchar(20)"`
 	MovementType enums.MovementType `gorm:"type:varchar(20);not null"`
 	PricePerGram *int
@@ -259,6 +261,7 @@ type StockMovement struct {
 
 	IssuedToCustomer *Customer  `gorm:"foreignKey:IssuedToCustomerID;references:CustomerID"`
 	Year             Year       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	ProductionYear   *Year      `gorm:"foreignKey:ProductionYearID;references:YearID"`
 	FromWarehouse    *Warehouse `gorm:"foreignKey:FromWarehouseID;references:WarehouseID"`
 	ToWarehouse      *Warehouse `gorm:"foreignKey:ToWarehouseID;references:WarehouseID"`
 	RecordedBy       Account    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`

@@ -14,6 +14,7 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/forms/pollination"
 	preharvest "github.com/doitung/DoiTung-service/internal/modules/forms/preHarvest"
 	"github.com/doitung/DoiTung-service/internal/modules/pole"
+	"github.com/doitung/DoiTung-service/internal/modules/stock"
 	"github.com/doitung/DoiTung-service/internal/modules/warehouse"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/modules/zone"
@@ -69,6 +70,7 @@ func main() {
 	harvestgrading.Setup(app, config.DB)
 	warehouse.Setup(app, config.DB)
 	customer.Setup(app, config.DB)
+	stock.Setup(app, config.DB)
 
 	log.Fatal(app.Listen(":8080"))
 }
