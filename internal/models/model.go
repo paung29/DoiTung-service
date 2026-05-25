@@ -33,7 +33,6 @@ type Year struct {
 	PodForms         []PodForm
 	PreHarvestForms  []PreHarvestForm
 	HarvestForms     []HarvestGradingForm
-	Warehouses       []Warehouse
 	StockMovements   []StockMovement
 
 	types.Timestamp
@@ -233,13 +232,9 @@ type HarvestGradingForm struct {
 }
 
 type Warehouse struct {
-	WarehouseID uint `gorm:"primaryKey"`
-
-	YearID        uint   `gorm:"not null;uniqueIndex:ux_year_warehouse_name,priority:1"`
-	WarehouseName string `gorm:"not null;uniqueIndex:ux_year_warehouse_name,priority:2"`
+	WarehouseID   uint   `gorm:"primaryKey"`
+	WarehouseName string `gorm:"not null;uniqueIndex:ux_year_warehouse_name"`
 	ActiveStatus  bool   `gorm:"default:true"`
-
-	Year Year `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
 	types.Timestamp
 }
@@ -252,20 +247,30 @@ type StockMovement struct {
 
 	Grade        enums.Grade        `gorm:"type:varchar(20)"`
 	MovementType enums.MovementType `gorm:"type:varchar(20);not null"`
-	PricePerGram int
-	TotalGrams   int
-	TotalPods    int
-	Details      string
+	PricePerGram *int
+	TotalGrams   *int
+	TotalPods    *int
+	Details      *string
 
 	FromWarehouseID *uint
 	ToWarehouseID   *uint
 
-	Year          Year       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	FromWarehouse *Warehouse `gorm:"foreignKey:FromWarehouseID;references:WarehouseID"`
-	ToWarehouse   *Warehouse `gorm:"foreignKey:ToWarehouseID;references:WarehouseID"`
-	RecordedBy    Account    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	IssuedToCustomerID *uint
+
+	IssuedToCustomer *Customer  `gorm:"foreignKey:IssuedToCustomerID;references:CustomerID"`
+	Year             Year       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	FromWarehouse    *Warehouse `gorm:"foreignKey:FromWarehouseID;references:WarehouseID"`
+	ToWarehouse      *Warehouse `gorm:"foreignKey:ToWarehouseID;references:WarehouseID"`
+	RecordedBy       Account    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
 	RecordedDate time.Time `gorm:"not null"`
 
+	types.Timestamp
+}
+
+type Customer struct {
+	CustomerID   uint   `gorm:"primaryKey"`
+	CustomerName string `gorm:"not null;size:100"`
+	Note         *string
 	types.Timestamp
 }

@@ -1,13 +1,13 @@
 package zone
 
 import (
-	"gorm.io/gorm"
 	"github.com/doitung/DoiTung-service/internal/models"
+	"gorm.io/gorm"
 )
 
 type ZoneRepository interface {
 	Create(db *gorm.DB, zone *models.Zone) error
-	FindByYearAndZoneNo(yearID uint, zoneNo int) (*models.Zone, error)
+	FindByYearAndZoneId(yearID uint, zoneId int) (*models.Zone, error)
 	GetMaxZoneNoByYear(yearID uint) (int, error)
 	FindByYearAndZoneName(yearID uint, name string) (*models.Zone, error)
 	FindByYearID(yearID uint) ([]models.Zone, error)

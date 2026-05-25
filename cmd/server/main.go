@@ -7,6 +7,7 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/account"
 	"github.com/doitung/DoiTung-service/internal/modules/auth"
 	"github.com/doitung/DoiTung-service/internal/modules/cluster"
+	"github.com/doitung/DoiTung-service/internal/modules/customer"
 	"github.com/doitung/DoiTung-service/internal/modules/forms/flower"
 	harvestgrading "github.com/doitung/DoiTung-service/internal/modules/forms/harvestGrading"
 	"github.com/doitung/DoiTung-service/internal/modules/forms/pod"
@@ -67,6 +68,7 @@ func main() {
 	preharvest.Setup(app, config.DB)
 	harvestgrading.Setup(app, config.DB)
 	warehouse.Setup(app, config.DB)
+	customer.Setup(app, config.DB)
 
 	log.Fatal(app.Listen(":8080"))
 }

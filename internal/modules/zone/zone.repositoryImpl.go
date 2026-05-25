@@ -20,10 +20,10 @@ func (repo *repository) Create(db *gorm.DB, zone *models.Zone) error {
 	return commonrepo.Create(db, zone)
 }
 
-func (repo *repository) FindByYearAndZoneNo(yearID uint, zoneNo int) (*models.Zone, error) {
+func (repo *repository) FindByYearAndZoneId(yearID uint, zoneId int) (*models.Zone, error) {
 	var zone models.Zone
 
-	if err := repo.db.Where("year_id = ? AND zone_no = ?", yearID, zoneNo).First(&zone).Error; err != nil {
+	if err := repo.db.Where("year_id = ? AND zone_id = ?", yearID, zoneId).First(&zone).Error; err != nil {
 		return nil, err
 	}
 

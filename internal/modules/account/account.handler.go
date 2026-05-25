@@ -94,3 +94,12 @@ func (h *AccountHandler) GetAccountById(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *AccountHandler) GetUserAccount(context *fiber.Ctx) error {
+	var userId uint = context.Locals("account_id").(uint)
+	response, err := h.service.GetAccountById(userId)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.Status(fiber.StatusOK).JSON(response)
+}

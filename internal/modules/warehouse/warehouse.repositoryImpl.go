@@ -18,3 +18,31 @@ func NewWarehouseRepository(db *gorm.DB) WarehouseRepository {
 func (r *repository) CreateNewWarehouse(form *models.Warehouse) error {
 	return commonrepo.Create(r.db, form)
 }
+
+func (r *repository) findAll() ([]models.Warehouse, error) {
+	var warehouses []models.Warehouse
+	if err := r.db.Find(&warehouses).Error; err != nil {
+		return nil, err
+	}
+	return warehouses, nil
+}
+
+func (r *repository) findByName(warehouseName string) (*models.Warehouse, error) {
+	var warehouse models.Warehouse
+	if err := r.db.Where("warehouse_name = ?", warehouseName).First(&warehouse).Error; err != nil {
+		return nil, err
+	}
+	return &warehouse, nil
+}
+
+func (r *repository) findById(warehouseId uint) (*models.Warehouse, error) {
+	var warehouse models.Warehouse
+	if err := r.db.Where("warehouse_id = ?", warehouseId).First(&warehouse).Error; err != nil {
+		return nil, err
+	}
+	return &warehouse, nil
+}
+
+func (r *repository) UpdateWarehouse(warehouse *models.Warehouse) error {
+	return commonrepo.Save(r.db, warehouse)
+}
