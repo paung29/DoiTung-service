@@ -1,5 +1,6 @@
 package customer
 
 type CustomerService interface {
-	CreateCustomer(request CreateCustomerRequest) (CreateCustomerResponse, error)
+	CreateCustomer(form CreateCustomerRequest) (CreateCustomerResponse, error)
+	GetAllCustomers() (AllCustomersResponse, error)
 }

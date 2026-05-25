@@ -31,3 +31,23 @@ func (s *service) CreateCustomer(form CreateCustomerRequest) (CreateCustomerResp
 		Message: "Customer created successfully",
 	}, nil
 }
+
+func (s *service) GetAllCustomers() (AllCustomersResponse, error) {
+	customers, err := s.repo.FindAllCustomers()
+	if err != nil {
+		return AllCustomersResponse{}, err
+	}
+
+	customerDetails := make([]CustomerDetails, len(customers))
+	for i, customer := range customers {
+		customerDetails[i] = CustomerDetails{
+			ID:           int(customer.CustomerID),
+			CustomerName: customer.CustomerName,
+			Note:         customer.Note,
+		}
+	}
+
+	return AllCustomersResponse{
+		Customers: customerDetails,
+	}, nil
+}

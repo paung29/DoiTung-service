@@ -9,4 +9,5 @@ func CustomerRoute(app *fiber.App, handler *CustomerHandler) {
 	customer := app.Group("/customers")
 
 	customer.Post("/create", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.CreateCustomer)
+	customer.Get("/get-all-customers", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.GetAllCustomers)
 }

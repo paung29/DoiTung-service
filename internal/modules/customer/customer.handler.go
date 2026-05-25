@@ -30,3 +30,13 @@ func (h *CustomerHandler) CreateCustomer(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusCreated).JSON(response)
 }
+
+func (h *CustomerHandler) GetAllCustomers(context *fiber.Ctx) error {
+	response, err := h.service.GetAllCustomers()
+
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}
