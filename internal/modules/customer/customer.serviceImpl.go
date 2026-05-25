@@ -2,6 +2,7 @@ package customer
 
 import (
 	"github.com/doitung/DoiTung-service/internal/models"
+	"github.com/doitung/DoiTung-service/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -24,7 +25,7 @@ func (s *service) CreateCustomer(form CreateCustomerRequest) (CreateCustomerResp
 	}
 
 	if err := s.repo.CreateNewCustomer(customer); err != nil {
-		return CreateCustomerResponse{}, err
+		return CreateCustomerResponse{}, utils.BadRequestError("Failed to create customer")
 	}
 
 	return CreateCustomerResponse{
@@ -50,4 +51,25 @@ func (s *service) GetAllCustomers() (AllCustomersResponse, error) {
 	return AllCustomersResponse{
 		Customers: customerDetails,
 	}, nil
+}
+
+func (s *service) GetCustomerByID(customerID uint) (GetCustomerByIDResponse, error) {
+	customer, err := s.repo.FindByCustomerID(customerID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return GetCustomerByIDResponse{}, utils.NotFoundError("Customer not found")
+		}
+		return GetCustomerByIDResponse{}, utils.BadRequestError("Failed to get customer")
+	}
+
+	customerDetails := CustomerDetails{
+		ID:           int(customer.CustomerID),
+		CustomerName: customer.CustomerName,
+		Note:         customer.Note,
+	}
+
+	return GetCustomerByIDResponse{
+		Customer: customerDetails,
+	}, nil
+
 }

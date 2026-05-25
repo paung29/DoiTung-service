@@ -10,4 +10,5 @@ func CustomerRoute(app *fiber.App, handler *CustomerHandler) {
 
 	customer.Post("/create", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.CreateCustomer)
 	customer.Get("/get-all-customers", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.GetAllCustomers)
+	customer.Get("/get-customer-by-id", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.GetCustomerByID)
 }

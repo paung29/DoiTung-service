@@ -26,3 +26,11 @@ func (r *repository) FindAllCustomers() ([]models.Customer, error) {
 	}
 	return customers, nil
 }
+
+func (r *repository) FindByCustomerID(customerID uint) (*models.Customer, error) {
+	var customer models.Customer
+	if err := r.db.First(&customer, customerID).Error; err != nil {
+		return nil, err
+	}
+	return &customer, nil
+}

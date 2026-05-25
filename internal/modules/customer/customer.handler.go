@@ -1,6 +1,8 @@
 package customer
 
 import (
+	"strconv"
+
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -34,6 +36,25 @@ func (h *CustomerHandler) CreateCustomer(context *fiber.Ctx) error {
 func (h *CustomerHandler) GetAllCustomers(context *fiber.Ctx) error {
 	response, err := h.service.GetAllCustomers()
 
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}
+
+func (h *CustomerHandler) GetCustomerByID(context *fiber.Ctx) error {
+	customerIdStr := context.Query("customer_id")
+	if customerIdStr == "" {
+		return utils.HandleError(context, utils.ValidationError("customerId query parameter is required", nil))
+	}
+
+	customerID, err := strconv.Atoi(customerIdStr)
+	if err != nil {
+		return utils.HandleError(context, utils.ValidationError("Invalid customer ID", nil))
+	}
+
+	response, err := h.service.GetCustomerByID(uint(customerID))
 	if err != nil {
 		return utils.HandleError(context, err)
 	}

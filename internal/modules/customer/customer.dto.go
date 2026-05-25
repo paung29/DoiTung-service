@@ -23,3 +23,7 @@ type CustomerDetails struct {
 	CustomerName string  `json:"customer_name"`
 	Note         *string `json:"note"`
 }
+
+type GetCustomerByIDResponse struct {
+	Customer CustomerDetails `json:"customer"`
+}
