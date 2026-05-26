@@ -1,9 +1,12 @@
 package account
 
 type AccountCreateForm struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=6"`
-	Role     string `json:"role" validate:"required,min=5"`
+	Email        string  `json:"email" validate:"required,email"`
+	Password     string  `json:"password" validate:"required,min=6"`
+	Role         string  `json:"role" validate:"required,min=5"`
+	Name         string  `json:"name" validate:"required,min=2,max=100"`
+	PhoneNo      *string `json:"phone_no" validate:"omitempty"`
+	ActiveStatus bool    `json:"active_status"`
 }
 
 type AccountCreateResponse struct {

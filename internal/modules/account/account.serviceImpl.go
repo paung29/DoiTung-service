@@ -38,6 +38,9 @@ func (s *service) CreateAccount(form AccountCreateForm) (AccountCreateResponse, 
 	account := &models.Account{
 		Email:        form.Email,
 		PasswordHash: hashedPassword,
+		Name:         form.Name,
+		PhoneNo:      *form.PhoneNo,
+		ActiveStatus: form.ActiveStatus,
 		Role:         role,
 	}
 
