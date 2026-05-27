@@ -17,3 +17,11 @@ func NewStockRepository(db *gorm.DB) StockRepository {
 func (r *repository) CreateStockMovement(form *models.StockMovement) error {
 	return commonrepo.Create(r.db, form)
 }
+
+func (r *repository) UpdateStockMovement(form *models.StockMovement) error {
+	return commonrepo.Save(r.db, form)
+}
+
+func (r *repository) FindByID(id uint) (*models.StockMovement, error) {
+	return commonrepo.FindByID[models.StockMovement](r.db, id)
+}

@@ -57,3 +57,18 @@ func (h *handler) CreateIssuedStock(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *handler) UpdateStockMovement(context *fiber.Ctx) error {
+	var accountID uint = context.Locals("account_id").(uint)
+	var form UpdateStockMovementRequest
+
+	if err := utils.ParseAndValidate(context, &form); err != nil {
+		return utils.HandleError(context, err)
+	}
+	response, err := h.service.UpdateStockMovement(accountID, form)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}
