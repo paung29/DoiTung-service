@@ -23,7 +23,7 @@ func NewStockService(repo StockRepository, yearRepo year.YearRepository, warehou
 	return &service{repo: repo, yearRepo: yearRepo, warehouseRepo: warehouseRepo, customerRepo: customerRepo}
 }
 
-func (s *service) CreateCarryOver(accountID uint, form CreateCarryOverRequest) (StockMovementResponse, error) {
+func (s *service) CreateCarryOver(accountID uint, form CreateCarryOverStockRequest) (StockMovementResponse, error) {
 
 	yearRecord, err := s.yearRepo.FindByID(form.YearID)
 	if err != nil {

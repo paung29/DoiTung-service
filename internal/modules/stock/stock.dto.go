@@ -6,7 +6,7 @@ import (
 	"github.com/doitung/DoiTung-service/internal/types/enums"
 )
 
-type CreateCarryOverRequest struct {
+type CreateCarryOverStockRequest struct {
 	YearID           uint        `json:"year_id" validate:"required"`
 	ProductionYearID *uint       `json:"production_year_id" validate:"required"`
 	WarehouseID      *uint       `json:"warehouse_id" validate:"required"`

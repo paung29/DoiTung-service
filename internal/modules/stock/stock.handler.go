@@ -15,7 +15,7 @@ func NewStockHandler(service StockService) *handler {
 
 func (h *handler) CreateCarryOver(context *fiber.Ctx) error {
 	var accountID uint = context.Locals("account_id").(uint)
-	var form CreateCarryOverRequest
+	var form CreateCarryOverStockRequest
 
 	if err := utils.ParseAndValidate(context, &form); err != nil {
 		return utils.HandleError(context, err)
