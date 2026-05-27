@@ -10,4 +10,5 @@ func RegisterRoutes(app *fiber.App, handler *handler) {
 	stock := app.Group("/stocks")
 
 	stock.Post("/create-carry-over", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.CreateCarryOver)
+	stock.Post("/create-incoming", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.CreateIncomingStock)
 }
