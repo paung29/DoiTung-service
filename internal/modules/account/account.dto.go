@@ -6,7 +6,7 @@ type AccountCreateForm struct {
 	Role         string  `json:"role" validate:"required,min=5"`
 	Name         string  `json:"name" validate:"required,min=2,max=100"`
 	PhoneNo      *string `json:"phone_no" validate:"omitempty"`
-	ActiveStatus bool    `json:"active_status"`
+	ActiveStatus bool    `json:"active_status" validate:"required"`
 }
 
 type AccountCreateResponse struct {
