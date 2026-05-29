@@ -267,3 +267,33 @@ func (s *service) GetClusterFormHistories(userId uint, year uint) (ClusterFormHi
 		ClusterFormHistories: clusterFormHistoryResponses,
 	}, nil
 }
+
+func (s *service) GetAllClustersFormByZone(zoneId uint) (GetAllClustersFormByZoneResponse, error) {
+
+	zoneModel, err := s.zoneRepo.FindById(zoneId)
+	if err != nil {
+		return GetAllClustersFormByZoneResponse{}, utils.NotFoundError("zone not found")
+	}
+
+	clusterForms, err := s.clusterRepo.GetAllClusterFormDetailsByZoneId(zoneModel.ZoneID)
+	if err != nil {
+		return GetAllClustersFormByZoneResponse{}, utils.SystemError("failed to get cluster forms by zone id")
+	}
+
+	var clusterFormDetails []ClusterFormDetails
+	for i, clusterForm := range clusterForms {
+		clusterFormDetails = append(clusterFormDetails, ClusterFormDetails{
+			No:         i + 1,
+			Date:       clusterForm.CreatedAt.Format("2006-01-02"),
+			ClusterId:  clusterForm.ClusterID,
+			PoleNo:     clusterForm.Cluster.Pole.PoleNo,
+			ClusterNo:  clusterForm.Cluster.ClusterNo,
+			Condition:  string(clusterForm.Condition),
+			RecordedBy: clusterForm.RecordedBy.Name,
+		})
+	}
+
+	return GetAllClustersFormByZoneResponse{
+		ClusterForms: clusterFormDetails,
+	}, nil
+}

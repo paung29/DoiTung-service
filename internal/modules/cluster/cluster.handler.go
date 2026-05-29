@@ -119,3 +119,23 @@ func (h *ClusterHandler) GetClusterFormHistories(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *ClusterHandler) GetAllClustersFormByZone(context *fiber.Ctx) error {
+	zoneIdStr := context.Query("zoneId")
+	if zoneIdStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("zoneId is required"))
+	}
+
+	zoneId, err := strconv.Atoi(zoneIdStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid zoneId"))
+	}
+
+	response, err := h.service.GetAllClustersFormByZone(uint(zoneId))
+
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}
