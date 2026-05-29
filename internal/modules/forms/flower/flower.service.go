@@ -4,4 +4,5 @@ type FlowerService interface {
 	CreateOrUpdateFlowerForm(form FlowerFormRequest, userId uint) (FlowerFormResponse, error)
 	GetFlowerFormDetailsByClusterID(clusterId uint) (FlowerFormDetails, error)
 	GetFlowerFormHistories(userId uint, year uint) (FlowerFormHistoriesResponse, error)
+	GetFlowerFormsByZoneId(zoneId uint) (FlowerFormLists, error)
 }

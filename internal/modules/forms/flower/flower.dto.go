@@ -11,6 +11,7 @@ type FlowerFormResponse struct {
 }
 
 type FlowerFormDetails struct {
+	No             int    `json:"no,omitempty"`
 	ClusterId      uint   `json:"clusterId"`
 	Location       string `json:"location"`
 	PoleNo         int    `json:"poleNo"`
@@ -18,6 +19,8 @@ type FlowerFormDetails struct {
 	TotalFlowers   uint   `json:"totalFlowers"`
 	Condition      string `json:"condition"`
 	FlowerFormDone bool   `json:"flowerFormDone"`
+	RecordedBy     string `json:"recordedBy,omitempty"`
+	Date           string `json:"date,omitempty"`
 }
 
 type FlowerFormHistoriesResponse struct {
@@ -32,4 +35,8 @@ type FlowerFormHistory struct {
 	ProgressDone uint   `json:"progressDone"`
 	CreatedAt    string `json:"createdAt"`
 	UpdatedAt    string `json:"updatedAt"`
+}
+
+type FlowerFormLists struct {
+	FlowerForms []FlowerFormDetails `json:"flowerForms"`
 }
