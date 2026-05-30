@@ -13,6 +13,7 @@ type PodFormResponse struct {
 }
 
 type PodFormDetails struct {
+	No            uint   `json:"no,omitempty"`
 	ClusterId     uint   `json:"clusterId"`
 	Location      string `json:"location"`
 	PoleNo        uint   `json:"poleNo"`
@@ -22,8 +23,14 @@ type PodFormDetails struct {
 	RemainingPods uint   `json:"remainingPods"`
 	Condition     string `json:"condition"`
 	PodFormDone   bool   `json:"podFormDone"`
+	RecordedBy    string `json:"recordedBy,omitempty"`
+	Date          string `json:"date,omitempty"`
 }
 
 type PodFormHistoriesResponse struct {
 	PodFormHistories []cluster.ClusterInfo `json:"podFormHistories"`
+}
+
+type PodFormLists struct {
+	PodForms []PodFormDetails `json:"podForms"`
 }

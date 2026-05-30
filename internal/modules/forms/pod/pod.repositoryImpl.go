@@ -43,3 +43,17 @@ func (r *repository) GetPodFormHistoriesByUserIdAndYearId(db *gorm.DB, userId ui
 	}
 	return forms, nil
 }
+
+func (r *repository) GetPodFormsByZoneId(db *gorm.DB, zoneId uint) ([]models.PodForm, error) {
+	var forms []models.PodForm
+	err := r.db.
+		Model(&models.PodForm{}).
+		Joins("JOIN clusters ON clusters.cluster_id = pod_forms.cluster_id").
+		Joins("JOIN poles ON poles.pole_id = clusters.pole_id").
+		Where("poles.zone_id = ?", zoneId).
+		Find(&forms).Error
+	if err != nil {
+		return nil, err
+	}
+	return forms, nil
+}
