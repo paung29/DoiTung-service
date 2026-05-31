@@ -131,6 +131,10 @@ func (h *ClusterHandler) GetAllClustersFormByZone(context *fiber.Ctx) error {
 		return utils.HandleError(context, utils.BadRequestError("invalid zoneId"))
 	}
 
+	if zoneId <= 0 {
+		return utils.HandleError(context, utils.BadRequestError("zoneId must be greater than 0"))
+	}
+
 	response, err := h.service.GetAllClustersFormByZone(uint(zoneId))
 
 	if err != nil {
