@@ -18,7 +18,7 @@ type FlowerFormDetails struct {
 	ClusterNo      int    `json:"clusterNo"`
 	TotalFlowers   uint   `json:"totalFlowers"`
 	Condition      string `json:"condition"`
-	FlowerFormDone bool   `json:"flowerFormDone"`
+	FlowerFormDone bool   `json:"flowerFormDone,omitempty"`
 	RecordedBy     string `json:"recordedBy,omitempty"`
 	Date           string `json:"date,omitempty"`
 }
