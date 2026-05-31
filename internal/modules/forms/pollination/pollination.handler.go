@@ -63,3 +63,26 @@ func (h *PollinationHandler) GetPollinationFormHistories(context *fiber.Ctx) err
 	}
 	return context.JSON(response)
 }
+
+func (h *PollinationHandler) GetPollinationFormsByZoneId(context *fiber.Ctx) error {
+
+	zoneIdStr := context.Query("zoneId")
+	if zoneIdStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("zoneId is required"))
+	}
+
+	zoneId, err := strconv.Atoi(zoneIdStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid zoneId"))
+	}
+
+	if zoneId <= 0 {
+		return utils.HandleError(context, utils.BadRequestError("zoneId must be greater than 0"))
+	}
+
+	response, err := h.service.GetPollinationFormsByZoneId(uint(zoneId))
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.JSON(response)
+}

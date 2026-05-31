@@ -12,6 +12,7 @@ type PollinationFormResponse struct {
 }
 
 type PollinationFormDetails struct {
+	No                      int    `json:"no,omitempty"`
 	ClusterId               uint   `json:"clusterId"`
 	Location                string `json:"location"`
 	PoleNo                  uint   `json:"poleNo"`
@@ -22,7 +23,9 @@ type PollinationFormDetails struct {
 	GoodFlowers             uint   `json:"goodFlowers"`
 	BadFlowers              uint   `json:"badFlowers"`
 	Condition               string `json:"condition"`
-	PollinationFormDone     bool   `json:"pollinationFormDone"`
+	PollinationFormDone     bool   `json:"pollinationFormDone,omitempty"`
+	RecordedBy              string `json:"recordedBy,omitempty"`
+	Date                    string `json:"date,omitempty"`
 }
 
 type PollinationFormHistoriesResponse struct {
@@ -37,4 +40,8 @@ type PollinationFormHistory struct {
 	ProgressDone uint   `json:"progressDone"`
 	CreatedAt    string `json:"createdAt"`
 	UpdatedAt    string `json:"updatedAt"`
+}
+
+type PollinationFormLists struct {
+	PollinationForms []PollinationFormDetails `json:"pollinationForms"`
 }

@@ -222,3 +222,47 @@ func (s *service) GetPollinationFormHistories(userId uint, year uint) (Pollinati
 	}
 	return PollinationFormHistoriesResponse{PollinationFormHistories: pollinationFormHistoriesResponse}, nil
 }
+
+func (s *service) GetPollinationFormsByZoneId(zoneId uint) (PollinationFormLists, error) {
+
+	// Check if the zone exists
+	zoneRecord, err := s.zoneRepo.FindById(zoneId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PollinationFormLists{}, utils.BadRequestError("zone not found")
+		}
+		return PollinationFormLists{}, utils.SystemError("failed to get zone information")
+	}
+
+	zoneId = zoneRecord.ZoneID
+
+	pollinationForms, err := s.pollinationRepo.GetPollinationFormsByZoneId(s.db, zoneId)
+	if err != nil {
+		return PollinationFormLists{}, utils.SystemError("failed to get pollination forms by zone id")
+	}
+
+	var pollinationFormDetailsList []PollinationFormDetails
+	for i, form := range pollinationForms {
+		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(form.ClusterID)
+		if err != nil {
+			return PollinationFormLists{}, utils.SystemError("failed to get cluster information for pollination form list")
+		}
+		totalFlowers := form.GoodFlowers + form.BadFlowers
+		pollinationFormDetailsList = append(pollinationFormDetailsList, PollinationFormDetails{
+			No:                      i + 1,
+			ClusterId:               form.ClusterID,
+			Location:                clusterInfo.Pole.Zone.ZoneName,
+			PoleNo:                  uint(clusterInfo.Pole.PoleNo),
+			ClusterNo:               uint(clusterInfo.ClusterNo),
+			TotalFlowers:            uint(totalFlowers),
+			NumberPods:              uint(form.NumberPods),
+			UnsuccessfulPollination: uint(form.UnsuccessfulPollination),
+			GoodFlowers:             uint(form.GoodFlowers),
+			BadFlowers:              uint(form.BadFlowers),
+			Condition:               string(form.Condition),
+			PollinationFormDone:     clusterInfo.PollinationFormDone,
+		})
+	}
+
+	return PollinationFormLists{PollinationForms: pollinationFormDetailsList}, nil
+}
