@@ -64,3 +64,25 @@ func (h *preHarvestHandler) GetPreHarvestFormHistories(context *fiber.Ctx) error
 	}
 	return context.JSON(response)
 }
+
+func (h *preHarvestHandler) GetPreHarvestFormByZoneId(context *fiber.Ctx) error {
+	zoneIdStr := context.Query("zoneId")
+	if zoneIdStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("zone_id query parameter is required"))
+	}
+
+	zoneId, err := strconv.Atoi(zoneIdStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid zone_id format"))
+	}
+
+	if zoneId <= 0 {
+		return utils.HandleError(context, utils.BadRequestError("zone_id must be a positive integer"))
+	}
+
+	response, err := h.service.GetPreHarvestFormByZoneId(uint(zoneId))
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.JSON(response)
+}
