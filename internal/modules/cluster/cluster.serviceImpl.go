@@ -270,12 +270,14 @@ func (s *service) GetClusterFormHistories(userId uint, year uint) (ClusterFormHi
 
 func (s *service) GetAllClustersFormByZone(zoneId uint) (GetAllClustersFormByZoneResponse, error) {
 
-	zoneModel, err := s.zoneRepo.FindById(zoneId)
+	zoneRecord, err := s.zoneRepo.FindById(zoneId)
 	if err != nil {
 		return GetAllClustersFormByZoneResponse{}, utils.NotFoundError("zone not found")
 	}
 
-	clusterForms, err := s.clusterRepo.GetAllClusterFormDetailsByZoneId(zoneModel.ZoneID)
+	zoneId = zoneRecord.ZoneID
+
+	clusterForms, err := s.clusterRepo.GetAllClusterFormDetailsByZoneId(zoneId)
 	if err != nil {
 		return GetAllClustersFormByZoneResponse{}, utils.SystemError("failed to get cluster forms by zone id")
 	}

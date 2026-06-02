@@ -186,6 +186,17 @@ func (s *service) GetFlowerFormHistories(userId uint, year uint) (FlowerFormHist
 }
 
 func (s *service) GetFlowerFormsByZoneId(zoneId uint) (FlowerFormLists, error) {
+
+	zoneRecord, err := s.zoneRepo.FindById(zoneId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return FlowerFormLists{}, utils.BadRequestError("zone not found")
+		}
+		return FlowerFormLists{}, utils.SystemError("failed to get zone information")
+	}
+
+	zoneId = zoneRecord.ZoneID
+
 	flowerForms, err := s.flowerRepo.GetFlowerFormsByZoneId(s.db, zoneId)
 	if err != nil {
 		return FlowerFormLists{}, utils.SystemError("failed to get flower forms by zone id")
