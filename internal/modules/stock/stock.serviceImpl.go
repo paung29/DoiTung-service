@@ -149,6 +149,34 @@ func (s *service) CreateIssuedStock(accountID uint, form CreateIssuedStockReques
 		return StockMovementResponse{}, utils.SystemError("Failed to retrieve customer record")
 	}
 
+	if int(form.TotalGrams) <= 0 && int(form.TotalPods) <= 0 {
+		return StockMovementResponse{}, utils.BadRequestError("Total grams or total pods must be greater than 0")
+	}
+
+	// Get total stock for the specified production year, warehouse, and grade
+	incomingStock, err := s.repo.GetStockTotal(*form.ProductionYearID, *form.WarehouseID, form.Grade, enums.MovementIncoming)
+	if err != nil {
+		return StockMovementResponse{}, utils.SystemError("Failed to retrieve incoming stock total")
+	}
+
+	carryOverStock, err := s.repo.GetStockTotal(*form.ProductionYearID, *form.WarehouseID, form.Grade, enums.MovementCarryOver)
+	if err != nil {
+		return StockMovementResponse{}, utils.SystemError("Failed to retrieve carry over stock total")
+	}
+
+	issuedStock, err := s.repo.GetStockTotal(*form.ProductionYearID, *form.WarehouseID, form.Grade, enums.MovementIssued)
+	if err != nil {
+		return StockMovementResponse{}, utils.SystemError("Failed to retrieve issued stock total")
+	}
+
+	availableGrams := incomingStock.TotalGrams + carryOverStock.TotalGrams - issuedStock.TotalGrams
+	availablePods := incomingStock.TotalPods + carryOverStock.TotalPods - issuedStock.TotalPods
+
+	// If the total stock is less than the requested issued quantity, return an error
+	if availableGrams < int(form.TotalGrams) || availablePods < int(form.TotalPods) {
+		return StockMovementResponse{}, utils.BadRequestError("Insufficient stock available for the requested issue quantity")
+	}
+
 	stockMovement := &models.StockMovement{
 		RecordedByID:       accountID,
 		YearID:             yearRecord.YearID,
@@ -156,9 +184,9 @@ func (s *service) CreateIssuedStock(accountID uint, form CreateIssuedStockReques
 		FromWarehouseID:    &warehouseRecord.WarehouseID,
 		IssuedToCustomerID: &customerRecord.CustomerID,
 		Grade:              form.Grade,
-		PricePerGram:       form.PricePerGram,
-		TotalGrams:         form.TotalGrams,
-		TotalPods:          form.TotalPods,
+		PricePerGram:       &form.PricePerGram,
+		TotalGrams:         &form.TotalGrams,
+		TotalPods:          &form.TotalPods,
 		Details:            form.Details,
 		RecordedDate:       form.RecordedDate,
 		MovementType:       enums.MovementIssued,
