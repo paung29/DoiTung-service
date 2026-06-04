@@ -231,6 +231,7 @@ func (s *service) CreateIssuedStock(accountID uint, form CreateIssuedStockReques
 		}
 		return StockMovementResponse{}, utils.SystemError("Failed to retrieve production year record")
 	}
+	productionYearId := ProductYearRecord.YearID
 
 	warehouseRecord, err := s.warehouseRepo.FindByID(*form.WarehouseID)
 	if err != nil {
@@ -239,6 +240,7 @@ func (s *service) CreateIssuedStock(accountID uint, form CreateIssuedStockReques
 		}
 		return StockMovementResponse{}, utils.SystemError("Failed to retrieve warehouse record")
 	}
+	warehouseId := warehouseRecord.WarehouseID
 
 	customerRecord, err := s.customerRepo.FindByCustomerID(*form.CustomerID)
 	if err != nil {
@@ -252,35 +254,38 @@ func (s *service) CreateIssuedStock(accountID uint, form CreateIssuedStockReques
 		return StockMovementResponse{}, utils.BadRequestError("Total grams or total pods must be greater than 0")
 	}
 
+	tx := s.db.Begin()
+	if tx.Error != nil {
+		return StockMovementResponse{}, utils.SystemError("Failed to start database transaction")
+	}
 	// Get total stock for the specified production year, warehouse, and grade
-	incomingStock, err := s.repo.GetStockTotal(*form.ProductionYearID, *form.WarehouseID, form.Grade, enums.MovementIncoming)
+	stockBalance, err := s.repo.GetStockBalanceForUpdate(tx, productionYearId, warehouseId, form.Grade)
 	if err != nil {
-		return StockMovementResponse{}, utils.SystemError("Failed to retrieve incoming stock total")
+		tx.Rollback()
+		return StockMovementResponse{}, utils.SystemError("Failed to retrieve stock balance")
 	}
 
-	carryOverStock, err := s.repo.GetStockTotal(*form.ProductionYearID, *form.WarehouseID, form.Grade, enums.MovementCarryOver)
-	if err != nil {
-		return StockMovementResponse{}, utils.SystemError("Failed to retrieve carry over stock total")
+	if stockBalance == nil {
+		tx.Rollback()
+		return StockMovementResponse{}, utils.BadRequestError("No stock available for the specified production year, warehouse, and grade")
 	}
 
-	issuedStock, err := s.repo.GetStockTotal(*form.ProductionYearID, *form.WarehouseID, form.Grade, enums.MovementIssued)
-	if err != nil {
-		return StockMovementResponse{}, utils.SystemError("Failed to retrieve issued stock total")
+	if stockBalance.TotalGrams == 0 && stockBalance.TotalPods == 0 {
+		tx.Rollback()
+		return StockMovementResponse{}, utils.BadRequestError("No stock available for the specified production year, warehouse, and grade")
 	}
-
-	availableGrams := incomingStock.TotalGrams + carryOverStock.TotalGrams - issuedStock.TotalGrams
-	availablePods := incomingStock.TotalPods + carryOverStock.TotalPods - issuedStock.TotalPods
 
 	// If the total stock is less than the requested issued quantity, return an error
-	if availableGrams < int(form.TotalGrams) || availablePods < int(form.TotalPods) {
+	if stockBalance.TotalGrams < int(form.TotalGrams) || stockBalance.TotalPods < int(form.TotalPods) {
+		tx.Rollback()
 		return StockMovementResponse{}, utils.BadRequestError("Insufficient stock available for the requested issue quantity")
 	}
 
 	stockMovement := &models.StockMovement{
 		RecordedByID:       accountID,
 		YearID:             yearRecord.YearID,
-		ProductionYearID:   &ProductYearRecord.YearID,
-		FromWarehouseID:    &warehouseRecord.WarehouseID,
+		ProductionYearID:   &productionYearId,
+		FromWarehouseID:    &warehouseId,
 		IssuedToCustomerID: &customerRecord.CustomerID,
 		Grade:              form.Grade,
 		PricePerGram:       &form.PricePerGram,
@@ -290,9 +295,24 @@ func (s *service) CreateIssuedStock(accountID uint, form CreateIssuedStockReques
 		RecordedDate:       form.RecordedDate,
 		MovementType:       enums.MovementIssued,
 	}
-	err = s.repo.CreateStockMovement(s.db, stockMovement)
+	err = s.repo.CreateStockMovement(tx, stockMovement)
 	if err != nil {
+		tx.Rollback()
 		return StockMovementResponse{}, utils.SystemError("Failed to create stock movement")
+	}
+
+	// Update stock balance by subtracting the issued quantity from the existing balance
+	stockBalance.TotalGrams -= int(form.TotalGrams)
+	stockBalance.TotalPods -= int(form.TotalPods)
+	err = s.repo.UpdateStockBalance(tx, stockBalance)
+	if err != nil {
+		tx.Rollback()
+		return StockMovementResponse{}, utils.SystemError("Failed to update stock balance")
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return StockMovementResponse{}, utils.SystemError("Failed to commit database transaction")
 	}
 
 	return StockMovementResponse{Message: "Stock movement created successfully"}, nil
