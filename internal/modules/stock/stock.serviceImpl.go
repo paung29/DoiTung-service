@@ -149,6 +149,14 @@ func (s *service) CreateIncomingStock(accountID uint, form CreateIncomingStockRe
 		return StockMovementResponse{}, utils.SystemError("Failed to retrieve warehouse record")
 	}
 
+	if form.TotalGrams == nil && form.TotalPods == nil {
+		return StockMovementResponse{}, utils.BadRequestError("Total grams or total pods must be provided")
+	}
+
+	tx := s.db.Begin()
+	if tx.Error != nil {
+		return StockMovementResponse{}, utils.SystemError("Failed to start database transaction")
+	}
 	stockMovement := &models.StockMovement{
 		RecordedByID:     accountID,
 		YearID:           yearRecord.YearID,
@@ -161,9 +169,46 @@ func (s *service) CreateIncomingStock(accountID uint, form CreateIncomingStockRe
 		RecordedDate:     form.RecordedDate,
 		MovementType:     enums.MovementIncoming,
 	}
-	err = s.repo.CreateStockMovement(s.db, stockMovement)
+	err = s.repo.CreateStockMovement(tx, stockMovement)
 	if err != nil {
+		tx.Rollback()
 		return StockMovementResponse{}, utils.SystemError("Failed to create stock movement")
+	}
+
+	stockBalanceRecord, err := s.repo.GetStockBalanceForUpdate(tx, ProductYearRecord.YearID, warehouseRecord.WarehouseID, form.Grade)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			stockBalanceRecord = &models.StockBalance{
+				ProductionYearID: ProductYearRecord.YearID,
+				WarehouseID:      warehouseRecord.WarehouseID,
+				Grade:            form.Grade,
+				TotalGrams:       0,
+				TotalPods:        0,
+			}
+			err = s.repo.CreateNewStockBalance(tx, stockBalanceRecord)
+			if err != nil {
+				tx.Rollback()
+				return StockMovementResponse{}, utils.SystemError("Failed to create new stock balance")
+			}
+		} else {
+			tx.Rollback()
+			return StockMovementResponse{}, utils.SystemError("Failed to retrieve stock balance")
+		}
+	}
+
+	if form.TotalGrams != nil {
+		stockBalanceRecord.TotalGrams += *form.TotalGrams
+	}
+	if form.TotalPods != nil {
+		stockBalanceRecord.TotalPods += *form.TotalPods
+	}
+	err = s.repo.UpdateStockBalance(tx, stockBalanceRecord)
+	if err != nil {
+		tx.Rollback()
+		return StockMovementResponse{}, utils.SystemError("Failed to update stock balance")
+	}
+	if err = tx.Commit().Error; err != nil {
+		return StockMovementResponse{}, utils.SystemError("Failed to commit database transaction")
 	}
 
 	return StockMovementResponse{Message: "Stock movement created successfully"}, nil
