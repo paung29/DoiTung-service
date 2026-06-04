@@ -1,6 +1,6 @@
 package config
 
-import(
+import (
 	"log"
 
 	"github.com/doitung/DoiTung-service/internal/models"
@@ -28,6 +28,7 @@ func SeedAccounts() {
 		Email:        "admin@doitung.com",
 		PasswordHash: string(password),
 		Role:         enums.RoleAdmin,
+		ActiveStatus: true,
 	}
 
 	if err := DB.Create(&admin).Error; err != nil {

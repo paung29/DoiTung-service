@@ -277,3 +277,16 @@ type Customer struct {
 	Note         *string
 	types.Timestamp
 }
+
+type StockBalance struct {
+	StockBalanceID uint `gorm:"primaryKey"`
+
+	ProductionYearID uint        `gorm:"not null;index;uniqueIndex:ux_stock_balance,priority:1"`
+	WarehouseID      uint        `gorm:"not null;index;uniqueIndex:ux_stock_balance,priority:2"`
+	Grade            enums.Grade `gorm:"type:varchar(20);not null;index;uniqueIndex:ux_stock_balance,priority:3"`
+
+	TotalGrams int `gorm:"not null;default:0"`
+	TotalPods  int `gorm:"not null;default:0"`
+
+	types.Timestamp
+}

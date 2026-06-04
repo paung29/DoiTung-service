@@ -13,14 +13,15 @@ import (
 )
 
 type service struct {
+	db            *gorm.DB
 	repo          StockRepository
 	yearRepo      year.YearRepository
 	warehouseRepo warehouse.WarehouseRepository
 	customerRepo  customer.CustomerRepository
 }
 
-func NewStockService(repo StockRepository, yearRepo year.YearRepository, warehouseRepo warehouse.WarehouseRepository, customerRepo customer.CustomerRepository) StockService {
-	return &service{repo: repo, yearRepo: yearRepo, warehouseRepo: warehouseRepo, customerRepo: customerRepo}
+func NewStockService(db *gorm.DB, repo StockRepository, yearRepo year.YearRepository, warehouseRepo warehouse.WarehouseRepository, customerRepo customer.CustomerRepository) StockService {
+	return &service{db: db, repo: repo, yearRepo: yearRepo, warehouseRepo: warehouseRepo, customerRepo: customerRepo}
 }
 
 func (s *service) CreateCarryOver(accountID uint, form CreateCarryOverStockRequest) (StockMovementResponse, error) {
@@ -32,6 +33,7 @@ func (s *service) CreateCarryOver(accountID uint, form CreateCarryOverStockReque
 		}
 		return StockMovementResponse{}, utils.SystemError("Failed to retrieve year record")
 	}
+	yearId := yearRecord.YearID
 
 	ProductYearRecord, err := s.yearRepo.FindByID(*form.ProductionYearID)
 	if err != nil {
@@ -40,6 +42,7 @@ func (s *service) CreateCarryOver(accountID uint, form CreateCarryOverStockReque
 		}
 		return StockMovementResponse{}, utils.SystemError("Failed to retrieve production year record")
 	}
+	productionYearId := ProductYearRecord.YearID
 
 	warehouseRecord, err := s.warehouseRepo.FindByID(*form.WarehouseID)
 	if err != nil {
@@ -48,12 +51,24 @@ func (s *service) CreateCarryOver(accountID uint, form CreateCarryOverStockReque
 		}
 		return StockMovementResponse{}, utils.SystemError("Failed to retrieve warehouse record")
 	}
+	warehouseId := warehouseRecord.WarehouseID
 
+	if form.TotalGrams == nil && form.TotalPods == nil {
+		return StockMovementResponse{}, utils.BadRequestError("Total grams or total pods must be provided")
+	}
+
+	// transaction start here
+	tx := s.db.Begin()
+	if tx.Error != nil {
+		return StockMovementResponse{}, utils.SystemError("Failed to start database transaction")
+	}
+
+	// Create stock movement record if fail rollback transaction and return error
 	stockMovement := &models.StockMovement{
 		RecordedByID:     accountID,
-		YearID:           yearRecord.YearID,
-		ProductionYearID: &ProductYearRecord.YearID,
-		ToWarehouseID:    &warehouseRecord.WarehouseID,
+		YearID:           yearId,
+		ProductionYearID: &productionYearId,
+		ToWarehouseID:    &warehouseId,
 		Grade:            form.Grade,
 		TotalGrams:       form.TotalGrams,
 		TotalPods:        form.TotalPods,
@@ -61,9 +76,48 @@ func (s *service) CreateCarryOver(accountID uint, form CreateCarryOverStockReque
 		RecordedDate:     form.RecordedDate,
 		MovementType:     enums.MovementCarryOver,
 	}
-	err = s.repo.CreateStockMovement(stockMovement)
+	err = s.repo.CreateStockMovement(tx, stockMovement)
 	if err != nil {
+		tx.Rollback()
 		return StockMovementResponse{}, utils.SystemError("Failed to create stock movement")
+	}
+
+	stockBalanceRecord, err := s.repo.GetStockBalanceForUpdate(tx, productionYearId, warehouseId, form.Grade)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// If no existing stock balance record, create a new one with the carry over quantity
+			stockBalanceRecord = &models.StockBalance{
+				ProductionYearID: productionYearId,
+				WarehouseID:      warehouseId,
+				Grade:            form.Grade,
+				TotalGrams:       0,
+				TotalPods:        0,
+			}
+			err = s.repo.CreateNewStockBalance(tx, stockBalanceRecord)
+			if err != nil {
+				tx.Rollback()
+				return StockMovementResponse{}, utils.SystemError("Failed to create new stock balance")
+			}
+		} else {
+			tx.Rollback()
+			return StockMovementResponse{}, utils.SystemError("Failed to retrieve stock balance")
+		}
+	}
+
+	// Update stock balance by adding the carry over quantity to the existing balance
+	if form.TotalGrams != nil {
+		stockBalanceRecord.TotalGrams += *form.TotalGrams
+	}
+	if form.TotalPods != nil {
+		stockBalanceRecord.TotalPods += *form.TotalPods
+	}
+	err = s.repo.UpdateStockBalance(tx, stockBalanceRecord)
+	if err != nil {
+		tx.Rollback()
+		return StockMovementResponse{}, utils.SystemError("Failed to update stock balance")
+	}
+	if err = tx.Commit().Error; err != nil {
+		return StockMovementResponse{}, utils.SystemError("Failed to commit database transaction")
 	}
 
 	return StockMovementResponse{Message: "Stock movement created successfully"}, nil
@@ -107,7 +161,7 @@ func (s *service) CreateIncomingStock(accountID uint, form CreateIncomingStockRe
 		RecordedDate:     form.RecordedDate,
 		MovementType:     enums.MovementIncoming,
 	}
-	err = s.repo.CreateStockMovement(stockMovement)
+	err = s.repo.CreateStockMovement(s.db, stockMovement)
 	if err != nil {
 		return StockMovementResponse{}, utils.SystemError("Failed to create stock movement")
 	}
@@ -191,7 +245,7 @@ func (s *service) CreateIssuedStock(accountID uint, form CreateIssuedStockReques
 		RecordedDate:       form.RecordedDate,
 		MovementType:       enums.MovementIssued,
 	}
-	err = s.repo.CreateStockMovement(stockMovement)
+	err = s.repo.CreateStockMovement(s.db, stockMovement)
 	if err != nil {
 		return StockMovementResponse{}, utils.SystemError("Failed to create stock movement")
 	}

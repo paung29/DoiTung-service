@@ -5,6 +5,7 @@ import (
 	"github.com/doitung/DoiTung-service/internal/models"
 	"github.com/doitung/DoiTung-service/internal/types/enums"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type repository struct {
@@ -20,8 +21,8 @@ func NewStockRepository(db *gorm.DB) StockRepository {
 	return &repository{db: db}
 }
 
-func (r *repository) CreateStockMovement(form *models.StockMovement) error {
-	return commonrepo.Create(r.db, form)
+func (r *repository) CreateStockMovement(db *gorm.DB, form *models.StockMovement) error {
+	return commonrepo.Create(db, form)
 }
 
 func (r *repository) UpdateStockMovement(form *models.StockMovement) error {
@@ -44,4 +45,24 @@ func (r *repository) GetStockTotal(productionYearID uint, warehouseID uint, grad
 		Where("production_year_id = ? AND "+warehouseColumn+" = ? AND grade = ? AND movement_type = ?", productionYearID, warehouseID, grade, stockType).
 		Scan(&total).Error
 	return total, err
+}
+
+func (r *repository) GetStockBalanceForUpdate(db *gorm.DB, productionYearID uint, warehouseID uint, grade enums.Grade) (*models.StockBalance, error) {
+	var balance models.StockBalance
+	err := db.
+		Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("production_year_id = ? AND warehouse_id = ? AND grade = ?", productionYearID, warehouseID, grade).
+		First(&balance).Error
+	if err != nil {
+		return nil, err
+	}
+	return &balance, nil
+}
+
+func (r *repository) CreateNewStockBalance(db *gorm.DB, form *models.StockBalance) error {
+	return commonrepo.Create(db, form)
+}
+
+func (r *repository) UpdateStockBalance(db *gorm.DB, form *models.StockBalance) error {
+	return db.Save(form).Error
 }

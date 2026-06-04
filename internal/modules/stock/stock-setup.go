@@ -13,7 +13,7 @@ func Setup(app *fiber.App, db *gorm.DB) {
 	yearRepo := year.NewYearRepository(db)
 	warehouseRepo := warehouse.NewWarehouseRepository(db)
 	customerRepo := customer.NewCustomerRepository(db)
-	stockService := NewStockService(stockRepo, yearRepo, warehouseRepo, customerRepo)
+	stockService := NewStockService(db, stockRepo, yearRepo, warehouseRepo, customerRepo)
 	stockHandler := NewStockHandler(stockService)
 
 	RegisterRoutes(app, stockHandler)
