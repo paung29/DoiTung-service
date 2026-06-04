@@ -184,3 +184,41 @@ func (s *service) GetFlowerFormHistories(userId uint, year uint) (FlowerFormHist
 		FlowerFormHistories: flowerFormHistories,
 	}, nil
 }
+
+func (s *service) GetFlowerFormsByZoneId(zoneId uint) (FlowerFormLists, error) {
+
+	zoneRecord, err := s.zoneRepo.FindById(zoneId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return FlowerFormLists{}, utils.BadRequestError("zone not found")
+		}
+		return FlowerFormLists{}, utils.SystemError("failed to get zone information")
+	}
+
+	zoneId = zoneRecord.ZoneID
+
+	flowerForms, err := s.flowerRepo.GetFlowerFormsByZoneId(s.db, zoneId)
+	if err != nil {
+		return FlowerFormLists{}, utils.SystemError("failed to get flower forms by zone id")
+	}
+
+	var flowerFormDetailsList []FlowerFormDetails
+	for i, form := range flowerForms {
+		flowerFormDetails := FlowerFormDetails{
+			No:           i + 1,
+			ClusterId:    form.ClusterID,
+			Location:     form.Cluster.Pole.Zone.ZoneName,
+			PoleNo:       form.Cluster.Pole.PoleNo,
+			ClusterNo:    form.Cluster.ClusterNo,
+			TotalFlowers: uint(form.TotalFlowers),
+			Condition:    string(form.Condition),
+			RecordedBy:   form.RecordedBy.Name,
+			Date:         form.UpdatedAt.Format("2006-01-02"),
+		}
+		flowerFormDetailsList = append(flowerFormDetailsList, flowerFormDetails)
+	}
+
+	return FlowerFormLists{
+		FlowerForms: flowerFormDetailsList,
+	}, nil
+}

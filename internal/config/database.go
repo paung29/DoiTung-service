@@ -71,6 +71,7 @@ func ConnectDatabase() {
 		&models.HarvestGradingForm{},
 		&models.Warehouse{},
 		&models.StockMovement{},
+		&models.StockBalance{},
 	)
 	if err != nil {
 		log.Fatalf("failed to migrate database: %v", err)

@@ -64,3 +64,25 @@ func (h *PodHandler) GetPodFormHistories(context *fiber.Ctx) error {
 	}
 	return context.JSON(response)
 }
+
+func (h *PodHandler) GetPodFormsByZoneId(context *fiber.Ctx) error {
+	zoneIdStr := context.Query("zoneId")
+	if zoneIdStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("zoneId is required"))
+	}
+
+	zoneId, err := strconv.Atoi(zoneIdStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid zoneId"))
+	}
+
+	if zoneId <= 0 {
+		return utils.HandleError(context, utils.BadRequestError("zoneId must be a positive integer"))
+	}
+
+	response, err := h.service.GetPodFormsByZoneId(uint(zoneId))
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.JSON(response)
+}

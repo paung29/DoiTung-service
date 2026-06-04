@@ -215,3 +215,48 @@ func (s *service) GetPodFormHistories(userId uint, year uint) (PodFormHistoriesR
 
 	return PodFormHistoriesResponse{PodFormHistories: podFormHistoriesResponse}, nil
 }
+
+func (s *service) GetPodFormsByZoneId(zoneId uint) (PodFormLists, error) {
+
+	zoneRecord, err := s.zoneRepo.FindById(zoneId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PodFormLists{}, utils.BadRequestError("zone not found")
+		}
+		return PodFormLists{}, utils.SystemError("failed to get zone information")
+	}
+
+	zoneId = zoneRecord.ZoneID
+
+	podForms, err := s.podRepo.GetPodFormsByZoneId(s.db, zoneId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PodFormLists{PodForms: []PodFormDetails{}}, nil
+		}
+		return PodFormLists{}, utils.SystemError("failed to get pod forms by zone id")
+	}
+
+	var podFormDetailsList []PodFormDetails
+	for i, podForm := range podForms {
+		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(podForm.ClusterID)
+		if err != nil {
+			return PodFormLists{}, utils.SystemError("failed to get cluster information for pod form")
+		}
+		podFormDetailsList = append(podFormDetailsList, PodFormDetails{
+			No:            uint(i + 1),
+			ClusterId:     clusterInfo.ClusterID,
+			Location:      clusterInfo.Pole.Zone.ZoneName,
+			PoleNo:        uint(clusterInfo.Pole.PoleNo),
+			ClusterNo:     uint(clusterInfo.ClusterNo),
+			NumberPods:    uint(podForm.NumberPods),
+			LostPods:      uint(podForm.LostPods),
+			RemainingPods: uint(podForm.RemainingPods),
+			Condition:     string(podForm.Condition),
+			PodFormDone:   clusterInfo.PodFormDone,
+			RecordedBy:    podForm.RecordedBy.Name,
+			Date:          podForm.UpdatedAt.Format("2006-01-02"),
+		})
+	}
+
+	return PodFormLists{PodForms: podFormDetailsList}, nil
+}

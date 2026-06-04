@@ -43,3 +43,21 @@ func (r *repository) GetPreHarvestFormsByUserIdAndYear(db *gorm.DB, userId uint,
 	}
 	return forms, nil
 }
+
+func (r *repository) GetPreHarvestFormsByZoneId(db *gorm.DB, zoneId uint) ([]models.PreHarvestForm, error) {
+	var forms []models.PreHarvestForm
+	err := db.
+		Model(&models.PreHarvestForm{}).
+		Preload("RecordedBy").
+		Preload("Cluster").
+		Preload("Cluster.Pole").
+			Preload("Cluster.Pole.Zone").
+			Joins("JOIN clusters ON clusters.cluster_id = pre_harvest_forms.cluster_id").
+			Joins("JOIN poles ON poles.pole_id = clusters.pole_id").
+			Where("poles.zone_id = ?", zoneId).
+			Find(&forms).Error
+	if err != nil {
+		return nil, err
+	}
+	return forms, nil
+}

@@ -51,3 +51,20 @@ func (r *repository) GetFlowerFormHistoriesByUserIdAndYearId(db *gorm.DB, userId
 	}
 	return forms, nil
 }
+
+func (r *repository) GetFlowerFormsByZoneId(db *gorm.DB, zoneId uint) ([]models.FlowerForm, error) {
+	var forms []models.FlowerForm
+	if err := r.db.
+		Model(&models.FlowerForm{}).
+		Preload("RecordedBy").
+		Preload("Cluster").
+		Preload("Cluster.Pole").
+		Preload("Cluster.Pole.Zone").
+		Joins("JOIN clusters ON clusters.cluster_id = flower_forms.cluster_id").
+		Joins("JOIN poles ON poles.pole_id = clusters.pole_id").
+		Where("poles.zone_id = ?", zoneId).
+		Find(&forms).Error; err != nil {
+		return nil, err
+	}
+	return forms, nil
+}

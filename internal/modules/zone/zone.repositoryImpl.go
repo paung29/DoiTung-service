@@ -61,3 +61,7 @@ func (repo *repository) FindByYearID(yearID uint) ([]models.Zone, error) {
 
 	return zones, err
 }
+
+func (repo *repository) FindById(zoneId uint) (*models.Zone, error) {
+	return commonrepo.FindByID[models.Zone](repo.db, zoneId)
+}

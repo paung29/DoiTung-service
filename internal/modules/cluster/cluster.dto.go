@@ -52,3 +52,21 @@ type ClusterUpdateResponse struct {
 type ClusterFormHistoriesResponse struct {
 	ClusterFormHistories []ClusterInfo `json:"clusterFormHistories"`
 }
+
+type GetAllClustersFormByZoneRequest struct {
+	ZoneId uint `json:"zoneId" validate:"required,number"`
+}
+
+type GetAllClustersFormByZoneResponse struct {
+	ClusterForms []ClusterFormDetails `json:"clusterForms"`
+}
+
+type ClusterFormDetails struct {
+	No         int    `json:"no"`
+	Date       string `json:"date"`
+	ClusterId  uint   `json:"clusterId"`
+	PoleNo     int    `json:"poleNo"`
+	ClusterNo  int    `json:"clusterNo"`
+	Condition  string `json:"condition"`
+	RecordedBy string `json:"recordedBy"`
+}

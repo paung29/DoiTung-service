@@ -18,6 +18,7 @@ import (
 type service struct {
 	db             *gorm.DB
 	yearRepo       year.YearRepository
+	zoneRepo       zone.ZoneRepository
 	clusterRepo    cluster.ClusterRepository
 	validator      *form.ClusterValidator
 	podRepo        pod.PodRepository
@@ -29,6 +30,7 @@ func NewPreHarvestService(db *gorm.DB, yearRepo year.YearRepository, zoneRepo zo
 	return &service{
 		db:             db,
 		yearRepo:       yearRepo,
+		zoneRepo:       zoneRepo,
 		clusterRepo:    clusterRepo,
 		validator:      validator,
 		podRepo:        podRepo,
@@ -211,4 +213,50 @@ func (s *service) GetPreHarvestFormHistories(userId uint, year uint) (PreHarvest
 		})
 	}
 	return PreHarvestFormHistoriesResponse{PreHarvestForms: preHarvestFormHistories}, nil
+}
+
+func (s *service) GetPreHarvestFormByZoneId(zoneId uint) (PreHarvestFormLists, error) {
+
+	zoneRecord, err := s.zoneRepo.FindById(zoneId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return PreHarvestFormLists{}, utils.BadRequestError("zone not found")
+		}
+		return PreHarvestFormLists{}, utils.SystemError("failed to get preHarvest forms by zone id")
+	}
+
+	zoneId = zoneRecord.ZoneID
+
+	preHarvestForms, err := s.preHarvestRepo.GetPreHarvestFormsByZoneId(s.db, zoneId)
+	if err != nil {
+		return PreHarvestFormLists{}, utils.SystemError("failed to get preHarvest forms by zone id")
+	}
+
+	var preHarvestFormDetailsList []PreHarvestFormDetails
+	for number, record := range preHarvestForms {
+		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(record.ClusterID)
+		if err != nil {
+			return PreHarvestFormLists{}, utils.SystemError("failed to get cluster information for form list")
+		}
+
+		remainPods := record.LostPodsBeforeHarvest + record.NumberPodsSecondRound
+		preHarvestFormDetailsList = append(preHarvestFormDetailsList, PreHarvestFormDetails{
+			No:                    uint(number + 1),
+			ClusterId:             record.ClusterID,
+			Location:              clusterInfo.Pole.Zone.ZoneName,
+			PoleNo:                uint(clusterInfo.Pole.PoleNo),
+			ClusterNo:             uint(clusterInfo.ClusterNo),
+			RemainingPods:         uint(remainPods),
+			NumberPodsSecondRound: uint(record.NumberPodsSecondRound),
+			LostPodsBeforeHarvest: uint(record.LostPodsBeforeHarvest),
+			RemovedPods:           uint(record.RemovedPods),
+			PlantsRemoved:         uint(record.PlantsRemoved),
+			Condition:             string(record.Condition),
+			PreHarvestFormDone:    clusterInfo.PreHarvestFormDone,
+			RecordedBy:            record.RecordedBy.Name,
+			Date:                  record.RecordedDate.Format("2006-01-02 15:04:05"),
+		})
+	}
+
+	return PreHarvestFormLists{PreHarvestForms: preHarvestFormDetailsList}, nil
 }

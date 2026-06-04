@@ -133,3 +133,18 @@ func (r *repository) GetClusterFormHistoriesByUserIdAndYearId(userId uint, yearI
 	}
 	return forms, nil
 }
+
+func (r *repository) GetAllClusterFormDetailsByZoneId(zoneId uint) ([]models.ClusterForm, error) {
+	var forms []models.ClusterForm
+	if err := r.db.
+		Model(&models.ClusterForm{}).
+		Preload("RecordedBy").
+		Preload("Cluster.Pole.Zone").
+		Joins("JOIN clusters AS c ON c.cluster_id = cluster_forms.cluster_id").
+		Joins("JOIN poles AS p ON p.pole_id = c.pole_id").
+		Where("p.zone_id = ?", zoneId).
+		Find(&forms).Error; err != nil {
+		return nil, err
+	}
+	return forms, nil
+}

@@ -43,3 +43,22 @@ func (r *repository) GetPollinationFormHistoriesByUserIdAndYearId(db *gorm.DB, u
 	}
 	return forms, nil
 }
+
+func (r *repository) GetPollinationFormsByZoneId(db *gorm.DB, zoneId uint) ([]models.PollinationForm, error) {
+	var forms []models.PollinationForm
+	err := db.
+		Model(&models.PollinationForm{}).
+		Preload("RecordedBy").
+		Preload("Cluster").
+		Preload("Cluster.Pole").
+		Preload("Cluster.Pole.Zone").
+		Joins("JOIN clusters ON clusters.cluster_id = pollination_forms.cluster_id").
+		Joins("JOIN poles ON poles.pole_id = clusters.pole_id").
+		Joins("JOIN zones ON zones.zone_id = poles.zone_id").
+		Where("zones.zone_id = ?", zoneId).
+		Find(&forms).Error
+	if err != nil {
+		return nil, err
+	}
+	return forms, nil
+}

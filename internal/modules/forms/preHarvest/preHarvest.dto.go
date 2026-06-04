@@ -13,6 +13,7 @@ type PreHarvestFormResponse struct {
 }
 
 type PreHarvestFormDetails struct {
+	No                    uint   `json:"no,omitempty"`
 	ClusterId             uint   `json:"clusterId"`
 	Location              string `json:"location"`
 	PoleNo                uint   `json:"poleNo"`
@@ -24,6 +25,8 @@ type PreHarvestFormDetails struct {
 	PlantsRemoved         uint   `json:"plantsRemoved"`
 	Condition             string `json:"condition"`
 	PreHarvestFormDone    bool   `json:"preHarvestFormDone"`
+	RecordedBy            string `json:"recordedBy,omitempty"`
+	Date                  string `json:"date,omitempty"`
 }
 
 type PreHarvestFormHistoriesResponse struct {
@@ -39,4 +42,8 @@ type PreHarvestFormHistory struct {
 	ProgressDone uint   `json:"progressDone"`
 	CreatedAt    string `json:"createdAt"`
 	UpdatedAt    string `json:"updatedAt"`
+}
+
+type PreHarvestFormLists struct {
+	PreHarvestForms []PreHarvestFormDetails `json:"preHarvestForms"`
 }

@@ -10,4 +10,5 @@ type PodRepository interface {
 	GetPodFormByClusterId(db *gorm.DB, clusterId uint) (*models.PodForm, error)
 	UpdatePodForm(db *gorm.DB, form *models.PodForm) error
 	GetPodFormHistoriesByUserIdAndYearId(db *gorm.DB, userId uint, yearId uint) ([]models.PodForm, error)
+	GetPodFormsByZoneId(db *gorm.DB, zoneId uint) ([]models.PodForm, error)
 }

@@ -108,7 +108,7 @@ func (s *service) GetYear() (GetYearResponse, error) {
 	yearsModles, err := s.yearRepo.findAll()
 
 	if err != nil {
-		return  GetYearResponse{}, err
+		return GetYearResponse{}, err
 	}
 
 	var years []string
@@ -118,4 +118,30 @@ func (s *service) GetYear() (GetYearResponse, error) {
 	}
 
 	return GetYearResponse{Years: years}, nil
+}
+
+func (s *service) GetYearDetails() (GetYearDetailsLists, error) {
+
+	yearDetailsModels, err := s.yearRepo.findAllYearDetails()
+
+	if err != nil {
+		return GetYearDetailsLists{}, err
+	}
+
+	var yearDetails []YearDetails
+
+	for _, yearSetting := range yearDetailsModels {
+		yearDetails = append(yearDetails, YearDetails{
+			YearId:               yearSetting.YearID,
+			Year:                 yearSetting.Year.Year,
+			ClusterActive:        yearSetting.ClusterActive,
+			FlowerActive:         yearSetting.FlowerActive,
+			PollinationActive:    yearSetting.PollinationActive,
+			PodActive:            yearSetting.PodActive,
+			PreHarvestActive:     yearSetting.PreHarvestActive,
+			HarvestGradingActive: yearSetting.HarvestGradingActive,
+		})
+	}
+
+	return GetYearDetailsLists{YearDetails: yearDetails}, nil
 }
