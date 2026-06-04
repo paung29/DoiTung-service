@@ -1,7 +1,6 @@
 package year
 
 import (
-
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -16,7 +15,7 @@ func NewYearHandler(service YearService) *YearHandler {
 	}
 }
 
-func (h YearHandler) CreateYear (context *fiber.Ctx) error {
+func (h YearHandler) CreateYear(context *fiber.Ctx) error {
 	var form YearCreateForm
 
 	if err := utils.ParseAndValidate(context, &form); err != nil {
@@ -31,7 +30,7 @@ func (h YearHandler) CreateYear (context *fiber.Ctx) error {
 	return context.Status(fiber.StatusCreated).JSON(response)
 }
 
-func (h YearHandler) ChangeYearFormSettingStatus (context *fiber.Ctx) error {
+func (h YearHandler) ChangeYearFormSettingStatus(context *fiber.Ctx) error {
 	var form YearFormSettingStatusChange
 
 	if err := utils.ParseAndValidate(context, &form); err != nil {
@@ -45,8 +44,8 @@ func (h YearHandler) ChangeYearFormSettingStatus (context *fiber.Ctx) error {
 	return context.Status(fiber.StatusOK).JSON(response)
 }
 
-func (h YearHandler) GetYears (context *fiber.Ctx) error {
-	
+func (h YearHandler) GetYears(context *fiber.Ctx) error {
+
 	response, err := h.service.GetYear()
 	if err != nil {
 		return utils.HandleError(context, err)
@@ -55,3 +54,12 @@ func (h YearHandler) GetYears (context *fiber.Ctx) error {
 	return context.Status(fiber.StatusOK).JSON(response)
 }
 
+func (h YearHandler) GetYearDetails(context *fiber.Ctx) error {
+
+	response, err := h.service.GetYearDetails()
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}

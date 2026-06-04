@@ -14,7 +14,7 @@ func NewYearRepository(db *gorm.DB) YearRepository {
 	return &repository{db: db}
 }
 
-func (repo *repository) Create(tx *gorm.DB,year *models.Year) error {
+func (repo *repository) Create(tx *gorm.DB, year *models.Year) error {
 	return commonrepo.Create(tx, year)
 }
 
@@ -25,7 +25,7 @@ func (repo *repository) CreateFormSetting(tx *gorm.DB, setting *models.YearFormS
 func (repo *repository) FindByYear(yearValue int) (*models.Year, error) {
 	var year models.Year
 	if err := repo.db.Where("year = ?", yearValue).First(&year).Error; err != nil {
-		return nil,err 
+		return nil, err
 	}
 	return &year, nil
 }
@@ -39,7 +39,7 @@ func (repo *repository) FindFormSettingByYear(id uint) (*models.YearFormSetting,
 }
 
 func (repo *repository) UpdateFormSetting(db *gorm.DB, setting *models.YearFormSetting) error {
-	return commonrepo.Save(db,setting )
+	return commonrepo.Save(db, setting)
 }
 
 func (repo *repository) findAll() ([]models.Year, error) {
@@ -52,4 +52,13 @@ func (repo *repository) findAll() ([]models.Year, error) {
 	}
 
 	return years, nil
+}
+
+func (repo *repository) findAllYearDetails() ([]models.YearFormSetting, error) {
+	var details []models.YearFormSetting
+	err := repo.db.Preload("Year").Find(&details).Error
+	if err != nil {
+		return nil, err
+	}
+	return details, nil
 }

@@ -2,21 +2,21 @@ package year
 
 import "gorm.io/gorm"
 
-
 type YearService interface {
 	CreateYear(form YearCreateForm) (YearCreateResponse, error)
 	ChangeYearFormSettingStatus(form YearFormSettingStatusChange) (YearFormSettingStatusChangeResponse, error)
 	GetYear() (GetYearResponse, error)
+	GetYearDetails() (GetYearDetailsLists, error)
 }
 
 type service struct {
-	db *gorm.DB
+	db       *gorm.DB
 	yearRepo YearRepository
 }
 
-func NewYearService(db *gorm.DB ,yearRepo YearRepository) YearService {
+func NewYearService(db *gorm.DB, yearRepo YearRepository) YearService {
 	return &service{
-		db : db,
+		db:       db,
 		yearRepo: yearRepo,
 	}
 }
