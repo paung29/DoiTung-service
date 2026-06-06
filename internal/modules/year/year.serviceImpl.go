@@ -132,6 +132,7 @@ func (s *service) GetYearDetails() (GetYearDetailsLists, error) {
 
 	for _, yearSetting := range yearDetailsModels {
 		yearDetails = append(yearDetails, YearDetails{
+			TotalActiveForms:     utils.CountTrue(yearSetting.ClusterActive, yearSetting.FlowerActive, yearSetting.PollinationActive, yearSetting.PodActive, yearSetting.PreHarvestActive, yearSetting.HarvestGradingActive),
 			YearId:               yearSetting.YearID,
 			Year:                 yearSetting.Year.Year,
 			ClusterActive:        yearSetting.ClusterActive,

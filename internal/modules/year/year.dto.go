@@ -27,6 +27,7 @@ type GetYearDetailsLists struct {
 }
 
 type YearDetails struct {
+	TotalActiveForms     int  `json:"totalActiveForms"`
 	YearId               uint `json:"yearId"`
 	Year                 int  `json:"year"`
 	ClusterActive        bool `json:"clusterActive"`
