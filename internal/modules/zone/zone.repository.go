@@ -12,4 +12,5 @@ type ZoneRepository interface {
 	FindByYearAndZoneName(yearID uint, name string) (*models.Zone, error)
 	FindByYearID(yearID uint) ([]models.Zone, error)
 	FindById(zoneId uint) (*models.Zone, error)
+	GetTotalPolesByZoneId(zoneId uint) (int64, error)
 }
