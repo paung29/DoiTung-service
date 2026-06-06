@@ -145,3 +145,26 @@ func (s *service) GetYearDetails() (GetYearDetailsLists, error) {
 
 	return GetYearDetailsLists{YearDetails: yearDetails}, nil
 }
+
+func (s *service) GetYearManagementTable() (YearManagementListResponse, error) {
+	yearDetailsModels, err := s.yearRepo.findAllYearDetails()
+
+	if err != nil {
+		return YearManagementListResponse{}, err
+	}
+
+	var yearManagementList []YearManagementItem
+
+	for _, yearSetting := range yearDetailsModels {
+		totalZone, err := s.yearRepo.CountZonesByYear(yearSetting.YearID)
+		if err != nil {
+			return YearManagementListResponse{}, utils.SystemError("failed to count zones for year")
+		}
+		yearManagementList = append(yearManagementList, YearManagementItem{
+			Year:      yearSetting.Year.Year,
+			TotalZone: int(totalZone),
+		})
+	}
+
+	return YearManagementListResponse{Years: yearManagementList}, nil
+}

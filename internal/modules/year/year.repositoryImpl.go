@@ -62,3 +62,12 @@ func (repo *repository) findAllYearDetails() ([]models.YearFormSetting, error) {
 	}
 	return details, nil
 }
+
+func (repo *repository) CountZonesByYear(yearID uint) (int64, error) {
+	var count int64
+	err := repo.db.Model(&models.Zone{}).Where("year_id = ?", yearID).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

@@ -36,3 +36,12 @@ type YearDetails struct {
 	PreHarvestActive     bool `json:"preHarvestActive"`
 	HarvestGradingActive bool `json:"harvestGradingActive"`
 }
+
+type YearManagementListResponse struct {
+	Years []YearManagementItem `json:"years"`
+}
+
+type YearManagementItem struct {
+	Year      int `json:"year"`
+	TotalZone int `json:"totalZone"`
+}
