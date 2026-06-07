@@ -10,14 +10,14 @@ import (
 )
 
 type service struct {
-	db *gorm.DB
+	db       *gorm.DB
 	zoneRepo ZoneRepository
 	yearRepo year.YearRepository
 }
 
-func NewZoneService(db *gorm.DB, zoneRepo ZoneRepository, yearRepo year.YearRepository) ZoneService{
+func NewZoneService(db *gorm.DB, zoneRepo ZoneRepository, yearRepo year.YearRepository) ZoneService {
 	return &service{
-		db: db,
+		db:       db,
 		zoneRepo: zoneRepo,
 		yearRepo: yearRepo,
 	}
@@ -54,9 +54,9 @@ func (s service) CreateZone(form CreateZoneRequest) (CreateZoneResponse, error) 
 	nextZoneNo := maxZoneNo + 1
 
 	zone := &models.Zone{
-		YearID: yearID,
+		YearID:   yearID,
 		ZoneName: form.Name,
-		ZoneNo: nextZoneNo,
+		ZoneNo:   nextZoneNo,
 	}
 
 	if err := s.zoneRepo.Create(s.db, zone); err != nil {
@@ -86,12 +86,52 @@ func (s service) GetAllZone(yearID uint) (GetAllZoneResponse, error) {
 	var zoneResponses []ZoneResponse
 	for _, z := range zones {
 		zoneResponses = append(zoneResponses, ZoneResponse{
-			ZoneID: z.ZoneID,
+			ZoneID:   z.ZoneID,
 			ZoneName: z.ZoneName,
 		})
 	}
 
 	return GetAllZoneResponse{
 		Zones: zoneResponses,
+	}, nil
+}
+
+func (s service) GetZoneManagementTable(yearID uint) (GetZoneManagementTableResponse, error) {
+	yearRecord, err := s.yearRepo.FindByYear(int(yearID))
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return GetZoneManagementTableResponse{}, utils.NotFoundError("year not found")
+		}
+		return GetZoneManagementTableResponse{}, utils.SystemError("failed to check year")
+	}
+
+	zones, err := s.zoneRepo.FindByYearID(yearRecord.YearID)
+	if err != nil {
+		return GetZoneManagementTableResponse{}, utils.SystemError("failed to get zones")
+	}
+
+	var zoneInfos []ZoneManagementInfo
+	var totalPoles int64 = 0
+
+	for _, z := range zones {
+		polesInZone, err := s.zoneRepo.GetTotalPolesByZoneId(z.ZoneID)
+		if err != nil {
+			return GetZoneManagementTableResponse{}, utils.SystemError("failed to count poles in zone")
+		}
+
+		totalPoles += polesInZone
+
+		zoneInfos = append(zoneInfos, ZoneManagementInfo{
+			ZoneID:           z.ZoneID,
+			ZoneName:         z.ZoneName,
+			TotalPolesInZone: polesInZone,
+		})
+	}
+
+	return GetZoneManagementTableResponse{
+		TotalZones: len(zones),
+		TotalPoles: totalPoles,
+		Zones:      zoneInfos,
 	}, nil
 }

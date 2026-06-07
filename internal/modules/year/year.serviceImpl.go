@@ -132,6 +132,7 @@ func (s *service) GetYearDetails() (GetYearDetailsLists, error) {
 
 	for _, yearSetting := range yearDetailsModels {
 		yearDetails = append(yearDetails, YearDetails{
+			TotalActiveForms:     utils.CountTrue(yearSetting.ClusterActive, yearSetting.FlowerActive, yearSetting.PollinationActive, yearSetting.PodActive, yearSetting.PreHarvestActive, yearSetting.HarvestGradingActive),
 			YearId:               yearSetting.YearID,
 			Year:                 yearSetting.Year.Year,
 			ClusterActive:        yearSetting.ClusterActive,
@@ -144,4 +145,27 @@ func (s *service) GetYearDetails() (GetYearDetailsLists, error) {
 	}
 
 	return GetYearDetailsLists{YearDetails: yearDetails}, nil
+}
+
+func (s *service) GetYearManagementTable() (YearManagementListResponse, error) {
+	yearDetailsModels, err := s.yearRepo.findAllYearDetails()
+
+	if err != nil {
+		return YearManagementListResponse{}, err
+	}
+
+	var yearManagementList []YearManagementItem
+
+	for _, yearSetting := range yearDetailsModels {
+		totalZone, err := s.yearRepo.CountZonesByYear(yearSetting.YearID)
+		if err != nil {
+			return YearManagementListResponse{}, utils.SystemError("failed to count zones for year")
+		}
+		yearManagementList = append(yearManagementList, YearManagementItem{
+			Year:      yearSetting.Year.Year,
+			TotalZone: int(totalZone),
+		})
+	}
+
+	return YearManagementListResponse{Years: yearManagementList}, nil
 }

@@ -7,6 +7,7 @@ type YearService interface {
 	ChangeYearFormSettingStatus(form YearFormSettingStatusChange) (YearFormSettingStatusChangeResponse, error)
 	GetYear() (GetYearResponse, error)
 	GetYearDetails() (GetYearDetailsLists, error)
+	GetYearManagementTable() (YearManagementListResponse, error)
 }
 
 type service struct {

@@ -27,6 +27,7 @@ type GetYearDetailsLists struct {
 }
 
 type YearDetails struct {
+	TotalActiveForms     int  `json:"totalActiveForms"`
 	YearId               uint `json:"yearId"`
 	Year                 int  `json:"year"`
 	ClusterActive        bool `json:"clusterActive"`
@@ -35,4 +36,13 @@ type YearDetails struct {
 	PodActive            bool `json:"podActive"`
 	PreHarvestActive     bool `json:"preHarvestActive"`
 	HarvestGradingActive bool `json:"harvestGradingActive"`
+}
+
+type YearManagementListResponse struct {
+	Years []YearManagementItem `json:"years"`
+}
+
+type YearManagementItem struct {
+	Year      int `json:"year"`
+	TotalZone int `json:"totalZone"`
 }

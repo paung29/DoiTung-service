@@ -63,3 +63,13 @@ func (h YearHandler) GetYearDetails(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h YearHandler) GetYearManagementTable(context *fiber.Ctx) error {
+
+	response, err := h.service.GetYearManagementTable()
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}

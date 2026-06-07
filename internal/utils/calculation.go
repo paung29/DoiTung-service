@@ -23,3 +23,13 @@ func CalculateClusterProgress(clusterInfo models.Cluster) uint {
 
 	return done
 }
+
+func CountTrue(values ...bool) int {
+	count := 0
+	for _, value := range values {
+		if value {
+			count++
+		}
+	}
+	return count
+}

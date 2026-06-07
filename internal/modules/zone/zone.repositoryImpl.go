@@ -65,3 +65,17 @@ func (repo *repository) FindByYearID(yearID uint) ([]models.Zone, error) {
 func (repo *repository) FindById(zoneId uint) (*models.Zone, error) {
 	return commonrepo.FindByID[models.Zone](repo.db, zoneId)
 }
+
+func (repo *repository) GetTotalPolesByZoneId(zoneId uint) (int64, error) {
+	var total int64
+
+	err := repo.db.Model(&models.Pole{}).
+		Where("zone_id = ?", zoneId).
+		Count(&total).Error
+
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
