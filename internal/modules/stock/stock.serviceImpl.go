@@ -26,7 +26,7 @@ func NewStockService(db *gorm.DB, repo StockRepository, yearRepo year.YearReposi
 
 func (s *service) CreateCarryOver(accountID uint, form CreateCarryOverStockRequest) (StockMovementResponse, error) {
 
-	yearRecord, err := s.yearRepo.FindByID(form.YearID)
+	yearRecord, err := s.yearRepo.FindByYear(int(form.Year))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return StockMovementResponse{}, utils.BadRequestError("Year doesn't exist")
@@ -35,7 +35,7 @@ func (s *service) CreateCarryOver(accountID uint, form CreateCarryOverStockReque
 	}
 	yearId := yearRecord.YearID
 
-	ProductYearRecord, err := s.yearRepo.FindByID(*form.ProductionYearID)
+	ProductYearRecord, err := s.yearRepo.FindByYear(int(*form.ProductionYear))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return StockMovementResponse{}, utils.BadRequestError("Production year doesn't exist")
@@ -125,7 +125,7 @@ func (s *service) CreateCarryOver(accountID uint, form CreateCarryOverStockReque
 
 func (s *service) CreateIncomingStock(accountID uint, form CreateIncomingStockRequest) (StockMovementResponse, error) {
 
-	yearRecord, err := s.yearRepo.FindByID(form.YearID)
+	yearRecord, err := s.yearRepo.FindByYear(int(form.Year))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return StockMovementResponse{}, utils.BadRequestError("Year doesn't exist")
@@ -133,7 +133,7 @@ func (s *service) CreateIncomingStock(accountID uint, form CreateIncomingStockRe
 		return StockMovementResponse{}, utils.SystemError("Failed to retrieve year record")
 	}
 
-	ProductYearRecord, err := s.yearRepo.FindByID(*form.ProductionYearID)
+	ProductYearRecord, err := s.yearRepo.FindByYear(int(*form.ProductionYear))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return StockMovementResponse{}, utils.BadRequestError("Production year doesn't exist")
@@ -216,7 +216,7 @@ func (s *service) CreateIncomingStock(accountID uint, form CreateIncomingStockRe
 
 func (s *service) CreateIssuedStock(accountID uint, form CreateIssuedStockRequest) (StockMovementResponse, error) {
 
-	yearRecord, err := s.yearRepo.FindByID(form.YearID)
+	yearRecord, err := s.yearRepo.FindByYear(int(form.Year))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return StockMovementResponse{}, utils.BadRequestError("Year doesn't exist")
@@ -224,7 +224,7 @@ func (s *service) CreateIssuedStock(accountID uint, form CreateIssuedStockReques
 		return StockMovementResponse{}, utils.SystemError("Failed to retrieve year record")
 	}
 
-	ProductYearRecord, err := s.yearRepo.FindByID(*form.ProductionYearID)
+	ProductYearRecord, err := s.yearRepo.FindByYear(int(*form.ProductionYear))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return StockMovementResponse{}, utils.BadRequestError("Production year doesn't exist")
@@ -328,8 +328,8 @@ func (s *service) UpdateStockMovement(accountID uint, form UpdateStockMovementRe
 		return StockMovementResponse{}, utils.SystemError("Failed to retrieve stock movement record")
 	}
 
-	if form.ProductionYearID != nil {
-		ProductYearRecord, err := s.yearRepo.FindByID(*form.ProductionYearID)
+	if form.ProductionYear != nil {
+		ProductYearRecord, err := s.yearRepo.FindByYear(int(*form.ProductionYear))
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return StockMovementResponse{}, utils.BadRequestError("Production year doesn't exist")
