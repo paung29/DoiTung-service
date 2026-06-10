@@ -22,13 +22,8 @@ type GetYearResponse struct {
 	Years []string `json:"years"`
 }
 
-type GetYearDetailsLists struct {
-	YearDetails []YearDetails `json:"yearDetails"`
-}
-
-type YearDetails struct {
+type YearSettingDetailsResponse struct {
 	TotalActiveForms     int  `json:"totalActiveForms"`
-	YearId               uint `json:"yearId"`
 	Year                 int  `json:"year"`
 	ClusterActive        bool `json:"clusterActive"`
 	FlowerActive         bool `json:"flowerActive"`
