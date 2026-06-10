@@ -45,14 +45,14 @@ type CreateIssuedStockRequest struct {
 	RecordedDate   time.Time   `json:"recorded_date" validate:"required"`
 }
 
-type UpdateStockMovementRequest struct {
-	StockMovementID uint        `json:"stock_movement_id" validate:"required"`
-	ProductionYear  *uint       `json:"production_year" validate:"required"`
-	WarehouseID     *uint       `json:"warehouse_id" validate:"required"`
-	CustomerID      *uint       `json:"customer_id"`
-	Grade           enums.Grade `json:"grade" validate:"required,oneof=A_PLUS A B C D D_PLUS"`
-	PricePerGram    *int        `json:"price_per_gram"`
-	TotalGrams      *int        `json:"total_grams" validate:"required,gt=0"`
-	TotalPods       *int        `json:"total_pods" validate:"required,gt=0"`
-	Details         *string     `json:"details"`
-}
+// type UpdateStockMovementRequest struct {
+// 	StockMovementID uint        `json:"stock_movement_id" validate:"required"`
+// 	ProductionYear  *uint       `json:"production_year" validate:"required"`
+// 	WarehouseID     *uint       `json:"warehouse_id" validate:"required"`
+// 	CustomerID      *uint       `json:"customer_id"`
+// 	Grade           enums.Grade `json:"grade" validate:"required,oneof=A_PLUS A B C D D_PLUS"`
+// 	PricePerGram    *int        `json:"price_per_gram"`
+// 	TotalGrams      *int        `json:"total_grams" validate:"required,gt=0"`
+// 	TotalPods       *int        `json:"total_pods" validate:"required,gt=0"`
+// 	Details         *string     `json:"details"`
+// }

@@ -318,74 +318,74 @@ func (s *service) CreateIssuedStock(accountID uint, form CreateIssuedStockReques
 	return StockMovementResponse{Message: "Stock movement created successfully"}, nil
 }
 
-func (s *service) UpdateStockMovement(accountID uint, form UpdateStockMovementRequest) (StockMovementResponse, error) {
+// func (s *service) UpdateStockMovement(accountID uint, form UpdateStockMovementRequest) (StockMovementResponse, error) {
 
-	stockMovementRecord, err := s.repo.FindByID(form.StockMovementID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return StockMovementResponse{}, utils.BadRequestError("Stock movement record doesn't exist")
-		}
-		return StockMovementResponse{}, utils.SystemError("Failed to retrieve stock movement record")
-	}
+// 	stockMovementRecord, err := s.repo.FindByID(form.StockMovementID)
+// 	if err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			return StockMovementResponse{}, utils.BadRequestError("Stock movement record doesn't exist")
+// 		}
+// 		return StockMovementResponse{}, utils.SystemError("Failed to retrieve stock movement record")
+// 	}
 
-	if form.ProductionYear != nil {
-		ProductYearRecord, err := s.yearRepo.FindByYear(int(*form.ProductionYear))
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return StockMovementResponse{}, utils.BadRequestError("Production year doesn't exist")
-			}
-			return StockMovementResponse{}, utils.SystemError("Failed to retrieve production year record")
-		}
-		stockMovementRecord.ProductionYearID = &ProductYearRecord.YearID
-	}
+// 	if form.ProductionYear != nil {
+// 		ProductYearRecord, err := s.yearRepo.FindByYear(int(*form.ProductionYear))
+// 		if err != nil {
+// 			if errors.Is(err, gorm.ErrRecordNotFound) {
+// 				return StockMovementResponse{}, utils.BadRequestError("Production year doesn't exist")
+// 			}
+// 			return StockMovementResponse{}, utils.SystemError("Failed to retrieve production year record")
+// 		}
+// 		stockMovementRecord.ProductionYearID = &ProductYearRecord.YearID
+// 	}
 
-	if form.WarehouseID != nil {
-		warehouseRecord, err := s.warehouseRepo.FindByID(*form.WarehouseID)
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return StockMovementResponse{}, utils.BadRequestError("Warehouse doesn't exist")
-			}
-			return StockMovementResponse{}, utils.SystemError("Failed to retrieve warehouse record")
-		}
-		if stockMovementRecord.MovementType == enums.MovementIssued {
-			stockMovementRecord.FromWarehouseID = &warehouseRecord.WarehouseID
-		} else {
-			stockMovementRecord.ToWarehouseID = &warehouseRecord.WarehouseID
-		}
-	}
+// 	if form.WarehouseID != nil {
+// 		warehouseRecord, err := s.warehouseRepo.FindByID(*form.WarehouseID)
+// 		if err != nil {
+// 			if errors.Is(err, gorm.ErrRecordNotFound) {
+// 				return StockMovementResponse{}, utils.BadRequestError("Warehouse doesn't exist")
+// 			}
+// 			return StockMovementResponse{}, utils.SystemError("Failed to retrieve warehouse record")
+// 		}
+// 		if stockMovementRecord.MovementType == enums.MovementIssued {
+// 			stockMovementRecord.FromWarehouseID = &warehouseRecord.WarehouseID
+// 		} else {
+// 			stockMovementRecord.ToWarehouseID = &warehouseRecord.WarehouseID
+// 		}
+// 	}
 
-	// Check if the movement type is issued before validating customer ID and price per gram, as these fields are only relevant for issued stock movements
-	isMomentIssued := stockMovementRecord.MovementType == enums.MovementIssued
-	if form.CustomerID != nil && isMomentIssued {
-		customerRecord, err := s.customerRepo.FindByCustomerID(*form.CustomerID)
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return StockMovementResponse{}, utils.BadRequestError("Customer doesn't exist")
-			}
-			return StockMovementResponse{}, utils.SystemError("Failed to retrieve customer record")
-		}
-		stockMovementRecord.IssuedToCustomerID = &customerRecord.CustomerID
-	}
+// 	// Check if the movement type is issued before validating customer ID and price per gram, as these fields are only relevant for issued stock movements
+// 	isMomentIssued := stockMovementRecord.MovementType == enums.MovementIssued
+// 	if form.CustomerID != nil && isMomentIssued {
+// 		customerRecord, err := s.customerRepo.FindByCustomerID(*form.CustomerID)
+// 		if err != nil {
+// 			if errors.Is(err, gorm.ErrRecordNotFound) {
+// 				return StockMovementResponse{}, utils.BadRequestError("Customer doesn't exist")
+// 			}
+// 			return StockMovementResponse{}, utils.SystemError("Failed to retrieve customer record")
+// 		}
+// 		stockMovementRecord.IssuedToCustomerID = &customerRecord.CustomerID
+// 	}
 
-	stockMovementRecord.Grade = form.Grade
-	if form.PricePerGram != nil && isMomentIssued {
-		stockMovementRecord.PricePerGram = form.PricePerGram
-	}
-	if form.TotalGrams != nil {
-		stockMovementRecord.TotalGrams = form.TotalGrams
-	}
-	if form.TotalPods != nil {
-		stockMovementRecord.TotalPods = form.TotalPods
-	}
-	if form.Details != nil {
-		stockMovementRecord.Details = form.Details
-	}
-	stockMovementRecord.RecordedByID = accountID
+// 	stockMovementRecord.Grade = form.Grade
+// 	if form.PricePerGram != nil && isMomentIssued {
+// 		stockMovementRecord.PricePerGram = form.PricePerGram
+// 	}
+// 	if form.TotalGrams != nil {
+// 		stockMovementRecord.TotalGrams = form.TotalGrams
+// 	}
+// 	if form.TotalPods != nil {
+// 		stockMovementRecord.TotalPods = form.TotalPods
+// 	}
+// 	if form.Details != nil {
+// 		stockMovementRecord.Details = form.Details
+// 	}
+// 	stockMovementRecord.RecordedByID = accountID
 
-	err = s.repo.UpdateStockMovement(stockMovementRecord)
-	if err != nil {
-		return StockMovementResponse{}, utils.SystemError("Failed to update stock movement")
-	}
+// 	err = s.repo.UpdateStockMovement(stockMovementRecord)
+// 	if err != nil {
+// 		return StockMovementResponse{}, utils.SystemError("Failed to update stock movement")
+// 	}
 
-	return StockMovementResponse{Message: "Stock movement updated successfully"}, nil
-}
+// 	return StockMovementResponse{Message: "Stock movement updated successfully"}, nil
+// }
