@@ -120,31 +120,38 @@ func (s *service) GetYear() (GetYearResponse, error) {
 	return GetYearResponse{Years: years}, nil
 }
 
-func (s *service) GetYearDetails() (GetYearDetailsLists, error) {
+func (s *service) GetYearDetails(year int) (YearSettingDetailsResponse, error) {
 
-	yearDetailsModels, err := s.yearRepo.findAllYearDetails()
+	yearRecord, err := s.yearRepo.FindByYear(year)
 
 	if err != nil {
-		return GetYearDetailsLists{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return YearSettingDetailsResponse{}, utils.NotFoundError("year not found")
+		}
+		return YearSettingDetailsResponse{}, utils.SystemError("failed to check year")
 	}
 
-	var yearDetails []YearDetails
+	yearID := yearRecord.YearID
 
-	for _, yearSetting := range yearDetailsModels {
-		yearDetails = append(yearDetails, YearDetails{
-			TotalActiveForms:     utils.CountTrue(yearSetting.ClusterActive, yearSetting.FlowerActive, yearSetting.PollinationActive, yearSetting.PodActive, yearSetting.PreHarvestActive, yearSetting.HarvestGradingActive),
-			YearId:               yearSetting.YearID,
-			Year:                 yearSetting.Year.Year,
-			ClusterActive:        yearSetting.ClusterActive,
-			FlowerActive:         yearSetting.FlowerActive,
-			PollinationActive:    yearSetting.PollinationActive,
-			PodActive:            yearSetting.PodActive,
-			PreHarvestActive:     yearSetting.PreHarvestActive,
-			HarvestGradingActive: yearSetting.HarvestGradingActive,
-		})
+	yearSettingDetails, err := s.yearRepo.FindFormSettingByYear(yearID)
+
+	if err != nil {
+		return YearSettingDetailsResponse{}, utils.NotFoundError("year form setting not found")
 	}
 
-	return GetYearDetailsLists{YearDetails: yearDetails}, nil
+	totalActiveForms := utils.CountTrue(yearSettingDetails.ClusterActive, yearSettingDetails.FlowerActive, yearSettingDetails.PollinationActive, yearSettingDetails.PodActive, yearSettingDetails.PreHarvestActive, yearSettingDetails.HarvestGradingActive)
+
+	var yearDetailsResponse YearSettingDetailsResponse
+	yearDetailsResponse.TotalActiveForms = totalActiveForms
+	yearDetailsResponse.Year = yearRecord.Year
+	yearDetailsResponse.ClusterActive = yearSettingDetails.ClusterActive
+	yearDetailsResponse.FlowerActive = yearSettingDetails.FlowerActive
+	yearDetailsResponse.PollinationActive = yearSettingDetails.PollinationActive
+	yearDetailsResponse.PodActive = yearSettingDetails.PodActive
+	yearDetailsResponse.PreHarvestActive = yearSettingDetails.PreHarvestActive
+	yearDetailsResponse.HarvestGradingActive = yearSettingDetails.HarvestGradingActive
+
+	return yearDetailsResponse, nil
 }
 
 func (s *service) GetYearManagementTable() (YearManagementListResponse, error) {

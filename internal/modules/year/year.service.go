@@ -6,7 +6,7 @@ type YearService interface {
 	CreateYear(form YearCreateForm) (YearCreateResponse, error)
 	ChangeYearFormSettingStatus(form YearFormSettingStatusChange) (YearFormSettingStatusChangeResponse, error)
 	GetYear() (GetYearResponse, error)
-	GetYearDetails() (GetYearDetailsLists, error)
+	GetYearDetails(year int) (YearSettingDetailsResponse, error)
 	GetYearManagementTable() (YearManagementListResponse, error)
 }
 

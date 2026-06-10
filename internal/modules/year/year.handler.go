@@ -1,6 +1,8 @@
 package year
 
 import (
+	"strconv"
+
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -56,7 +58,19 @@ func (h YearHandler) GetYears(context *fiber.Ctx) error {
 
 func (h YearHandler) GetYearDetails(context *fiber.Ctx) error {
 
-	response, err := h.service.GetYearDetails()
+	yearStr := context.Query("year")
+
+	if yearStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("year is required"))
+	}
+
+	year, err := strconv.Atoi(yearStr)
+
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid year"))
+	}
+
+	response, err := h.service.GetYearDetails(year)
 	if err != nil {
 		return utils.HandleError(context, err)
 	}
