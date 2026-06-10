@@ -82,3 +82,26 @@ func (h *HarvestGradingHandler) GetHarvestGradingFormHistories(context *fiber.Ct
 	}
 	return context.JSON(response)
 }
+
+func (h *HarvestGradingHandler) GetHarvestGradingFormsByZoneId(context *fiber.Ctx) error {
+
+	zoneIdStr := context.Query("zoneId")
+	if zoneIdStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("zoneId is required"))
+	}
+
+	zoneId, err := strconv.Atoi(zoneIdStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid zoneId"))
+	}
+
+	if zoneId <= 0 {
+		return utils.HandleError(context, utils.BadRequestError("zoneId must be a positive integer"))
+	}
+
+	response, err := h.service.GetHarvestGradingFormsByZoneId(uint(zoneId))
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.JSON(response)
+}

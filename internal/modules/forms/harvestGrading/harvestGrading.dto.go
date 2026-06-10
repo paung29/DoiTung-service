@@ -21,6 +21,7 @@ type HarvestGradingFormResponse struct {
 }
 
 type HarvestGradingFormDetails struct {
+	No                     uint   `json:"no,omitempty"`
 	PoleId                 uint   `json:"poleId"`
 	Year                   uint   `json:"year"`
 	Location               string `json:"location"`
@@ -38,6 +39,8 @@ type HarvestGradingFormDetails struct {
 	UndersizedCount        uint   `json:"undersizedCount"`
 	UndersizedWeight       uint   `json:"undersizedWeight"`
 	HarvestGradingFormDone bool   `json:"harvestGradingFormDone"`
+	RecordedBy             string `json:"recordedBy,omitempty"`
+	Date                   string `json:"date,omitempty"`
 }
 
 type HarvestGradingFormHistoriesResponse struct {
@@ -51,4 +54,8 @@ type HarvestGradingFormHistory struct {
 	HarvestGradingFormDone bool   `json:"harvestGradingFormDone"`
 	CreatedAt              string `json:"createdAt"`
 	UpdatedAt              string `json:"updatedAt"`
+}
+
+type HarvestGradingFormLists struct {
+	HarvestGradingForms []HarvestGradingFormDetails `json:"harvestGradingForms"`
 }
