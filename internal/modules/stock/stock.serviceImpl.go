@@ -479,3 +479,63 @@ func (s *service) DeleteStockMovement(stockMovementID uint) (StockMovementRespon
 
 	return StockMovementResponse{Message: "Stock movement deleted successfully"}, nil
 }
+
+func (s *service) GetStockMovementListsByYear(year uint) (GetAllStockMovementsByYearResponse, error) {
+
+	yearRecord, err := s.yearRepo.FindByYear(int(year))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return GetAllStockMovementsByYearResponse{}, utils.BadRequestError("Year doesn't exist")
+		}
+		return GetAllStockMovementsByYearResponse{}, utils.SystemError("Failed to retrieve year record")
+	}
+
+	stockMovements, err := s.repo.GetAllByYearId(yearRecord.YearID)
+	if err != nil {
+		return GetAllStockMovementsByYearResponse{}, utils.SystemError("Failed to retrieve stock movements")
+	}
+
+	var stockMovementDetailsList []StockMovementDetails
+	for number, movement := range stockMovements {
+		details := StockMovementDetails{
+			No:              uint(number + 1),
+			StockMovementID: movement.StockMovementID,
+			Year:            year,
+			Grade:           movement.Grade,
+			PricePerGram:    0,
+			TotalGrams:      0,
+			TotalPods:       0,
+			RecordedDate:    movement.RecordedDate,
+		}
+		if movement.ProductionYearID != nil {
+			productionYearRecord, err := s.yearRepo.FindByID(*movement.ProductionYearID)
+			if err != nil {
+				return GetAllStockMovementsByYearResponse{}, utils.SystemError("Failed to retrieve production year record")
+			}
+			details.ProductionYear = &productionYearRecord.Year
+		}
+		if movement.FromWarehouseID != nil {
+			details.WarehouseID = movement.FromWarehouseID
+		} else if movement.ToWarehouseID != nil {
+			details.WarehouseID = movement.ToWarehouseID
+		}
+		if movement.IssuedToCustomerID != nil {
+			details.CustomerID = movement.IssuedToCustomerID
+		}
+		if movement.PricePerGram != nil {
+			details.PricePerGram = *movement.PricePerGram
+		}
+		if movement.TotalGrams != nil {
+			details.TotalGrams = *movement.TotalGrams
+		}
+		if movement.TotalPods != nil {
+			details.TotalPods = *movement.TotalPods
+		}
+		if movement.Details != nil {
+			details.Details = movement.Details
+		}
+		stockMovementDetailsList = append(stockMovementDetailsList, details)
+	}
+
+	return GetAllStockMovementsByYearResponse{StockMovements: stockMovementDetailsList}, nil
+}

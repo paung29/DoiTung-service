@@ -70,3 +70,9 @@ func (r *repository) UpdateStockBalance(db *gorm.DB, form *models.StockBalance) 
 func (r *repository) DeleteStockMovement(db *gorm.DB, id uint) error {
 	return commonrepo.DeleteByID[models.StockMovement](db, id)
 }
+
+func (r *repository) GetAllByYearId(yearId uint) ([]*models.StockMovement, error) {
+	var movements []*models.StockMovement
+	err := r.db.Where("year_id = ?", yearId).Find(&movements).Error
+	return movements, err
+}
