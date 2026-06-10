@@ -14,4 +14,5 @@ type StockRepository interface {
 	GetStockBalanceForUpdate(db *gorm.DB, productionYearID uint, warehouseID uint, grade enums.Grade) (*models.StockBalance, error)
 	UpdateStockBalance(db *gorm.DB, form *models.StockBalance) error
 	GetStockTotal(productionYearID uint, warehouseID uint, grade enums.Grade, stockType enums.MovementType) (StockBalance, error)
+	DeleteStockMovement(db *gorm.DB, id uint) error
 }

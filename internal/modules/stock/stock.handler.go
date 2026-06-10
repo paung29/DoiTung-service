@@ -1,6 +1,8 @@
 package stock
 
 import (
+	"strconv"
+
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -72,3 +74,27 @@ func (h *handler) CreateIssuedStock(context *fiber.Ctx) error {
 
 // 	return context.Status(fiber.StatusOK).JSON(response)
 // }
+
+func (h *handler) DeleteStockMovement(context *fiber.Ctx) error {
+
+	stockMovementIdStr := context.Query("stock_movement_id")
+	if stockMovementIdStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("Missing stock_movement_id query parameter"))
+	}
+
+	stockMovementId, err := strconv.Atoi(stockMovementIdStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("Invalid stock_movement_id query parameter"))
+	}
+
+	if stockMovementId <= 0 {
+		return utils.HandleError(context, utils.BadRequestError("stock_movement_id must be a positive integer"))
+	}
+
+	response, err := h.service.DeleteStockMovement(uint(stockMovementId))
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}

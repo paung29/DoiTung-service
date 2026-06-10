@@ -389,3 +389,93 @@ func (s *service) CreateIssuedStock(accountID uint, form CreateIssuedStockReques
 
 // 	return StockMovementResponse{Message: "Stock movement updated successfully"}, nil
 // }
+
+func (s *service) DeleteStockMovement(stockMovementID uint) (StockMovementResponse, error) {
+	stockMovementRecord, err := s.repo.FindByID(stockMovementID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return StockMovementResponse{}, utils.BadRequestError("Stock movement record doesn't exist")
+		}
+		return StockMovementResponse{}, utils.SystemError("Failed to retrieve stock movement record")
+	}
+
+	tx := s.db.Begin()
+
+	if tx.Error != nil {
+		return StockMovementResponse{}, utils.SystemError("Failed to start database transaction")
+	}
+
+	isIssuedMovement := stockMovementRecord.MovementType == enums.MovementIssued
+
+	if stockMovementRecord.ProductionYearID == nil {
+		tx.Rollback()
+		return StockMovementResponse{}, utils.BadRequestError("Stock movement record has no production year")
+	}
+	if stockMovementRecord.Grade == "" {
+		tx.Rollback()
+		return StockMovementResponse{}, utils.BadRequestError("Stock movement record has no grade")
+	}
+
+	if stockMovementRecord.TotalGrams == nil || stockMovementRecord.TotalPods == nil {
+		tx.Rollback()
+		return StockMovementResponse{}, utils.BadRequestError("Stock movement record has no quantity information")
+	}
+	productionYearId := *stockMovementRecord.ProductionYearID
+	grade := stockMovementRecord.Grade
+	warehouseId := uint(0)
+	if isIssuedMovement {
+		if stockMovementRecord.FromWarehouseID == nil {
+			tx.Rollback()
+			return StockMovementResponse{}, utils.BadRequestError("Stock movement record has no from warehouse information")
+		}
+		warehouseId = *stockMovementRecord.FromWarehouseID
+	} else {
+		if stockMovementRecord.ToWarehouseID == nil {
+			tx.Rollback()
+			return StockMovementResponse{}, utils.BadRequestError("Stock movement record has no to warehouse information")
+		}
+		warehouseId = *stockMovementRecord.ToWarehouseID
+	}
+
+	stockBalanceRecord, err := s.repo.GetStockBalanceForUpdate(tx, productionYearId, warehouseId, grade)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			tx.Rollback()
+			return StockMovementResponse{}, utils.BadRequestError("Stock balance record doesn't exist")
+		}
+		tx.Rollback()
+		return StockMovementResponse{}, utils.SystemError("Failed to retrieve stock balance")
+	}
+
+	if isIssuedMovement {
+		stockBalanceRecord.TotalGrams += *stockMovementRecord.TotalGrams
+		stockBalanceRecord.TotalPods += *stockMovementRecord.TotalPods
+
+	} else {
+		stockBalanceRecord.TotalGrams -= *stockMovementRecord.TotalGrams
+		stockBalanceRecord.TotalPods -= *stockMovementRecord.TotalPods
+		if stockBalanceRecord.TotalGrams < 0 || stockBalanceRecord.TotalPods < 0 {
+			tx.Rollback()
+			return StockMovementResponse{}, utils.BadRequestError("Cannot delete this stock movement because some stock has already been issued")
+		}
+	}
+
+	err = s.repo.UpdateStockBalance(tx, stockBalanceRecord)
+	if err != nil {
+		tx.Rollback()
+		return StockMovementResponse{}, utils.SystemError("Failed to update stock balance")
+	}
+
+	err = s.repo.DeleteStockMovement(tx, stockMovementRecord.StockMovementID)
+	if err != nil {
+		tx.Rollback()
+		return StockMovementResponse{}, utils.SystemError("Failed to delete stock movement")
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return StockMovementResponse{}, utils.SystemError("Failed to commit database transaction")
+	}
+
+	return StockMovementResponse{Message: "Stock movement deleted successfully"}, nil
+}
