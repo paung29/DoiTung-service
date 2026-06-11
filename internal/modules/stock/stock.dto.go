@@ -58,18 +58,16 @@ type CreateIssuedStockRequest struct {
 // }
 
 type StockMovementDetails struct {
-	No              uint        `json:"no,omitempty"`
-	StockMovementID uint        `json:"stock_movement_id"`
-	Year            uint        `json:"year"`
-	ProductionYear  *int        `json:"production_year"`
-	WarehouseID     *uint       `json:"warehouse_id"`
-	CustomerID      *uint       `json:"customer_id"`
-	Grade           enums.Grade `json:"grade"`
-	PricePerGram    int         `json:"price_per_gram"`
-	TotalGrams      int         `json:"total_grams"`
-	TotalPods       int         `json:"total_pods"`
-	Details         *string     `json:"details"`
-	RecordedDate    time.Time   `json:"recorded_date"`
+	No              uint               `json:"no,omitempty"`
+	StockMovementID uint               `json:"stock_movement_id"`
+	Date            time.Time          `json:"date"`
+	Category        enums.MovementType `json:"category"`
+	Grade           enums.Grade        `json:"grade"`
+	ProductionYear  int                `json:"production_year"`
+	Warehouse       string             `json:"warehouse"`
+	TotalGrams      int                `json:"total_grams"`
+	TotalPods       int                `json:"total_pods"`
+	Details         *string            `json:"details"`
 }
 
 type GetAllStockMovementsByYearResponse struct {

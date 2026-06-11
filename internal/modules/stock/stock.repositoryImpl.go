@@ -73,6 +73,10 @@ func (r *repository) DeleteStockMovement(db *gorm.DB, id uint) error {
 
 func (r *repository) GetAllByYearId(yearId uint) ([]*models.StockMovement, error) {
 	var movements []*models.StockMovement
-	err := r.db.Where("year_id = ?", yearId).Find(&movements).Error
+	err := r.db.
+		Preload("ProductionYear").
+		Preload("FromWarehouse").
+		Preload("ToWarehouse").
+		Where("year_id = ?", yearId).Find(&movements).Error
 	return movements, err
 }
