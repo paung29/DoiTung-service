@@ -5,4 +5,5 @@ type WarehouseService interface {
 	GetAllWarehouses() (GetAllWarehousesResponse, error)
 	GetWarehouseById(warehouseId uint) (WarehouseDetail, error)
 	UpdateWarehouse(form UpdateWarehouseRequest) (UpdateWarehouseResponse, error)
+	// GetWarehouseTableByYear(year int) (GetWarehouseTableByYearResponse, error)
 }

@@ -116,3 +116,21 @@ func (s *service) UpdateWarehouse(form UpdateWarehouseRequest) (UpdateWarehouseR
 		Message: "Warehouse updated successfully",
 	}, nil
 }
+
+// func (s *service) GetWarehouseTableByYear(year int) (GetWarehouseTableByYearResponse, error) {
+
+// 	yearRecord, err := s.yearRepo.FindByYear(year)
+// 	if err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			return GetWarehouseTableByYearResponse{}, utils.ValidationError("Year not found", nil)
+// 		}
+// 		return GetWarehouseTableByYearResponse{}, utils.SystemError("Failed to retrieve year")
+// 	}
+
+// 	warehouseTable, err := s.warehouseRepo.GetWarehouseTableByYear(yearRecord.YearID)
+// 	if err != nil {
+// 		return GetWarehouseTableByYearResponse{}, utils.SystemError("Failed to retrieve warehouse table")
+// 	}
+
+// 	return warehouseTable, nil
+// }

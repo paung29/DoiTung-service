@@ -28,3 +28,27 @@ type UpdateWarehouseRequest struct {
 type UpdateWarehouseResponse struct {
 	Message string `json:"message"`
 }
+
+// type GetWarehouseTableByYearResponse struct {
+// 	TotalWarehouses       int                  `json:"total_warehouses"`
+// 	TotalActiveWarehouses int                  `json:"total_active_warehouses"`
+// 	TotalStocksPods       int                  `json:"total_stocks_pods"`
+// 	TotalStocksWeights    int                  `json:"total_stocks_weights"`
+// 	WarehouseTable        []WarehouseTableItem `json:"warehouse_table"`
+// }
+
+// type WarehouseTableItem struct {
+// 	WarehouseId   uint   `json:"warehouse_id"`
+// 	No            int    `json:"no"`
+// 	WarehouseName string `json:"warehouse_name"`
+// 	ActiveStatus  bool   `json:"active_status"`
+
+// 	TotalPods    int `json:"total_pods"`
+// 	TotalWeights int `json:"total_weights"`
+
+// 	DistributedPods    int `json:"distributed_pods"`
+// 	DistributedWeights int `json:"distributed_weights"`
+
+// 	RemainingPods    int `json:"remaining_pods"`
+// 	RemainingWeights int `json:"remaining_weights"`
+// }
