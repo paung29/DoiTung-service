@@ -51,7 +51,7 @@ func (s *service) CreateWarehouse(form CreateWarehouseRequest) (CreateWarehouseR
 }
 
 func (s *service) GetAllWarehouses() (GetAllWarehousesResponse, error) {
-	warehouses, err := s.warehouseRepo.FindAll()
+	warehouses, err := s.warehouseRepo.FindAllActive()
 	if err != nil {
 		return GetAllWarehousesResponse{}, utils.SystemError("Failed to retrieve warehouses")
 	}

@@ -33,7 +33,7 @@ func (r *repository) FindByID(id uint) (*models.StockMovement, error) {
 	return commonrepo.FindByID[models.StockMovement](r.db, id)
 }
 
-func (r *repository) GetStockTotal(yearID uint, warehouseID uint, grade enums.Grade, stockType enums.MovementType) (StockBalance, error) {
+func (r *repository) GetStockTotal(yearID uint, warehouseID uint, stockType enums.MovementType) (StockBalance, error) {
 	var total StockBalance
 
 	warehouseColumn := "to_warehouse_id"
@@ -42,7 +42,7 @@ func (r *repository) GetStockTotal(yearID uint, warehouseID uint, grade enums.Gr
 	}
 	err := r.db.Model(&models.StockMovement{}).
 		Select("COALESCE(SUM(total_grams), 0) as total_grams, COALESCE(SUM(total_pods), 0) as total_pods").
-		Where("year_id = ? AND "+warehouseColumn+" = ? AND grade = ? AND movement_type = ?", yearID, warehouseID, grade, stockType).
+		Where("year_id = ? AND "+warehouseColumn+" = ? AND movement_type = ?", yearID, warehouseID, stockType).
 		Scan(&total).Error
 	return total, err
 }
