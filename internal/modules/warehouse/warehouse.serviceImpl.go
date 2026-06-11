@@ -142,6 +142,8 @@ func (s *service) GetWarehouseTableByYear(year int) (WarehouseTableByYearRespons
 	}
 	warehouseTableYearResponse.TotalActiveWarehouses = len(activeWarehouses)
 
+	totalStocksPods := 0
+	totalStocksGrams := 0
 	var warehouseTable []WarehouseTableItem
 	for _, warehouse := range warehouses {
 
@@ -149,7 +151,7 @@ func (s *service) GetWarehouseTableByYear(year int) (WarehouseTableByYearRespons
 		if err != nil {
 			return WarehouseTableByYearResponse{}, utils.SystemError("Failed to retrieve incoming stock balance")
 		}
-		totalCarryOver, err := s.warehouseRepo.GetStockTotal(yearRecord.YearID-1, warehouse.WarehouseID, enums.MovementIncoming)
+		totalCarryOver, err := s.warehouseRepo.GetStockTotal(yearRecord.YearID, warehouse.WarehouseID, enums.MovementCarryOver)
 		if err != nil {
 			return WarehouseTableByYearResponse{}, utils.SystemError("Failed to retrieve carry-over stock balance")
 		}
@@ -181,8 +183,12 @@ func (s *service) GetWarehouseTableByYear(year int) (WarehouseTableByYearRespons
 			RemainingPods:    int(remainingPods),
 			RemainingWeights: int(remainingWeights),
 		})
+		totalStocksPods += int(remainingPods)
+		totalStocksGrams += int(remainingWeights)
 	}
 	warehouseTableYearResponse.WarehouseTable = warehouseTable
+	warehouseTableYearResponse.TotalStocksPods = totalStocksPods
+	warehouseTableYearResponse.TotalStocksWeights = totalStocksGrams
 
 	return warehouseTableYearResponse, nil
 }

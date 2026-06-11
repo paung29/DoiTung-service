@@ -509,16 +509,32 @@ func (s *service) GetStockMovementListsByYear(year uint) (GetAllStockMovementsBy
 				warehouseName = movement.ToWarehouse.WarehouseName
 			}
 		}
+
+		productionYear := 0
+		if movement.ProductionYear != nil {
+			productionYear = movement.ProductionYear.Year
+		}
+
+		totalGrams := 0
+		if movement.TotalGrams != nil {
+			totalGrams = *movement.TotalGrams
+		}
+
+		totalPods := 0
+		if movement.TotalPods != nil {
+			totalPods = *movement.TotalPods
+		}
+
 		details := StockMovementDetails{
 			No:              uint(number + 1),
 			StockMovementID: movement.StockMovementID,
 			Date:            movement.RecordedDate,
 			Category:        movement.MovementType,
 			Grade:           movement.Grade,
-			ProductionYear:  movement.ProductionYear.Year,
+			ProductionYear:  productionYear,
 			Warehouse:       warehouseName,
-			TotalGrams:      *movement.TotalGrams,
-			TotalPods:       *movement.TotalPods,
+			TotalGrams:      totalGrams,
+			TotalPods:       totalPods,
 			Details:         movement.Details,
 		}
 
