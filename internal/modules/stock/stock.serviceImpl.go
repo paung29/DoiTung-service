@@ -497,45 +497,32 @@ func (s *service) GetStockMovementListsByYear(year uint) (GetAllStockMovementsBy
 
 	var stockMovementDetailsList []StockMovementDetails
 	for number, movement := range stockMovements {
+
+		isIssuedMovement := movement.MovementType == enums.MovementIssued
+		warehouseName := ""
+		if isIssuedMovement {
+			if movement.FromWarehouse != nil {
+				warehouseName = movement.FromWarehouse.WarehouseName
+			}
+		} else {
+			if movement.ToWarehouse != nil {
+				warehouseName = movement.ToWarehouse.WarehouseName
+			}
+		}
 		details := StockMovementDetails{
 			No:              uint(number + 1),
 			StockMovementID: movement.StockMovementID,
-			Year:            year,
+			Date:            movement.RecordedDate,
+			Category:        movement.MovementType,
 			Grade:           movement.Grade,
-			PricePerGram:    0,
-			TotalGrams:      0,
-			TotalPods:       0,
-			RecordedDate:    movement.RecordedDate,
+			ProductionYear:  movement.ProductionYear.Year,
+			Warehouse:       warehouseName,
+			TotalGrams:      *movement.TotalGrams,
+			TotalPods:       *movement.TotalPods,
+			Details:         movement.Details,
 		}
-		if movement.ProductionYearID != nil {
-			productionYearRecord, err := s.yearRepo.FindByID(*movement.ProductionYearID)
-			if err != nil {
-				return GetAllStockMovementsByYearResponse{}, utils.SystemError("Failed to retrieve production year record")
-			}
-			details.ProductionYear = &productionYearRecord.Year
-		}
-		if movement.FromWarehouseID != nil {
-			details.WarehouseID = movement.FromWarehouseID
-		} else if movement.ToWarehouseID != nil {
-			details.WarehouseID = movement.ToWarehouseID
-		}
-		if movement.IssuedToCustomerID != nil {
-			details.CustomerID = movement.IssuedToCustomerID
-		}
-		if movement.PricePerGram != nil {
-			details.PricePerGram = *movement.PricePerGram
-		}
-		if movement.TotalGrams != nil {
-			details.TotalGrams = *movement.TotalGrams
-		}
-		if movement.TotalPods != nil {
-			details.TotalPods = *movement.TotalPods
-		}
-		if movement.Details != nil {
-			details.Details = movement.Details
-		}
+
 		stockMovementDetailsList = append(stockMovementDetailsList, details)
 	}
-
 	return GetAllStockMovementsByYearResponse{StockMovements: stockMovementDetailsList}, nil
 }
