@@ -5,6 +5,7 @@ import (
 
 	"github.com/doitung/DoiTung-service/internal/models"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
+	"github.com/doitung/DoiTung-service/internal/types/enums"
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"gorm.io/gorm"
 )
@@ -51,7 +52,7 @@ func (s *service) CreateWarehouse(form CreateWarehouseRequest) (CreateWarehouseR
 }
 
 func (s *service) GetAllWarehouses() (GetAllWarehousesResponse, error) {
-	warehouses, err := s.warehouseRepo.FindAll()
+	warehouses, err := s.warehouseRepo.FindAllActive()
 	if err != nil {
 		return GetAllWarehousesResponse{}, utils.SystemError("Failed to retrieve warehouses")
 	}
@@ -115,4 +116,79 @@ func (s *service) UpdateWarehouse(form UpdateWarehouseRequest) (UpdateWarehouseR
 	return UpdateWarehouseResponse{
 		Message: "Warehouse updated successfully",
 	}, nil
+}
+
+func (s *service) GetWarehouseTableByYear(year int) (WarehouseTableByYearResponse, error) {
+
+	yearRecord, err := s.yearRepo.FindByYear(year)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return WarehouseTableByYearResponse{}, utils.ValidationError("Year not found", nil)
+		}
+		return WarehouseTableByYearResponse{}, utils.SystemError("Failed to retrieve year")
+	}
+
+	warehouses, err := s.warehouseRepo.FindAll()
+	if err != nil {
+		return WarehouseTableByYearResponse{}, utils.SystemError("Failed to retrieve warehouses")
+	}
+
+	var warehouseTableYearResponse WarehouseTableByYearResponse
+	warehouseTableYearResponse.TotalWarehouses = len(warehouses)
+
+	activeWarehouses, err := s.warehouseRepo.FindAllActive()
+	if err != nil {
+		return WarehouseTableByYearResponse{}, utils.SystemError("Failed to retrieve active warehouses")
+	}
+	warehouseTableYearResponse.TotalActiveWarehouses = len(activeWarehouses)
+
+	totalStocksPods := 0
+	totalStocksGrams := 0
+	var warehouseTable []WarehouseTableItem
+	for _, warehouse := range warehouses {
+
+		totalIncoming, err := s.warehouseRepo.GetStockTotal(yearRecord.YearID, warehouse.WarehouseID, enums.MovementIncoming)
+		if err != nil {
+			return WarehouseTableByYearResponse{}, utils.SystemError("Failed to retrieve incoming stock balance")
+		}
+		totalCarryOver, err := s.warehouseRepo.GetStockTotal(yearRecord.YearID, warehouse.WarehouseID, enums.MovementCarryOver)
+		if err != nil {
+			return WarehouseTableByYearResponse{}, utils.SystemError("Failed to retrieve carry-over stock balance")
+		}
+
+		totalPods := totalIncoming.TotalPods + totalCarryOver.TotalPods
+		totalWeights := totalIncoming.TotalGrams + totalCarryOver.TotalGrams
+
+		totalIssued, err := s.warehouseRepo.GetStockTotal(yearRecord.YearID, warehouse.WarehouseID, enums.MovementIssued)
+		if err != nil {
+			return WarehouseTableByYearResponse{}, utils.SystemError("Failed to retrieve issued stock balance")
+		}
+		totalDistributedPods := totalIssued.TotalPods
+		totalDistributedWeights := totalIssued.TotalGrams
+
+		remainingPods := totalPods - totalDistributedPods
+		remainingWeights := totalWeights - totalDistributedWeights
+
+		warehouseTable = append(warehouseTable, WarehouseTableItem{
+			WarehouseId:   warehouse.WarehouseID,
+			WarehouseName: warehouse.WarehouseName,
+			ActiveStatus:  warehouse.ActiveStatus,
+
+			TotalPods:    int(totalPods),
+			TotalWeights: int(totalWeights),
+
+			DistributedPods:    int(totalDistributedPods),
+			DistributedWeights: int(totalDistributedWeights),
+
+			RemainingPods:    int(remainingPods),
+			RemainingWeights: int(remainingWeights),
+		})
+		totalStocksPods += int(remainingPods)
+		totalStocksGrams += int(remainingWeights)
+	}
+	warehouseTableYearResponse.WarehouseTable = warehouseTable
+	warehouseTableYearResponse.TotalStocksPods = totalStocksPods
+	warehouseTableYearResponse.TotalStocksWeights = totalStocksGrams
+
+	return warehouseTableYearResponse, nil
 }

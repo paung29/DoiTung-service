@@ -87,11 +87,11 @@ func (s *service) CreateCarryOver(accountID uint, form CreateCarryOverStockReque
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// If no existing stock balance record, create a new one with the carry over quantity
 			stockBalanceRecord = &models.StockBalance{
-				ProductionYearID: productionYearId,
-				WarehouseID:      warehouseId,
-				Grade:            form.Grade,
-				TotalGrams:       0,
-				TotalPods:        0,
+				YearID:      productionYearId,
+				WarehouseID: warehouseId,
+				Grade:       form.Grade,
+				TotalGrams:  0,
+				TotalPods:   0,
 			}
 			err = s.repo.CreateNewStockBalance(tx, stockBalanceRecord)
 			if err != nil {
@@ -179,11 +179,11 @@ func (s *service) CreateIncomingStock(accountID uint, form CreateIncomingStockRe
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			stockBalanceRecord = &models.StockBalance{
-				ProductionYearID: ProductYearRecord.YearID,
-				WarehouseID:      warehouseRecord.WarehouseID,
-				Grade:            form.Grade,
-				TotalGrams:       0,
-				TotalPods:        0,
+				YearID:      ProductYearRecord.YearID,
+				WarehouseID: warehouseRecord.WarehouseID,
+				Grade:       form.Grade,
+				TotalGrams:  0,
+				TotalPods:   0,
 			}
 			err = s.repo.CreateNewStockBalance(tx, stockBalanceRecord)
 			if err != nil {
@@ -509,16 +509,32 @@ func (s *service) GetStockMovementListsByYear(year uint) (GetAllStockMovementsBy
 				warehouseName = movement.ToWarehouse.WarehouseName
 			}
 		}
+
+		productionYear := 0
+		if movement.ProductionYear != nil {
+			productionYear = movement.ProductionYear.Year
+		}
+
+		totalGrams := 0
+		if movement.TotalGrams != nil {
+			totalGrams = *movement.TotalGrams
+		}
+
+		totalPods := 0
+		if movement.TotalPods != nil {
+			totalPods = *movement.TotalPods
+		}
+
 		details := StockMovementDetails{
 			No:              uint(number + 1),
 			StockMovementID: movement.StockMovementID,
 			Date:            movement.RecordedDate,
 			Category:        movement.MovementType,
 			Grade:           movement.Grade,
-			ProductionYear:  movement.ProductionYear.Year,
+			ProductionYear:  productionYear,
 			Warehouse:       warehouseName,
-			TotalGrams:      *movement.TotalGrams,
-			TotalPods:       *movement.TotalPods,
+			TotalGrams:      totalGrams,
+			TotalPods:       totalPods,
 			Details:         movement.Details,
 		}
 

@@ -33,7 +33,7 @@ func (r *repository) FindByID(id uint) (*models.StockMovement, error) {
 	return commonrepo.FindByID[models.StockMovement](r.db, id)
 }
 
-func (r *repository) GetStockTotal(productionYearID uint, warehouseID uint, grade enums.Grade, stockType enums.MovementType) (StockBalance, error) {
+func (r *repository) GetStockTotal(yearID uint, warehouseID uint, stockType enums.MovementType) (StockBalance, error) {
 	var total StockBalance
 
 	warehouseColumn := "to_warehouse_id"
@@ -42,16 +42,16 @@ func (r *repository) GetStockTotal(productionYearID uint, warehouseID uint, grad
 	}
 	err := r.db.Model(&models.StockMovement{}).
 		Select("COALESCE(SUM(total_grams), 0) as total_grams, COALESCE(SUM(total_pods), 0) as total_pods").
-		Where("production_year_id = ? AND "+warehouseColumn+" = ? AND grade = ? AND movement_type = ?", productionYearID, warehouseID, grade, stockType).
+		Where("year_id = ? AND "+warehouseColumn+" = ? AND movement_type = ?", yearID, warehouseID, stockType).
 		Scan(&total).Error
 	return total, err
 }
 
-func (r *repository) GetStockBalanceForUpdate(db *gorm.DB, productionYearID uint, warehouseID uint, grade enums.Grade) (*models.StockBalance, error) {
+func (r *repository) GetStockBalanceForUpdate(db *gorm.DB, YearID uint, warehouseID uint, grade enums.Grade) (*models.StockBalance, error) {
 	var balance models.StockBalance
 	err := db.
 		Clauses(clause.Locking{Strength: "UPDATE"}).
-		Where("production_year_id = ? AND warehouse_id = ? AND grade = ?", productionYearID, warehouseID, grade).
+		Where("year_id = ? AND warehouse_id = ? AND grade = ?", YearID, warehouseID, grade).
 		First(&balance).Error
 	if err != nil {
 		return nil, err

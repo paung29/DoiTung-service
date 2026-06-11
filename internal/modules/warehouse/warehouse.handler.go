@@ -77,3 +77,26 @@ func (h *WarehouseHandler) UpdateWarehouse(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *WarehouseHandler) GetWarehouseTableByYear(context *fiber.Ctx) error {
+	yearStr := context.Query("year")
+	if yearStr == "" {
+		return utils.HandleError(context, utils.ValidationError("year query parameter is required", nil))
+	}
+
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		return utils.HandleError(context, utils.ValidationError("Invalid year", nil))
+	}
+
+	if year < 0 {
+		return utils.HandleError(context, utils.ValidationError("Year must be a positive integer", nil))
+	}
+
+	response, err := h.service.GetWarehouseTableByYear(year)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}
