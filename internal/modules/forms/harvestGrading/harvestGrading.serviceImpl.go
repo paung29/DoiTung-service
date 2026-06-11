@@ -223,3 +223,63 @@ func (s *service) GetHarvestGradingFormHistories(userId uint, year uint) (Harves
 		HarvestGradingFormHistories: harvestGradingFormHistories,
 	}, nil
 }
+
+func (s *service) GetHarvestGradingFormsByZoneId(zoneId uint) (HarvestGradingFormLists, error) {
+
+	// Check if the zone exists
+	zoneRecord, err := s.zoneRepo.FindById(zoneId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return HarvestGradingFormLists{}, utils.NotFoundError("zone not found")
+		}
+		return HarvestGradingFormLists{}, utils.SystemError("failed to check zone")
+	}
+
+	ZoneId := zoneRecord.ZoneID
+
+	harvestGradingForms, err := s.harvestGradingRepo.GetHarvestGradingFormsByZoneId(s.db, ZoneId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return HarvestGradingFormLists{
+				HarvestGradingForms: []HarvestGradingFormDetails{},
+			}, nil
+		}
+		return HarvestGradingFormLists{}, utils.SystemError("failed to get harvest grading forms by zone id")
+	}
+
+	var harvestGradingFormDetailsList []HarvestGradingFormDetails
+	for number, form := range harvestGradingForms {
+		poleRecord, err := s.poleRepo.GetPoleById(form.PoleID)
+		if err != nil {
+			return HarvestGradingFormLists{}, utils.SystemError("failed to get pole record")
+		}
+
+		formDetails := HarvestGradingFormDetails{
+			No:                     uint(number + 1),
+			PoleId:                 form.PoleID,
+			Year:                   form.YearID,
+			Location:               poleRecord.Zone.ZoneName,
+			PoleNo:                 uint(poleRecord.PoleNo),
+			GradeAPlusCount:        uint(form.GradeAPlusCount),
+			GradeAPlusWeight:       uint(form.GradeAPlusWeight),
+			GradeACount:            uint(form.GradeACount),
+			GradeAWeight:           uint(form.GradeAWeight),
+			GradeBCount:            uint(form.GradeBCount),
+			GradeBWeight:           uint(form.GradeBWeight),
+			GradeCCount:            uint(form.GradeCCount),
+			GradeCWeight:           uint(form.GradeCWeight),
+			GradeDPlusCount:        uint(form.GradeDPlusCount),
+			GradeDPlusWeight:       uint(form.GradeDPlusWeight),
+			UndersizedCount:        uint(form.UndersizedCount),
+			UndersizedWeight:       uint(form.UndersizedWeight),
+			HarvestGradingFormDone: poleRecord.HarvestGradingFormDone,
+			RecordedBy:             form.RecordedBy.Name,
+			Date:                   form.RecordedDate.Format("2006-01-02 15:04:05"),
+		}
+		harvestGradingFormDetailsList = append(harvestGradingFormDetailsList, formDetails)
+	}
+
+	return HarvestGradingFormLists{
+		HarvestGradingForms: harvestGradingFormDetailsList,
+	}, nil
+}

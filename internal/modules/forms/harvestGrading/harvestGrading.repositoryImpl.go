@@ -43,3 +43,20 @@ func (r *repository) GetHarvestGradingFormsByUserIdAndYearId(db *gorm.DB, userId
 	}
 	return forms, nil
 }
+
+func (r *repository) GetHarvestGradingFormsByZoneId(db *gorm.DB, zoneId uint) ([]models.HarvestGradingForm, error) {
+	var forms []models.HarvestGradingForm
+
+	if err := db.
+		Model(&models.HarvestGradingForm{}).
+		Preload("RecordedBy").
+		Preload("Pole").
+		Preload("Pole.Zone").
+		Joins("JOIN poles ON poles.pole_id = harvest_grading_forms.pole_id").
+		Joins("JOIN zones ON zones.zone_id = poles.zone_id").
+		Where("poles.zone_id = ?", zoneId).
+		Find(&forms).Error; err != nil {
+		return nil, err
+	}
+	return forms, nil
+}
