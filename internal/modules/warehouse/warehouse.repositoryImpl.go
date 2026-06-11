@@ -2,6 +2,7 @@ package warehouse
 
 import (
 	commonrepo "github.com/doitung/DoiTung-service/internal/common/repository"
+	"github.com/doitung/DoiTung-service/internal/types/enums"
 
 	"github.com/doitung/DoiTung-service/internal/models"
 	"gorm.io/gorm"
@@ -52,4 +53,17 @@ func (r *repository) FindByID(warehouseId uint) (*models.Warehouse, error) {
 
 func (r *repository) UpdateWarehouse(warehouse *models.Warehouse) error {
 	return commonrepo.Save(r.db, warehouse)
+}
+func (r *repository) GetStockTotal(yearID uint, warehouseID uint, stockType enums.MovementType) (StockBalance, error) {
+	var total StockBalance
+
+	warehouseColumn := "to_warehouse_id"
+	if stockType == enums.MovementIssued {
+		warehouseColumn = "from_warehouse_id"
+	}
+	err := r.db.Model(&models.StockMovement{}).
+		Select("COALESCE(SUM(total_grams), 0) as total_grams, COALESCE(SUM(total_pods), 0) as total_pods").
+		Where("year_id = ? AND "+warehouseColumn+" = ? AND movement_type = ?", yearID, warehouseID, stockType).
+		Scan(&total).Error
+	return total, err
 }

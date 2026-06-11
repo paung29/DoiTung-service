@@ -1,6 +1,14 @@
 package warehouse
 
-import "github.com/doitung/DoiTung-service/internal/models"
+import (
+	"github.com/doitung/DoiTung-service/internal/models"
+	"github.com/doitung/DoiTung-service/internal/types/enums"
+)
+
+type StockBalance struct {
+	TotalPods  uint
+	TotalGrams uint
+}
 
 type WarehouseRepository interface {
 	CreateNewWarehouse(form *models.Warehouse) error
@@ -9,4 +17,5 @@ type WarehouseRepository interface {
 	FindByName(warehouseName string) (*models.Warehouse, error)
 	FindByID(warehouseId uint) (*models.Warehouse, error)
 	UpdateWarehouse(warehouse *models.Warehouse) error
+	GetStockTotal(YearID uint, warehouseID uint, stockType enums.MovementType) (StockBalance, error)
 }
