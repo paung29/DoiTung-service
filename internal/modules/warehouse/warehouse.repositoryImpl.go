@@ -21,7 +21,7 @@ func (r *repository) CreateNewWarehouse(form *models.Warehouse) error {
 
 func (r *repository) FindAll() ([]models.Warehouse, error) {
 	var warehouses []models.Warehouse
-	if err := r.db.Find(&warehouses).Error; err != nil {
+	if err := r.db.Where("active_status = ?", true).Order("warehouse_id ASC").Find(&warehouses).Error; err != nil {
 		return nil, err
 	}
 	return warehouses, nil
