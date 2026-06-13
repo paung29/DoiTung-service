@@ -111,7 +111,7 @@ func (s *service) GetYear() (GetYearResponse, error) {
 		return GetYearResponse{}, err
 	}
 
-	var years []string
+	years := make([]string, 0, len(yearsModles))
 
 	for _, y := range yearsModles {
 		years = append(years, fmt.Sprintf("%d", y.Year))
