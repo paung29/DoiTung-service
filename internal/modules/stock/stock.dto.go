@@ -60,7 +60,7 @@ type CreateIssuedStockRequest struct {
 type StockMovementDetails struct {
 	No              uint               `json:"no,omitempty"`
 	StockMovementID uint               `json:"stock_movement_id"`
-	Date            time.Time          `json:"date"`
+	Date            string             `json:"date"`
 	Category        enums.MovementType `json:"category"`
 	Grade           enums.Grade        `json:"grade"`
 	ProductionYear  int                `json:"production_year"`

@@ -2,6 +2,8 @@
 bin/
 *.exe
 *.out
+.gocache/
+.gomodcache/
 
 # Dependency folders
 vendor/

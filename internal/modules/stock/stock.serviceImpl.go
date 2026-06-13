@@ -528,7 +528,7 @@ func (s *service) GetStockMovementListsByYear(year uint) (GetAllStockMovementsBy
 		details := StockMovementDetails{
 			No:              uint(number + 1),
 			StockMovementID: movement.StockMovementID,
-			Date:            movement.RecordedDate,
+			Date:            movement.RecordedDate.Format("2006-01-02"),
 			Category:        movement.MovementType,
 			Grade:           movement.Grade,
 			ProductionYear:  productionYear,

@@ -57,7 +57,7 @@ func (s *service) GetAllWarehouses() (GetAllWarehousesResponse, error) {
 		return GetAllWarehousesResponse{}, utils.SystemError("Failed to retrieve warehouses")
 	}
 
-	var warehouseDetails []WarehouseDetail
+	warehouseDetails := make([]WarehouseDetail, 0, len(warehouses))
 	for _, warehouse := range warehouses {
 		warehouseDetails = append(warehouseDetails, WarehouseDetail{
 			WarehouseId:   warehouse.WarehouseID,
@@ -144,7 +144,7 @@ func (s *service) GetWarehouseTableByYear(year int) (WarehouseTableByYearRespons
 
 	totalStocksPods := 0
 	totalStocksGrams := 0
-	var warehouseTable []WarehouseTableItem
+	warehouseTable := make([]WarehouseTableItem, 0, len(warehouses))
 	for _, warehouse := range warehouses {
 
 		totalIncoming, err := s.warehouseRepo.GetStockTotal(yearRecord.YearID, warehouse.WarehouseID, enums.MovementIncoming)
