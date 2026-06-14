@@ -17,6 +17,16 @@ type StockBalance struct {
 	TotalPods  int
 }
 
+type CustomerStockRow struct {
+	CustomerId   int
+	CustomerName string
+	GradeA       int
+	GradeB       int
+	GradeC       int
+	GradeFailed  int
+	Note         *string
+}
+
 func NewStockRepository(db *gorm.DB) StockRepository {
 	return &repository{db: db}
 }
@@ -79,4 +89,33 @@ func (r *repository) GetAllByYearId(yearId uint) ([]*models.StockMovement, error
 		Preload("ToWarehouse").
 		Where("year_id = ?", yearId).Find(&movements).Error
 	return movements, err
+}
+
+func (r *repository) GetCustomerStockByYearId(yearId uint) ([]CustomerStockRow, error) {
+	var rows []CustomerStockRow
+
+	err := r.db.
+		Table("stock_movements").
+		Select(`
+			stock_movements.issued_to_customer_id AS customer_id,
+			customers.customer_name AS customer_name,
+
+			COALESCE(SUM(CASE WHEN stock_movements.grade IN ('A_PLUS', 'A') THEN COALESCE(stock_movements.total_pods, 0) ELSE 0 END), 0) AS grade_a,
+			COALESCE(SUM(CASE WHEN stock_movements.grade = 'B' THEN COALESCE(stock_movements.total_pods, 0) ELSE 0 END), 0) AS grade_b,
+			COALESCE(SUM(CASE WHEN stock_movements.grade = 'C' THEN COALESCE(stock_movements.total_pods, 0) ELSE 0 END), 0) AS grade_c,
+			COALESCE(SUM(CASE WHEN stock_movements.grade IN ('D', 'D_PLUS') THEN COALESCE(stock_movements.total_pods, 0) ELSE 0 END), 0) AS grade_failed,
+
+
+			customers.note AS note
+		`).
+		Joins("JOIN customers ON customers.customer_id = stock_movements.issued_to_customer_id").
+		Where(
+			"stock_movements.year_id = ? AND stock_movements.issued_to_customer_id IS NOT NULL AND stock_movements.movement_type = ?",
+			yearId,
+			enums.MovementIssued,
+		).
+		Group("stock_movements.issued_to_customer_id, customers.customer_name, customers.note").
+		Scan(&rows).Error
+
+	return rows, err
 }

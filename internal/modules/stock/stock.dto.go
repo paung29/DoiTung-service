@@ -73,3 +73,19 @@ type StockMovementDetails struct {
 type GetAllStockMovementsByYearResponse struct {
 	StockMovements []StockMovementDetails `json:"stock_movements"`
 }
+
+type CustomerStockTableByYearResponse struct {
+	CustomerStockTable []CustomerStockTableItem `json:"customer_stock_table"`
+}
+
+type CustomerStockTableItem struct {
+	CustomerID   int     `json:"customer_id"`
+	No           int     `json:"no"`
+	CustomerName string  `json:"customer_name"`
+	GradeA       int     `json:"grade_a"`
+	GradeB       int     `json:"grade_b"`
+	GradeC       int     `json:"grade_c"`
+	GradeFailed  int     `json:"grade_failed"`
+	TotalWeight  int     `json:"total_weight"`
+	Note         *string `json:"note"`
+}

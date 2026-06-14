@@ -15,4 +15,5 @@ func RegisterRoutes(app *fiber.App, handler *handler) {
 	// stock.Put("/update", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.UpdateStockMovement)
 	stock.Delete("/delete", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.DeleteStockMovement)
 	stock.Get("/get-all-by-year", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.GetStockMovementListsByYear)
+	stock.Get("/get-customer-stock-by-year", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.GetCustomerStockTableByYear)
 }
