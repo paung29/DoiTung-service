@@ -16,4 +16,5 @@ type StockRepository interface {
 	GetStockTotal(YearID uint, warehouseID uint, stockType enums.MovementType) (StockBalance, error)
 	DeleteStockMovement(db *gorm.DB, id uint) error
 	GetAllByYearId(yearId uint) ([]*models.StockMovement, error)
+	GetCustomerStockByYearId(yearId uint) ([]CustomerStockRow, error)
 }

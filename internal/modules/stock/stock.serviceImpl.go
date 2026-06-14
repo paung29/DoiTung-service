@@ -542,3 +542,38 @@ func (s *service) GetStockMovementListsByYear(year uint) (GetAllStockMovementsBy
 	}
 	return GetAllStockMovementsByYearResponse{StockMovements: stockMovementDetailsList}, nil
 }
+
+func (s *service) GetCustomerStockTableByYear(year uint) (CustomerStockTableByYearResponse, error) {
+
+	yearRecord, err := s.yearRepo.FindByYear(int(year))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return CustomerStockTableByYearResponse{}, utils.BadRequestError("Year doesn't exist")
+		}
+		return CustomerStockTableByYearResponse{}, utils.SystemError("Failed to retrieve year record")
+	}
+
+	customerStockTable, err := s.repo.GetCustomerStockByYearId(yearRecord.YearID)
+	if err != nil {
+		return CustomerStockTableByYearResponse{}, utils.SystemError("Failed to retrieve customer stock table")
+	}
+
+	customerStockTableResponse := make([]CustomerStockTableItem, 0, len(customerStockTable))
+	for number, stock := range customerStockTable {
+
+		stocks := CustomerStockTableItem{
+			CustomerID:   stock.CustomerId,
+			No:           number + 1,
+			CustomerName: stock.CustomerName,
+			GradeA:       stock.GradeA,
+			GradeB:       stock.GradeB,
+			GradeC:       stock.GradeC,
+			GradeFailed:  stock.GradeFailed,
+			TotalWeight:  stock.GradeA + stock.GradeB + stock.GradeC + stock.GradeFailed,
+			Note:         stock.Note,
+		}
+		customerStockTableResponse = append(customerStockTableResponse, stocks)
+
+	}
+	return CustomerStockTableByYearResponse{CustomerStockTable: customerStockTableResponse}, nil
+}

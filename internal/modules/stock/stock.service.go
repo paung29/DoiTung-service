@@ -7,4 +7,5 @@ type StockService interface {
 	// UpdateStockMovement(accountID uint, form UpdateStockMovementRequest) (StockMovementResponse, error)
 	DeleteStockMovement(stockMovementID uint) (StockMovementResponse, error)
 	GetStockMovementListsByYear(year uint) (GetAllStockMovementsByYearResponse, error)
+	GetCustomerStockTableByYear(year uint) (CustomerStockTableByYearResponse, error)
 }
