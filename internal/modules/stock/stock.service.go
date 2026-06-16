@@ -8,4 +8,5 @@ type StockService interface {
 	DeleteStockMovement(stockMovementID uint) (StockMovementResponse, error)
 	GetStockMovementListsByYear(year uint) (GetAllStockMovementsByYearResponse, error)
 	GetCustomerStockTableByYear(year uint) (CustomerStockTableByYearResponse, error)
+	GetStockOverviewBalanceByYear(year uint) (StockOverviewResponse, error)
 }

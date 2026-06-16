@@ -89,3 +89,33 @@ type CustomerStockTableItem struct {
 	TotalWeight  int     `json:"total_weight"`
 	Note         *string `json:"note"`
 }
+
+type StockOverviewResponse struct {
+	TotalPodInStock   int                  `json:"total_pod_in_stock"`
+	TotalGramInStock  int                  `json:"total_gram_in_stock"`
+	TotalKgInStock    float64              `json:"total_kg_in_stock"`
+	IncomingStockPod  int                  `json:"incoming_stock_pod"`
+	IncomingStockGram int                  `json:"incoming_stock_gram"`
+	IncomingStockKg   float64              `json:"incoming_stock_kg"`
+	IssuedStockPod    int                  `json:"issued_stock_pod"`
+	IssuedStockGram   int                  `json:"issued_stock_gram"`
+	IssuedStockKg     float64              `json:"issued_stock_kg"`
+	GradeSummary      []GradeSummaryItem   `json:"grade_summary"`
+	MonthlySummary    []MonthlySummaryItem `json:"monthly_summary"`
+}
+
+type GradeSummaryItem struct {
+	Grade      enums.Grade `json:"grade"`
+	TotalPod   int         `json:"total_pod"`
+	TotalGram  int         `json:"total_gram"`
+	TotalKg    float64     `json:"total_kg"`
+	Percentage float64     `json:"percentage"`
+}
+
+type MonthlySummaryItem struct {
+	Month          int    `json:"month"`
+	MonthName      string `json:"month_name"`
+	StockInWeight  int    `json:"stock_in_weight"`
+	StockOutWeight int    `json:"stock_out_weight"`
+	TotalWeight    int    `json:"total_weight"`
+}

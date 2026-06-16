@@ -500,11 +500,125 @@ func (s *service) GetCustomerStockTableByYear(year uint) (CustomerStockTableByYe
 			GradeB:       stock.GradeB,
 			GradeC:       stock.GradeC,
 			GradeFailed:  stock.GradeFailed,
-			TotalWeight:  stock.GradeA + stock.GradeB + stock.GradeC + stock.GradeFailed,
+			TotalWeight:  stock.TotalWeight,
 			Note:         stock.Note,
 		}
 		customerStockTableResponse = append(customerStockTableResponse, stocks)
 
 	}
 	return CustomerStockTableByYearResponse{CustomerStockTable: customerStockTableResponse}, nil
+}
+
+func (s *service) GetStockOverviewBalanceByYear(year uint) (StockOverviewResponse, error) {
+
+	yearRecord, err := s.yearRepo.FindByYear(int(year))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return StockOverviewResponse{}, utils.BadRequestError("Year doesn't exist")
+		}
+		return StockOverviewResponse{}, utils.SystemError("Failed to retrieve year record")
+	}
+	yearId := yearRecord.YearID
+
+	stockBalance, err := s.repo.GetStockOverviewBalanceByYearId(yearId)
+	if err != nil {
+		return StockOverviewResponse{}, utils.SystemError("Failed to retrieve stock overview balance")
+	}
+
+	incomingStockBalance, err := s.repo.GetIncomingStockTotal(yearId)
+	if err != nil {
+		return StockOverviewResponse{}, utils.SystemError("Failed to retrieve incoming stock total")
+	}
+
+	issuedStockBalance, err := s.repo.GetIssuedStockTotal(yearId)
+	if err != nil {
+		return StockOverviewResponse{}, utils.SystemError("Failed to retrieve issued stock total")
+	}
+
+	monthlySummaryRecords, err := s.repo.GetMonthlySummary(yearId)
+	if err != nil {
+		return StockOverviewResponse{}, utils.SystemError("Failed to retrieve monthly summary")
+	}
+
+	totalPodInStock := 0
+	totalGramInStock := 0
+
+	for _, balance := range stockBalance {
+		totalPodInStock += balance.TotalPods
+		totalGramInStock += balance.TotalGrams
+	}
+
+	gradeMap := make(map[enums.Grade]GradeSummary)
+	for _, grade := range stockBalance {
+		gradeMap[grade.Grade] = grade
+	}
+
+	grades := []enums.Grade{
+		enums.GradeAPlus,
+		enums.GradeA,
+		enums.GradeB,
+		enums.GradeC,
+		enums.GradeDPlus,
+		enums.GradeD,
+	}
+
+	gradeSummary := make([]GradeSummaryItem, 0, len(grades))
+	for _, grade := range grades {
+		row := gradeMap[grade]
+
+		percentage := 0.0
+		if totalPodInStock > 0 {
+			percentage = float64(row.TotalPods) * 100 / float64(totalPodInStock)
+		}
+
+		gradeSummary = append(gradeSummary, GradeSummaryItem{
+			Grade:      grade,
+			TotalPod:   row.TotalPods,
+			TotalGram:  row.TotalGrams,
+			TotalKg:    float64(row.TotalGrams) / 1000,
+			Percentage: percentage,
+		})
+	}
+
+	monthNames := []string{
+		"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+	}
+
+	monthlyMap := make(map[int]MonthlySummary)
+	for _, monthly := range monthlySummaryRecords {
+		monthlyMap[monthly.Month] = monthly
+	}
+
+	monthlySummary := make([]MonthlySummaryItem, 0, 12)
+	runningTotalWeight := 0
+
+	for month := 1; month <= 12; month++ {
+		row := monthlyMap[month]
+		runningTotalWeight += row.TotalWeight
+
+		monthlySummary = append(monthlySummary, MonthlySummaryItem{
+			Month:          month,
+			MonthName:      monthNames[month-1],
+			StockInWeight:  row.StockInWeight,
+			StockOutWeight: row.StockOutWeight,
+			TotalWeight:    runningTotalWeight,
+		})
+	}
+	return StockOverviewResponse{
+		TotalPodInStock:  totalPodInStock,
+		TotalGramInStock: totalGramInStock,
+		TotalKgInStock:   float64(totalGramInStock) / 1000,
+
+		IncomingStockPod:  incomingStockBalance.TotalPods,
+		IncomingStockGram: incomingStockBalance.TotalGrams,
+		IncomingStockKg:   float64(incomingStockBalance.TotalGrams) / 1000,
+
+		IssuedStockPod:  issuedStockBalance.TotalPods,
+		IssuedStockGram: issuedStockBalance.TotalGrams,
+		IssuedStockKg:   float64(issuedStockBalance.TotalGrams) / 1000,
+
+		GradeSummary:   gradeSummary,
+		MonthlySummary: monthlySummary,
+	}, nil
 }
