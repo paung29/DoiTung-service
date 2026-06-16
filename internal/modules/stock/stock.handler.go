@@ -143,3 +143,23 @@ func (h *handler) GetCustomerStockTableByYear(context *fiber.Ctx) error {
 	}
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *handler) GetStockOverviewBalanceByYear(context *fiber.Ctx) error {
+
+	yearStr := context.Query("year")
+	if yearStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("Missing year query parameter"))
+	}
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("Invalid year query parameter"))
+	}
+	if year <= 0 {
+		return utils.HandleError(context, utils.BadRequestError("year must be a positive integer"))
+	}
+	response, err := h.service.GetStockOverviewBalanceByYear(uint(year))
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.Status(fiber.StatusOK).JSON(response)
+}
