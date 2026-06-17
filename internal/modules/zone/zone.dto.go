@@ -2,7 +2,7 @@ package zone
 
 type CreateZoneRequest struct {
 	Year uint   `json:"year" validate:"required,min=4"`
-	Name string `json:"name" validate:"required,min=6"`
+	Name string `json:"name" validate:"required,min=6,excel_sheet_name"`
 }
 
 type CreateZoneResponse struct {
