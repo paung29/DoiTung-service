@@ -87,3 +87,17 @@ func (h YearHandler) GetYearManagementTable(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h YearHandler) UpdateYearName(context *fiber.Ctx) error {
+	var form UpdateYearNameRequest
+
+	if err := utils.ParseAndValidate(context, &form); err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	response, err := h.service.UpdateYearName(form)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.Status(fiber.StatusOK).JSON(response)
+}
