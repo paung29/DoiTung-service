@@ -252,7 +252,7 @@ type StockMovement struct {
 	Grade        enums.Grade        `gorm:"type:varchar(20)"`
 	MovementType enums.MovementType `gorm:"type:varchar(20);not null"`
 	PricePerGram *int
-	TotalGrams   *int
+	TotalGrams   *float64
 	TotalPods    *int
 	Details      *string
 
@@ -287,8 +287,8 @@ type StockBalance struct {
 	WarehouseID uint        `gorm:"not null;index;uniqueIndex:ux_stock_balance,priority:2"`
 	Grade       enums.Grade `gorm:"type:varchar(20);not null;index;uniqueIndex:ux_stock_balance,priority:3"`
 
-	TotalGrams int `gorm:"not null;default:0"`
-	TotalPods  int `gorm:"not null;default:0"`
+	TotalGrams float64 `gorm:"not null;default:0"`
+	TotalPods  int     `gorm:"not null;default:0"`
 
 	types.Timestamp
 }
