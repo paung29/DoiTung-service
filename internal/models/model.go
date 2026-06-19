@@ -210,17 +210,19 @@ type HarvestGradingForm struct {
 	RecordedByID uint `gorm:"index;not null"`
 
 	GradeAPlusCount  int
-	GradeAPlusWeight int
+	GradeAPlusWeight float64
 	GradeACount      int
-	GradeAWeight     int
+	GradeAWeight     float64
 	GradeBCount      int
-	GradeBWeight     int
+	GradeBWeight     float64
 	GradeCCount      int
-	GradeCWeight     int
+	GradeCWeight     float64
 	GradeDPlusCount  int
-	GradeDPlusWeight int
+	GradeDPlusWeight float64
 	UndersizedCount  int
-	UndersizedWeight int
+	UndersizedWeight float64
+	RottenCount      int
+	RottenWeight     float64
 
 	RecordedDate time.Time
 
