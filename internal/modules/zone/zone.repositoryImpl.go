@@ -79,3 +79,9 @@ func (repo *repository) GetTotalPolesByZoneId(zoneId uint) (int64, error) {
 
 	return total, nil
 }
+
+func (repo *repository) UpdateZoneName(db *gorm.DB, zoneId uint, newName string) error {
+	return db.Model(&models.Zone{}).
+		Where("zone_id = ?", zoneId).
+		Update("zone_name", newName).Error
+}

@@ -135,3 +135,33 @@ func (s service) GetZoneManagementTable(yearID uint) (GetZoneManagementTableResp
 		Zones:      zoneInfos,
 	}, nil
 }
+
+func (s service) UpdateZoneName(form UpdateZoneName) (UpdateZoneNameResponse, error) {
+	zone, err := s.zoneRepo.FindById(form.ZoneID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return UpdateZoneNameResponse{}, utils.NotFoundError("zone not found")
+		}
+	}
+
+	newZoneName := form.ZoneName
+
+	existingZone, err := s.zoneRepo.FindByYearAndZoneName(zone.YearID, newZoneName)
+	if err == nil && existingZone != nil && existingZone.ZoneID != zone.ZoneID {
+		return UpdateZoneNameResponse{}, utils.BadRequestError("zone name already exists in this year")
+	}
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return UpdateZoneNameResponse{}, utils.SystemError("failed to check zone name")
+	}
+
+	zone.ZoneName = newZoneName
+
+	if err := s.zoneRepo.UpdateZoneName(s.db, zone.ZoneID, newZoneName); err != nil {
+		return UpdateZoneNameResponse{}, utils.SystemError("failed to update zone name")
+	}
+
+	return UpdateZoneNameResponse{
+		Message: "zone name updated successfully",
+	}, nil
+}
