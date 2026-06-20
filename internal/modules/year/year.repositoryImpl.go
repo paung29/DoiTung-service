@@ -71,3 +71,7 @@ func (repo *repository) CountZonesByYear(yearID uint) (int64, error) {
 	}
 	return count, nil
 }
+
+func (repo *repository) UpdateYearName(db *gorm.DB, yearID int, newYearName int) error {
+	return db.Model(&models.Year{}).Where("year_id = ?", yearID).Update("year", newYearName).Error
+}

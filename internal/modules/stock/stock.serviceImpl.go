@@ -250,7 +250,7 @@ func (s *service) CreateIssuedStock(accountID uint, form CreateIssuedStockReques
 		return StockMovementResponse{}, utils.SystemError("Failed to retrieve customer record")
 	}
 
-	if int(form.TotalGrams) <= 0 && int(form.TotalPods) <= 0 {
+	if form.TotalGrams <= 0 && form.TotalPods <= 0 {
 		return StockMovementResponse{}, utils.BadRequestError("Total grams or total pods must be greater than 0")
 	}
 
@@ -279,7 +279,7 @@ func (s *service) CreateIssuedStock(accountID uint, form CreateIssuedStockReques
 	}
 
 	// If the total stock is less than the requested issued quantity, return an error
-	if stockBalance.TotalGrams < int(form.TotalGrams) || stockBalance.TotalPods < int(form.TotalPods) {
+	if stockBalance.TotalGrams < form.TotalGrams || stockBalance.TotalPods < int(form.TotalPods) {
 		tx.Rollback()
 		return StockMovementResponse{}, utils.BadRequestError("Insufficient stock available for the requested issue quantity")
 	}
@@ -305,8 +305,8 @@ func (s *service) CreateIssuedStock(accountID uint, form CreateIssuedStockReques
 	}
 
 	// Update stock balance by subtracting the issued quantity from the existing balance
-	stockBalance.TotalGrams -= int(form.TotalGrams)
-	stockBalance.TotalPods -= int(form.TotalPods)
+	stockBalance.TotalGrams -= form.TotalGrams
+	stockBalance.TotalPods -= form.TotalPods
 	err = s.repo.UpdateStockBalance(tx, stockBalance)
 	if err != nil {
 		tx.Rollback()
@@ -446,7 +446,7 @@ func (s *service) GetStockMovementListsByYear(year uint) (GetAllStockMovementsBy
 			productionYear = movement.ProductionYear.Year
 		}
 
-		totalGrams := 0
+		totalGrams := 0.0
 		if movement.TotalGrams != nil {
 			totalGrams = *movement.TotalGrams
 		}
@@ -541,7 +541,7 @@ func (s *service) GetStockOverviewBalanceByYear(year uint) (StockOverviewRespons
 	}
 
 	totalPodInStock := 0
-	totalGramInStock := 0
+	totalGramInStock := 0.0
 
 	for _, balance := range stockBalance {
 		totalPodInStock += balance.TotalPods
@@ -591,7 +591,7 @@ func (s *service) GetStockOverviewBalanceByYear(year uint) (StockOverviewRespons
 	}
 
 	monthlySummary := make([]MonthlySummaryItem, 0, 12)
-	runningTotalWeight := 0
+	runningTotalWeight := 0.0
 
 	for month := 1; month <= 12; month++ {
 		row := monthlyMap[month]

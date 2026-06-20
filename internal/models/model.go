@@ -210,17 +210,19 @@ type HarvestGradingForm struct {
 	RecordedByID uint `gorm:"index;not null"`
 
 	GradeAPlusCount  int
-	GradeAPlusWeight int
+	GradeAPlusWeight float64
 	GradeACount      int
-	GradeAWeight     int
+	GradeAWeight     float64
 	GradeBCount      int
-	GradeBWeight     int
+	GradeBWeight     float64
 	GradeCCount      int
-	GradeCWeight     int
+	GradeCWeight     float64
 	GradeDPlusCount  int
-	GradeDPlusWeight int
+	GradeDPlusWeight float64
 	UndersizedCount  int
-	UndersizedWeight int
+	UndersizedWeight float64
+	RottenCount      int
+	RottenWeight     float64
 
 	RecordedDate time.Time
 
@@ -250,7 +252,7 @@ type StockMovement struct {
 	Grade        enums.Grade        `gorm:"type:varchar(20)"`
 	MovementType enums.MovementType `gorm:"type:varchar(20);not null"`
 	PricePerGram *int
-	TotalGrams   *int
+	TotalGrams   *float64
 	TotalPods    *int
 	Details      *string
 
@@ -285,8 +287,8 @@ type StockBalance struct {
 	WarehouseID uint        `gorm:"not null;index;uniqueIndex:ux_stock_balance,priority:2"`
 	Grade       enums.Grade `gorm:"type:varchar(20);not null;index;uniqueIndex:ux_stock_balance,priority:3"`
 
-	TotalGrams int `gorm:"not null;default:0"`
-	TotalPods  int `gorm:"not null;default:0"`
+	TotalGrams float64 `gorm:"not null;default:0"`
+	TotalPods  int     `gorm:"not null;default:0"`
 
 	types.Timestamp
 }

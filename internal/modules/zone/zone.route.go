@@ -12,4 +12,5 @@ func RegisterRoutes(app *fiber.App, handler *ZoneHandler) {
 	account.Post("/create", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.CreateZone)
 	account.Get("/get-all-zones", middleware.RequiredAuth, middleware.RequireRoles("STAFF", "ADMIN"), handler.GetAllZone)
 	account.Get("/get-zone-management-table", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.GetZoneManagementTable)
+	account.Patch("/update-zone-name", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.UpdateZone)
 }

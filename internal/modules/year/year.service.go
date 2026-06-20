@@ -8,6 +8,7 @@ type YearService interface {
 	GetYear() (GetYearResponse, error)
 	GetYearDetails(year int) (YearSettingDetailsResponse, error)
 	GetYearManagementTable() (YearManagementListResponse, error)
+	UpdateYearName(form UpdateYearNameRequest) (UpdateYearNameResponse, error)
 }
 
 type service struct {

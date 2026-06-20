@@ -46,17 +46,19 @@ func (s *service) CreateOrUpdateHarvestGradingForm(form HarvestGradingFormReques
 	yearId := poleRecord.Zone.YearID
 
 	gradeAPlusCount := int(*form.GradeAPlusCount)
-	gradeAPlusWeight := int(*form.GradeAPlusWeight)
+	gradeAPlusWeight := float64(*form.GradeAPlusWeight)
 	gradeACount := int(*form.GradeACount)
-	gradeAWeight := int(*form.GradeAWeight)
+	gradeAWeight := float64(*form.GradeAWeight)
 	gradeBCount := int(*form.GradeBCount)
-	gradeBWeight := int(*form.GradeBWeight)
+	gradeBWeight := float64(*form.GradeBWeight)
 	gradeCCount := int(*form.GradeCCount)
-	gradeCWeight := int(*form.GradeCWeight)
+	gradeCWeight := float64(*form.GradeCWeight)
 	gradeDPlusCount := int(*form.GradeDPlusCount)
-	gradeDPlusWeight := int(*form.GradeDPlusWeight)
+	gradeDPlusWeight := float64(*form.GradeDPlusWeight)
 	undersizedCount := int(*form.UndersizedCount)
-	undersizedWeight := int(*form.UndersizedWeight)
+	undersizedWeight := float64(*form.UndersizedWeight)
+	rottenCount := int(*form.RottenCount)
+	rottenWeight := float64(*form.RottenWeight)
 	recordedDate := time.Now()
 
 	// Check if the harvest grading form already exists for the pole
@@ -84,6 +86,8 @@ func (s *service) CreateOrUpdateHarvestGradingForm(form HarvestGradingFormReques
 				UndersizedCount:  undersizedCount,
 				UndersizedWeight: undersizedWeight,
 				RecordedDate:     recordedDate,
+				RottenCount:      rottenCount,
+				RottenWeight:     rottenWeight,
 			}
 
 			// Save the harvest grading form
@@ -126,6 +130,8 @@ func (s *service) CreateOrUpdateHarvestGradingForm(form HarvestGradingFormReques
 	existingForm.GradeDPlusWeight = gradeDPlusWeight
 	existingForm.UndersizedCount = undersizedCount
 	existingForm.UndersizedWeight = undersizedWeight
+	existingForm.RottenCount = rottenCount
+	existingForm.RottenWeight = rottenWeight
 	existingForm.RecordedDate = recordedDate
 
 	if err := s.harvestGradingRepo.UpdateHarvestGradingForm(existingForm); err != nil {
@@ -166,17 +172,19 @@ func (s *service) GetHarvestGradingFormDetailsByPoleID(poleId uint) (HarvestGrad
 
 	harvestGradingDetails.Year = harvestGradingForm.YearID
 	harvestGradingDetails.GradeAPlusCount = uint(harvestGradingForm.GradeAPlusCount)
-	harvestGradingDetails.GradeAPlusWeight = uint(harvestGradingForm.GradeAPlusWeight)
+	harvestGradingDetails.GradeAPlusWeight = float64(harvestGradingForm.GradeAPlusWeight)
 	harvestGradingDetails.GradeACount = uint(harvestGradingForm.GradeACount)
-	harvestGradingDetails.GradeAWeight = uint(harvestGradingForm.GradeAWeight)
+	harvestGradingDetails.GradeAWeight = float64(harvestGradingForm.GradeAWeight)
 	harvestGradingDetails.GradeBCount = uint(harvestGradingForm.GradeBCount)
-	harvestGradingDetails.GradeBWeight = uint(harvestGradingForm.GradeBWeight)
+	harvestGradingDetails.GradeBWeight = float64(harvestGradingForm.GradeBWeight)
 	harvestGradingDetails.GradeCCount = uint(harvestGradingForm.GradeCCount)
-	harvestGradingDetails.GradeCWeight = uint(harvestGradingForm.GradeCWeight)
+	harvestGradingDetails.GradeCWeight = float64(harvestGradingForm.GradeCWeight)
 	harvestGradingDetails.GradeDPlusCount = uint(harvestGradingForm.GradeDPlusCount)
-	harvestGradingDetails.GradeDPlusWeight = uint(harvestGradingForm.GradeDPlusWeight)
+	harvestGradingDetails.GradeDPlusWeight = float64(harvestGradingForm.GradeDPlusWeight)
 	harvestGradingDetails.UndersizedCount = uint(harvestGradingForm.UndersizedCount)
-	harvestGradingDetails.UndersizedWeight = uint(harvestGradingForm.UndersizedWeight)
+	harvestGradingDetails.UndersizedWeight = float64(harvestGradingForm.UndersizedWeight)
+	harvestGradingDetails.RottenCount = uint(harvestGradingForm.RottenCount)
+	harvestGradingDetails.RottenWeight = float64(harvestGradingForm.RottenWeight)
 
 	return harvestGradingDetails, nil
 }
@@ -261,17 +269,19 @@ func (s *service) GetHarvestGradingFormsByZoneId(zoneId uint) (HarvestGradingFor
 			Location:               poleRecord.Zone.ZoneName,
 			PoleNo:                 uint(poleRecord.PoleNo),
 			GradeAPlusCount:        uint(form.GradeAPlusCount),
-			GradeAPlusWeight:       uint(form.GradeAPlusWeight),
+			GradeAPlusWeight:       float64(form.GradeAPlusWeight),
 			GradeACount:            uint(form.GradeACount),
-			GradeAWeight:           uint(form.GradeAWeight),
+			GradeAWeight:           float64(form.GradeAWeight),
 			GradeBCount:            uint(form.GradeBCount),
-			GradeBWeight:           uint(form.GradeBWeight),
+			GradeBWeight:           float64(form.GradeBWeight),
 			GradeCCount:            uint(form.GradeCCount),
-			GradeCWeight:           uint(form.GradeCWeight),
+			GradeCWeight:           float64(form.GradeCWeight),
 			GradeDPlusCount:        uint(form.GradeDPlusCount),
-			GradeDPlusWeight:       uint(form.GradeDPlusWeight),
+			GradeDPlusWeight:       float64(form.GradeDPlusWeight),
 			UndersizedCount:        uint(form.UndersizedCount),
-			UndersizedWeight:       uint(form.UndersizedWeight),
+			UndersizedWeight:       float64(form.UndersizedWeight),
+			RottenCount:            uint(form.RottenCount),
+			RottenWeight:           float64(form.RottenWeight),
 			HarvestGradingFormDone: poleRecord.HarvestGradingFormDone,
 			RecordedBy:             form.RecordedBy.Name,
 			Date:                   form.RecordedDate.Format("2006-01-02 15:04:05"),

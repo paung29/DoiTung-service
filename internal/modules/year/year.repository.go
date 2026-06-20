@@ -15,4 +15,5 @@ type YearRepository interface {
 	findAll() ([]models.Year, error)
 	findAllYearDetails() ([]models.YearFormSetting, error)
 	CountZonesByYear(yearID uint) (int64, error)
+	UpdateYearName(db *gorm.DB, yearID int, newYearName int) error
 }

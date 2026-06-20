@@ -71,3 +71,18 @@ func (h ZoneHandler) GetZoneManagementTable(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h ZoneHandler) UpdateZone(context *fiber.Ctx) error {
+	var form UpdateZoneName
+
+	if err := utils.ParseAndValidate(context, &form); err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	response, err := h.service.UpdateZoneName(form)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}

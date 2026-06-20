@@ -13,4 +13,5 @@ type ZoneRepository interface {
 	FindByYearID(yearID uint) ([]models.Zone, error)
 	FindById(zoneId uint) (*models.Zone, error)
 	GetTotalPolesByZoneId(zoneId uint) (int64, error)
+	UpdateZoneName(db *gorm.DB, zoneId uint, newName string) error
 }

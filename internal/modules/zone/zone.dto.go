@@ -34,3 +34,12 @@ type ZoneManagementInfo struct {
 	ZoneName         string `json:"zoneName"`
 	TotalPolesInZone int64  `json:"totalPolesInZone"`
 }
+
+type UpdateZoneName struct {
+	ZoneID   uint   `json:"zoneId" validate:"required"`
+	ZoneName string `json:"zoneName" validate:"required,min=6,excel_sheet_name"`
+}
+
+type UpdateZoneNameResponse struct {
+	Message string `json:"message"`
+}

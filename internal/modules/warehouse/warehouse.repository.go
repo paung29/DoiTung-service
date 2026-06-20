@@ -7,7 +7,7 @@ import (
 
 type StockBalance struct {
 	TotalPods  uint
-	TotalGrams uint
+	TotalGrams float64
 }
 
 type WarehouseRepository interface {

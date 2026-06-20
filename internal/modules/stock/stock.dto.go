@@ -11,7 +11,7 @@ type CreateCarryOverStockRequest struct {
 	ProductionYear *uint       `json:"production_year" validate:"required"`
 	WarehouseID    *uint       `json:"warehouse_id" validate:"required"`
 	Grade          enums.Grade `json:"grade" validate:"required,oneof=A_PLUS A B C D D_PLUS"`
-	TotalGrams     *int        `json:"total_grams" validate:"required,gt=0"`
+	TotalGrams     *float64    `json:"total_grams" validate:"required,gt=0"`
 	TotalPods      *int        `json:"total_pods" validate:"required,gt=0"`
 	Details        *string     `json:"details"`
 	RecordedDate   time.Time   `json:"recorded_date" validate:"required"`
@@ -26,7 +26,7 @@ type CreateIncomingStockRequest struct {
 	ProductionYear *uint       `json:"production_year" validate:"required"`
 	WarehouseID    *uint       `json:"warehouse_id" validate:"required"`
 	Grade          enums.Grade `json:"grade" validate:"required,oneof=A_PLUS A B C D D_PLUS"`
-	TotalGrams     *int        `json:"total_grams" validate:"required,gt=0"`
+	TotalGrams     *float64    `json:"total_grams" validate:"required,gt=0"`
 	TotalPods      *int        `json:"total_pods" validate:"required,gt=0"`
 	Details        *string     `json:"details"`
 	RecordedDate   time.Time   `json:"recorded_date" validate:"required"`
@@ -39,7 +39,7 @@ type CreateIssuedStockRequest struct {
 	CustomerID     *uint       `json:"customer_id" validate:"required"`
 	Grade          enums.Grade `json:"grade" validate:"required,oneof=A_PLUS A B C D D_PLUS"`
 	PricePerGram   int         `json:"price_per_gram" validate:"required"`
-	TotalGrams     int         `json:"total_grams" validate:"required,gt=0"`
+	TotalGrams     float64     `json:"total_grams" validate:"required,gt=0"`
 	TotalPods      int         `json:"total_pods" validate:"required,gt=0"`
 	Details        *string     `json:"details"`
 	RecordedDate   time.Time   `json:"recorded_date" validate:"required"`
@@ -65,7 +65,7 @@ type StockMovementDetails struct {
 	Grade           enums.Grade        `json:"grade"`
 	ProductionYear  int                `json:"production_year"`
 	Warehouse       string             `json:"warehouse"`
-	TotalGrams      int                `json:"total_grams"`
+	TotalGrams      float64            `json:"total_grams"`
 	TotalPods       int                `json:"total_pods"`
 	Details         *string            `json:"details"`
 }
@@ -82,23 +82,23 @@ type CustomerStockTableItem struct {
 	CustomerID   int     `json:"customer_id"`
 	No           int     `json:"no"`
 	CustomerName string  `json:"customer_name"`
-	GradeA       int     `json:"grade_a"`
-	GradeB       int     `json:"grade_b"`
-	GradeC       int     `json:"grade_c"`
-	GradeFailed  int     `json:"grade_failed"`
-	TotalWeight  int     `json:"total_weight"`
+	GradeA       float64 `json:"grade_a"`
+	GradeB       float64 `json:"grade_b"`
+	GradeC       float64 `json:"grade_c"`
+	GradeFailed  float64 `json:"grade_failed"`
+	TotalWeight  float64 `json:"total_weight"`
 	Note         *string `json:"note"`
 }
 
 type StockOverviewResponse struct {
 	TotalPodInStock   int                  `json:"total_pod_in_stock"`
-	TotalGramInStock  int                  `json:"total_gram_in_stock"`
+	TotalGramInStock  float64              `json:"total_gram_in_stock"`
 	TotalKgInStock    float64              `json:"total_kg_in_stock"`
 	IncomingStockPod  int                  `json:"incoming_stock_pod"`
-	IncomingStockGram int                  `json:"incoming_stock_gram"`
+	IncomingStockGram float64              `json:"incoming_stock_gram"`
 	IncomingStockKg   float64              `json:"incoming_stock_kg"`
 	IssuedStockPod    int                  `json:"issued_stock_pod"`
-	IssuedStockGram   int                  `json:"issued_stock_gram"`
+	IssuedStockGram   float64              `json:"issued_stock_gram"`
 	IssuedStockKg     float64              `json:"issued_stock_kg"`
 	GradeSummary      []GradeSummaryItem   `json:"grade_summary"`
 	MonthlySummary    []MonthlySummaryItem `json:"monthly_summary"`
@@ -107,15 +107,15 @@ type StockOverviewResponse struct {
 type GradeSummaryItem struct {
 	Grade      enums.Grade `json:"grade"`
 	TotalPod   int         `json:"total_pod"`
-	TotalGram  int         `json:"total_gram"`
+	TotalGram  float64     `json:"total_gram"`
 	TotalKg    float64     `json:"total_kg"`
 	Percentage float64     `json:"percentage"`
 }
 
 type MonthlySummaryItem struct {
-	Month          int    `json:"month"`
-	MonthName      string `json:"month_name"`
-	StockInWeight  int    `json:"stock_in_weight"`
-	StockOutWeight int    `json:"stock_out_weight"`
-	TotalWeight    int    `json:"total_weight"`
+	Month          int     `json:"month"`
+	MonthName      string  `json:"month_name"`
+	StockInWeight  float64 `json:"stock_in_weight"`
+	StockOutWeight float64 `json:"stock_out_weight"`
+	TotalWeight    float64 `json:"total_weight"`
 }

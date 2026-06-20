@@ -41,3 +41,12 @@ type YearManagementItem struct {
 	Year      int `json:"year"`
 	TotalZone int `json:"totalZone"`
 }
+
+type UpdateYearNameRequest struct {
+	YearId   int `json:"yearId" validate:"required"`
+	YearName int `json:"yearName" validate:"required"`
+}
+
+type UpdateYearNameResponse struct {
+	Message string `json:"message"`
+}

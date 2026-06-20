@@ -14,4 +14,5 @@ func RegisterRoutes(app *fiber.App, handler *YearHandler) {
 	account.Get("/get-all-years", middleware.RequiredAuth, middleware.RequireRoles("STAFF", "ADMIN"), handler.GetYears)
 	account.Get("/get-year-setting", middleware.RequiredAuth, middleware.RequireRoles("STAFF", "ADMIN"), handler.GetYearDetails)
 	account.Get("/get-year-management-table", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.GetYearManagementTable)
+	account.Patch("/update-year-name", middleware.RequiredAuth, middleware.RequireRoles("ADMIN"), handler.UpdateYearName)
 }

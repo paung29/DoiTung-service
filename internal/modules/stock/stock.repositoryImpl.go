@@ -13,33 +13,33 @@ type repository struct {
 }
 
 type StockBalance struct {
-	TotalGrams int
+	TotalGrams float64
 	TotalPods  int
 }
 
 type CustomerStockRow struct {
 	CustomerId   int
 	CustomerName string
-	GradeA       int
-	GradeB       int
-	GradeC       int
-	GradeFailed  int
-	TotalWeight  int
+	GradeA       float64
+	GradeB       float64
+	GradeC       float64
+	GradeFailed  float64
+	TotalWeight  float64
 	Note         *string
 }
 
 type GradeSummary struct {
 	Grade      enums.Grade
-	TotalGrams int
+	TotalGrams float64
 	TotalPods  int
 }
 
 type MonthlySummary struct {
 	Month          int
 	MonthName      string
-	StockInWeight  int
-	StockOutWeight int
-	TotalWeight    int
+	StockInWeight  float64
+	StockOutWeight float64
+	TotalWeight    float64
 }
 
 func NewStockRepository(db *gorm.DB) StockRepository {
