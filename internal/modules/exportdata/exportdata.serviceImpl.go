@@ -25,33 +25,33 @@ func NewExportDataService(yearRepo year.YearRepository, exportDataRepository Exp
 	}
 }
 
-func (s *service) ExportClusterFormsXLSX(year uint) (ExportClusterFormsXLSXResponse, error) {
+func (s *service) ExportClusterFormsXLSX(year uint) (ExportXLSXResponse, error) {
 
 	yearRecord, err := s.yearRepo.FindByYear(int(year))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return ExportClusterFormsXLSXResponse{}, utils.NotFoundError("Year not found")
+			return ExportXLSXResponse{}, utils.NotFoundError("Year not found")
 		}
-		return ExportClusterFormsXLSXResponse{}, utils.SystemError("Failed to retrieve year information")
+		return ExportXLSXResponse{}, utils.SystemError("Failed to retrieve year information")
 	}
 
 	yearID := yearRecord.YearID
 
 	clusterForms, err := s.exportDataRepository.ExportClusterFormsXLSX(yearID)
 	if err != nil {
-		return ExportClusterFormsXLSXResponse{}, utils.SystemError("Failed to Retrieve export cluster forms")
+		return ExportXLSXResponse{}, utils.SystemError("Failed to Retrieve export cluster forms")
 	}
 
 	if len(clusterForms) == 0 {
-		return ExportClusterFormsXLSXResponse{}, utils.NotFoundError("No cluster forms found for the specified year")
+		return ExportXLSXResponse{}, utils.NotFoundError("No cluster forms found for the specified year")
 	}
 
 	fileBytes, err := clusterExcel.BuildClusterFormsWorkBook(clusterForms)
 	if err != nil {
-		return ExportClusterFormsXLSXResponse{}, utils.SystemError("Failed to generate Excel file")
+		return ExportXLSXResponse{}, utils.SystemError("Failed to generate Excel file")
 	}
 
-	return ExportClusterFormsXLSXResponse{
+	return ExportXLSXResponse{
 		FileBytes: fileBytes,
 		FileName:  fmt.Sprintf("cluster-forms-%d.xlsx", yearRecord.Year),
 	}, nil

@@ -62,10 +62,7 @@ func (h *ExportDataHandler) ExportClusterFormsXLSX(context *fiber.Ctx) error {
 		return utils.HandleError(context, err)
 	}
 
-	return sendExcel(context, ExportXLSXResponse{
-		FileBytes: response.FileBytes,
-		FileName:  response.FileName,
-	})
+	return sendExcel(context, response)
 }
 
 func (h *ExportDataHandler) ExportHarvestGrading(context *fiber.Ctx) error {
