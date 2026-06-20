@@ -44,3 +44,44 @@ func (h *ExportDataHandler) ExportClusterFormsXLSX(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).Send(response.FileBytes)
 }
+
+func (h *ExportDataHandler) ExportHarvestGrading(context *fiber.Ctx) error {
+	yearStr := context.Query("year")
+	if yearStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("year is required"))
+	}
+
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid year"))
+	}
+	if year <= 0 {
+		return utils.HandleError(context, utils.BadRequestError("year must be a positive integer"))
+	}
+
+	response, err := h.service.ExportHarvestGrading(year)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	context.Set(
+		fiber.HeaderContentType,
+		"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+	)
+
+	context.Set(
+		fiber.HeaderContentDisposition,
+		fmt.Sprintf(
+			`attachment; filename="%s"`,
+			response.FileName,
+		),
+	)
+	context.Set(
+		fiber.HeaderContentLength,
+		strconv.Itoa(len(response.FileBytes)),
+	)
+	context.Set("X-Content-Type-Options", "nosniff")
+
+	return context.Status(fiber.StatusOK).
+		Send(response.FileBytes)
+}

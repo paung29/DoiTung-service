@@ -14,4 +14,10 @@ func RegisterRoutes(app *fiber.App, handler *ExportDataHandler) {
 		middleware.RequireRoles("ADMIN"),
 		handler.ExportClusterFormsXLSX,
 	)
+	exportData.Get(
+		"/harvest-grading",
+		middleware.RequiredAuth,
+		middleware.RequireRoles("ADMIN"),
+		handler.ExportHarvestGrading,
+	)
 }
