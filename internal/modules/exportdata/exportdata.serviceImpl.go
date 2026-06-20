@@ -7,6 +7,7 @@ import (
 
 	clusterExcel "github.com/doitung/DoiTung-service/internal/modules/exportdata/clusterExcel"
 	"github.com/doitung/DoiTung-service/internal/modules/exportdata/harvestGradingExcel"
+	stockMovementExcel "github.com/doitung/DoiTung-service/internal/modules/exportdata/stockExcel"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"gorm.io/gorm"
@@ -143,6 +144,51 @@ func (s *service) ExportHarvestGradingSummary(year int) (ExportXLSXResponse, err
 		FileBytes: fileBytes,
 		FileName: fmt.Sprintf(
 			"harvest-grading-summary-%d-%s.xlsx",
+			yearRecord.Year,
+			time.Now().Format("2006-01-02"),
+		),
+	}, nil
+}
+
+func (s *service) ExportStockMovements(
+	yearValue int,
+) (ExportXLSXResponse, error) {
+	yearRecord, err := s.yearRepo.FindByYear(yearValue)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ExportXLSXResponse{},
+				utils.NotFoundError("year not found")
+		}
+
+		return ExportXLSXResponse{},
+			utils.SystemError("failed to retrieve year")
+	}
+
+	movements, err := s.exportDataRepository.
+		FindStockMovementsByYearID(yearRecord.YearID)
+	if err != nil {
+		return ExportXLSXResponse{},
+			utils.SystemError("failed to retrieve stock movements")
+	}
+
+	if len(movements) == 0 {
+		return ExportXLSXResponse{},
+			utils.NotFoundError(
+				"no stock movements found for this year",
+			)
+	}
+
+	fileBytes, err :=
+		stockMovementExcel.BuildStockMovementWorkBook(movements)
+	if err != nil {
+		return ExportXLSXResponse{},
+			utils.SystemError("failed to generate Excel file")
+	}
+
+	return ExportXLSXResponse{
+		FileBytes: fileBytes,
+		FileName: fmt.Sprintf(
+			"stock-movements-%d-%s.xlsx",
 			yearRecord.Year,
 			time.Now().Format("2006-01-02"),
 		),

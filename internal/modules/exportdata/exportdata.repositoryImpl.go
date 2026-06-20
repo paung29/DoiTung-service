@@ -52,3 +52,18 @@ func (r *repository) FindHarvestGradingFormsByYearID(
 
 	return forms, err
 }
+
+func (r *repository) FindStockMovementsByYearID(yearID uint) ([]models.StockMovement, error) {
+	var movements []models.StockMovement
+
+	err := r.db.
+		Preload("ProductionYear").
+		Preload("FromWarehouse").
+		Preload("ToWarehouse").
+		Preload("IssuedToCustomer").
+		Where("year_id = ?", yearID).
+		Order("recorded_date ASC, stock_movement_id ASC").
+		Find(&movements).Error
+
+	return movements, err
+}
