@@ -30,6 +30,13 @@ func RegisterRoutes(app *fiber.App, handler *ExportDataHandler) {
 		"/stock-movements",
 		middleware.RequiredAuth,
 		middleware.RequireRoles("ADMIN"),
-		handler.ExportStockMovements,
+		handler.ExportStockMovementsByYear,
 	)
+	exportData.Get(
+		"/stock-movements/all",
+		middleware.RequiredAuth,
+		middleware.RequireRoles("ADMIN"),
+		handler.ExportAllStockMovements,
+	)
+
 }
