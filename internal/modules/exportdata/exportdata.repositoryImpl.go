@@ -31,3 +31,24 @@ func (r *repository) ExportClusterFormsXLSX(yearID uint) ([]models.Cluster, erro
 
 	return clusters, err
 }
+
+func (r *repository) FindHarvestGradingFormsByYearID(
+	yearID uint,
+) ([]models.HarvestGradingForm, error) {
+	var forms []models.HarvestGradingForm
+
+	err := r.db.
+		Joins(
+			"JOIN poles ON poles.pole_id = harvest_grading_forms.pole_id",
+		).
+		Joins(
+			"JOIN zones ON zones.zone_id = poles.zone_id",
+		).
+		Preload("Pole").
+		Preload("Pole.Zone").
+		Where("harvest_grading_forms.year_id = ?", yearID).
+		Order("zones.zone_no ASC, poles.pole_no ASC").
+		Find(&forms).Error
+
+	return forms, err
+}
