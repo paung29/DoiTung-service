@@ -3,8 +3,10 @@ package utils
 import (
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 
+	"github.com/doitung/DoiTung-service/internal/models"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -76,4 +78,51 @@ func SafeSheetName(name string, noNameSheetIndex int, usedSheetNames map[string]
 
 	usedSheetNames[name] = true
 	return name
+}
+
+type exportSheet struct {
+	Name string
+	Rows [][]interface{}
+}
+
+type zoneGroup[T any] struct {
+	Zone  models.Zone
+	Items []T
+}
+
+func GroupByZone[T any](items []T, getZone func(T) models.Zone) []zoneGroup[T] {
+	groupedItems := make(map[uint][]T)
+	zones := make(map[uint]models.Zone)
+
+	for _, item := range items {
+		zone := getZone(item)
+		groupedItems[zone.ZoneID] = append(
+			groupedItems[zone.ZoneID],
+			item,
+		)
+		zones[zone.ZoneID] = zone
+	}
+
+	groups := make([]zoneGroup[T], 0, len(groupedItems))
+
+	for zoneID, zoneItems := range groupedItems {
+		groups = append(groups, zoneGroup[T]{
+			Zone:  zones[zoneID],
+			Items: zoneItems,
+		})
+	}
+
+	sort.Slice(groups, func(i, j int) bool {
+		return groups[i].Zone.ZoneNo < groups[j].Zone.ZoneNo
+	})
+
+	return groups
+}
+
+func FirstOrZero[T any](items []T) T {
+	var zero T
+	if len(items) == 0 {
+		return zero
+	}
+	return items[0]
 }

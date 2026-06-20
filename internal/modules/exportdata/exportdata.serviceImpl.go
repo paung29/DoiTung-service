@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	clusterExcel "github.com/doitung/DoiTung-service/internal/modules/exportdata/clusterExel"
 	"github.com/doitung/DoiTung-service/internal/modules/year"
 	"github.com/doitung/DoiTung-service/internal/utils"
 	"gorm.io/gorm"
@@ -43,7 +44,7 @@ func (s *service) ExportClusterFormsXLSX(year uint) (ExportClusterFormsXLSXRespo
 		return ExportClusterFormsXLSXResponse{}, utils.NotFoundError("No cluster forms found for the specified year")
 	}
 
-	fileBytes, err := BuildFormsWorkBook(clusterForms)
+	fileBytes, err := clusterExcel.BuildClusterFormsWorkBook(clusterForms)
 	if err != nil {
 		return ExportClusterFormsXLSXResponse{}, utils.SystemError("Failed to generate Excel file")
 	}
