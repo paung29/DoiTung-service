@@ -150,22 +150,31 @@ func (s *service) ExportHarvestGradingSummary(year int) (ExportXLSXResponse, err
 	}, nil
 }
 
-func (s *service) ExportStockMovements(
-	yearValue int,
-) (ExportXLSXResponse, error) {
-	yearRecord, err := s.yearRepo.FindByYear(yearValue)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+func (s *service) ExportStockMovements(yearValue *int) (ExportXLSXResponse, error) {
+	var yearID *uint
+	fileName := "stock-movements-all-years"
+
+	if yearValue != nil {
+		yearRecord, err := s.yearRepo.FindByYear(*yearValue)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ExportXLSXResponse{},
+					utils.NotFoundError("year not found")
+			}
+
 			return ExportXLSXResponse{},
-				utils.NotFoundError("year not found")
+				utils.SystemError("failed to retrieve year")
 		}
 
-		return ExportXLSXResponse{},
-			utils.SystemError("failed to retrieve year")
+		yearID = &yearRecord.YearID
+		fileName = fmt.Sprintf(
+			"stock-movements-%d",
+			yearRecord.Year,
+		)
 	}
 
-	movements, err := s.exportDataRepository.
-		FindStockMovementsByYearID(yearRecord.YearID)
+	movements, err :=
+		s.exportDataRepository.FindStockMovements(yearID)
 	if err != nil {
 		return ExportXLSXResponse{},
 			utils.SystemError("failed to retrieve stock movements")
@@ -173,9 +182,7 @@ func (s *service) ExportStockMovements(
 
 	if len(movements) == 0 {
 		return ExportXLSXResponse{},
-			utils.NotFoundError(
-				"no stock movements found for this year",
-			)
+			utils.NotFoundError("no stock movements found")
 	}
 
 	fileBytes, err :=
@@ -188,8 +195,8 @@ func (s *service) ExportStockMovements(
 	return ExportXLSXResponse{
 		FileBytes: fileBytes,
 		FileName: fmt.Sprintf(
-			"stock-movements-%d-%s.xlsx",
-			yearRecord.Year,
+			"%s-%s.xlsx",
+			fileName,
 			time.Now().Format("2006-01-02"),
 		),
 	}, nil
