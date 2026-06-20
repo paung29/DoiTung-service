@@ -20,4 +20,10 @@ func RegisterRoutes(app *fiber.App, handler *ExportDataHandler) {
 		middleware.RequireRoles("ADMIN"),
 		handler.ExportHarvestGrading,
 	)
+	exportData.Get(
+		"/harvest-grading-summary",
+		middleware.RequiredAuth,
+		middleware.RequireRoles("ADMIN"),
+		handler.ExportHarvestGradingSummary,
+	)
 }

@@ -103,3 +103,48 @@ func (s *service) ExportHarvestGrading(
 		),
 	}, nil
 }
+
+func (s *service) ExportHarvestGradingSummary(year int) (ExportXLSXResponse, error) {
+	yearRecord, err := s.yearRepo.FindByYear(year)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ExportXLSXResponse{},
+				utils.NotFoundError("year not found")
+		}
+
+		return ExportXLSXResponse{},
+			utils.SystemError("failed to retrieve year")
+	}
+
+	yearID := yearRecord.YearID
+
+	forms, err := s.exportDataRepository.
+		FindHarvestGradingFormsByYearID(yearID)
+	if err != nil {
+		return ExportXLSXResponse{},
+			utils.SystemError(
+				"failed to retrieve harvest and grading forms",
+			)
+	}
+
+	if len(forms) == 0 {
+		return ExportXLSXResponse{},
+			utils.NotFoundError(
+				"no harvest and grading forms found for this year",
+			)
+	}
+
+	fileBytes, err := harvestGradingExcel.BuildSummaryWorkBook(forms)
+	if err != nil {
+		return ExportXLSXResponse{},
+			utils.SystemError("failed to generate Excel file")
+	}
+	return ExportXLSXResponse{
+		FileBytes: fileBytes,
+		FileName: fmt.Sprintf(
+			"harvest-grading-summary-%d-%s.xlsx",
+			yearRecord.Year,
+			time.Now().Format("2006-01-02"),
+		),
+	}, nil
+}

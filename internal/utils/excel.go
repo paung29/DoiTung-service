@@ -212,3 +212,7 @@ func SumRange(
 		lastRow,
 	))
 }
+
+func ColumnName(columnNumber int) (string, error) {
+	return excelize.ColumnNumberToName(columnNumber)
+}
