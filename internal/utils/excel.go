@@ -43,6 +43,9 @@ func BuildWorkBook(sheets []Sheet) ([]byte, error) {
 		if err := writeSheetRows(file, sheetName, sheet.Rows); err != nil {
 			return nil, err
 		}
+		if err := styleHeaderRow(file, sheetName, sheet.Rows); err != nil {
+			return nil, err
+		}
 	}
 
 	// Ask Excel-compatible applications to recalculate formulas.
@@ -215,4 +218,51 @@ func SumRange(
 
 func ColumnName(columnNumber int) (string, error) {
 	return excelize.ColumnNumberToName(columnNumber)
+}
+
+func styleHeaderRow(
+	file *excelize.File,
+	sheetName string,
+	rows [][]interface{},
+) error {
+	if len(rows) == 0 || len(rows[0]) == 0 {
+		return nil
+	}
+
+	lastColumn, err := excelize.ColumnNumberToName(len(rows[0]))
+	if err != nil {
+		return err
+	}
+
+	styleID, err := file.NewStyle(&excelize.Style{
+		Font: &excelize.Font{
+			Bold:  true,
+			Size:  12,
+			Color: "FFFFFF",
+		},
+		Fill: excelize.Fill{
+			Type:    "pattern",
+			Color:   []string{"6B4423"},
+			Pattern: 1,
+		},
+		Alignment: &excelize.Alignment{
+			Horizontal: "center",
+			Vertical:   "center",
+			WrapText:   true,
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	if err := file.SetCellStyle(
+		sheetName,
+		"A1",
+		lastColumn+"1",
+		styleID,
+	); err != nil {
+		return err
+	}
+
+	return file.SetRowHeight(sheetName, 1, 32)
 }
