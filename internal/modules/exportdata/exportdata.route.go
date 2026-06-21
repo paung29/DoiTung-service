@@ -26,4 +26,17 @@ func RegisterRoutes(app *fiber.App, handler *ExportDataHandler) {
 		middleware.RequireRoles("ADMIN"),
 		handler.ExportHarvestGradingSummary,
 	)
+	exportData.Get(
+		"/stock-movements",
+		middleware.RequiredAuth,
+		middleware.RequireRoles("ADMIN"),
+		handler.ExportStockMovementsByYear,
+	)
+	exportData.Get(
+		"/stock-movements/all",
+		middleware.RequiredAuth,
+		middleware.RequireRoles("ADMIN"),
+		handler.ExportAllStockMovements,
+	)
+
 }
