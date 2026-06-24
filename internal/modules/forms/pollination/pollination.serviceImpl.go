@@ -247,13 +247,7 @@ func (s *service) GetPollinationFormsByZoneId(zoneId uint) (PollinationFormLists
 		if err != nil {
 			return PollinationFormLists{}, utils.SystemError("failed to get cluster information for pollination form list")
 		}
-        dateStr := form.UpdatedAt.Format("2006-01-02")
-        if form.UpdatedAt.IsZero() || dateStr == "0001-01-01" {
-            dateStr = form.RecordedDate.Format("2006-01-02")
-        }
-        if dateStr == "0001-01-01" {
-            dateStr = time.Now().Format("2006-01-02") // Complete safety backup
-        }
+
 		totalFlowers := form.GoodFlowers + form.BadFlowers
 		pollinationFormDetailsList = append(pollinationFormDetailsList, PollinationFormDetails{
 			No:                      i + 1,
@@ -269,9 +263,9 @@ func (s *service) GetPollinationFormsByZoneId(zoneId uint) (PollinationFormLists
 			Condition:               string(form.Condition),
 			PollinationFormDone:     clusterInfo.PollinationFormDone,
 			Date:                    form.UpdatedAt.Format("2006-01-02"),
-            RecordedBy:              form.RecordedBy.Name, 
+			RecordedBy:              form.RecordedBy.Name,
 		})
-		
+
 	}
 
 	return PollinationFormLists{PollinationForms: pollinationFormDetailsList}, nil

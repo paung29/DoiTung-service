@@ -254,7 +254,7 @@ func (s *service) GetPreHarvestFormByZoneId(zoneId uint) (PreHarvestFormLists, e
 			Condition:             string(record.Condition),
 			PreHarvestFormDone:    clusterInfo.PreHarvestFormDone,
 			RecordedBy:            record.RecordedBy.Name,
-			Date:                  record.RecordedDate.Format("2006-01-02"),
+			Date:                  record.UpdatedAt.Format("2006-01-02"),
 		})
 	}
 

@@ -284,7 +284,7 @@ func (s *service) GetHarvestGradingFormsByZoneId(zoneId uint) (HarvestGradingFor
 			RottenWeight:           float64(form.RottenWeight),
 			HarvestGradingFormDone: poleRecord.HarvestGradingFormDone,
 			RecordedBy:             form.RecordedBy.Name,
-			Date:                   form.RecordedDate.Format("2006-01-02"),
+			Date:                   form.UpdatedAt.Format("2006-01-02"),
 		}
 		harvestGradingFormDetailsList = append(harvestGradingFormDetailsList, formDetails)
 	}
