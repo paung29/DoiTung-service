@@ -13,3 +13,7 @@ type PoleResponse struct {
 	CreatedAt              string `json:"createdAt"`
 	UpdatedAt              string `json:"updatedAt"`
 }
+
+type PoleFilterResponse struct {
+	Poles []PoleResponse `json:"poles"`
+}

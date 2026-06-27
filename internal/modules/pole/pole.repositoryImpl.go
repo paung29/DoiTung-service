@@ -56,3 +56,26 @@ func (r *repository) GetPoleById(poleId uint) (*models.Pole, error) {
 	}
 	return &pole, nil
 }
+
+func (r *repository) GetPolesByFilter(zoneId uint, poleNo *uint, harvestGradingFormDone *bool) ([]models.Pole, error) {
+	var poles []models.Pole
+
+	query := r.db.
+		Model(&models.Pole{}).
+		Preload("Zone").
+		Where("zone_id = ?", zoneId)
+
+	if poleNo != nil {
+		query = query.Where("pole_no = ?", *poleNo)
+	}
+
+	if harvestGradingFormDone != nil {
+		query = query.Where("harvest_grading_form_done = ?", *harvestGradingFormDone)
+	}
+
+	err := query.
+		Order("pole_no ASC").
+		Find(&poles).Error
+
+	return poles, err
+}
