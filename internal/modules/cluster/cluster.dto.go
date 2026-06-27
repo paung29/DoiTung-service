@@ -70,3 +70,7 @@ type ClusterFormDetails struct {
 	Condition  string `json:"condition"`
 	RecordedBy string `json:"recordedBy"`
 }
+
+type ClusterFilterResponse struct {
+	Clusters []ClusterInfo `json:"clusters"`
+}

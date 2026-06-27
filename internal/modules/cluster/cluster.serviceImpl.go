@@ -299,3 +299,41 @@ func (s *service) GetAllClustersFormByZone(zoneId uint) (GetAllClustersFormByZon
 		ClusterForms: clusterFormDetails,
 	}, nil
 }
+
+func (s *service) GetClusterFilter(zoneId uint, poleNo *uint, clusterNo *uint, progressDone *int) (ClusterFilterResponse, error) {
+	// Check if the zone exists
+	zoneRecord, err := s.zoneRepo.FindById(zoneId)
+	if err != nil {
+		return ClusterFilterResponse{}, utils.NotFoundError("zone not found")
+	}
+
+	zoneId = zoneRecord.ZoneID
+
+	clusters, err := s.clusterRepo.GetClustersByFilter(zoneId, poleNo, clusterNo)
+	if err != nil {
+		return ClusterFilterResponse{}, utils.SystemError("failed to get clusters by filter")
+	}
+	clusterResponses := make([]ClusterInfo, 0, len(clusters))
+	for _, cluster := range clusters {
+		clusterProgress := utils.CalculateClusterProgress(cluster)
+
+		if progressDone != nil && clusterProgress != uint(*progressDone) {
+			continue
+		}
+
+		clusterResponses = append(clusterResponses, ClusterInfo{
+			No:           len(clusterResponses) + 1,
+			ClusterId:    cluster.ClusterID,
+			Location:     cluster.Pole.Zone.ZoneName,
+			PoleNo:       cluster.Pole.PoleNo,
+			ClusterNo:    cluster.ClusterNo,
+			ProgressDone: int(clusterProgress),
+			CreatedAt:    cluster.CreatedAt.Format("2006-01-02 15:04"),
+			UpdatedAt:    cluster.UpdatedAt.Format("2006-01-02 15:04"),
+		})
+	}
+
+	return ClusterFilterResponse{
+		Clusters: clusterResponses,
+	}, nil
+}
