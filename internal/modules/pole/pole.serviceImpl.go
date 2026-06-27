@@ -42,7 +42,7 @@ func (s *poleService) GetPoleByZone(year int, zoneNo int) (PolesByZoneResponse, 
 	if err != nil {
 		return PolesByZoneResponse{}, utils.SystemError("failed to get poles by zone")
 	}
-	var poleResponses []PoleResponse
+	poleResponses := make([]PoleResponse, 0, len(poles))
 	for _, pole := range poles {
 		poleResponses = append(poleResponses, PoleResponse{
 			PoleId:                 pole.PoleID,
