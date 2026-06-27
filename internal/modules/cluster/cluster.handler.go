@@ -46,7 +46,7 @@ func (h *ClusterHandler) GetClustersByZone(context *fiber.Ctx) error {
 
 	zoneIdStr := context.Query("zoneId")
 	if zoneIdStr == "" {
-		return utils.HandleError(context, utils.BadRequestError("zoneNo is required"))
+		return utils.HandleError(context, utils.BadRequestError("zoneId is required"))
 	}
 
 	zoneId, err := strconv.Atoi(zoneIdStr)
@@ -137,6 +137,81 @@ func (h *ClusterHandler) GetAllClustersFormByZone(context *fiber.Ctx) error {
 
 	response, err := h.service.GetAllClustersFormByZone(uint(zoneId))
 
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}
+func (h *ClusterHandler) GetClusterFilter(context *fiber.Ctx) error {
+	zoneIdStr := context.Query("zoneId")
+	poleNoStr := context.Query("poleNo")
+	clusterNoStr := context.Query("clusterNo")
+	progressDoneStr := context.Query("progressDone")
+
+	if zoneIdStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("zoneId is required"))
+	}
+
+	zoneId, err := strconv.Atoi(zoneIdStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid zoneId"))
+	}
+
+	if zoneId <= 0 {
+		return utils.HandleError(context, utils.BadRequestError("zoneId must be greater than 0"))
+	}
+
+	var poleNo *uint
+	if poleNoStr != "" {
+		parsedPoleNo, err := strconv.Atoi(poleNoStr)
+		if err != nil {
+			return utils.HandleError(context, utils.BadRequestError("invalid poleNo"))
+		}
+
+		if parsedPoleNo <= 0 {
+			return utils.HandleError(context, utils.BadRequestError("poleNo must be greater than 0"))
+		}
+
+		poleNoUint := uint(parsedPoleNo)
+		poleNo = &poleNoUint
+	}
+
+	var clusterNo *uint
+	if clusterNoStr != "" {
+		parsedClusterNo, err := strconv.Atoi(clusterNoStr)
+		if err != nil {
+			return utils.HandleError(context, utils.BadRequestError("invalid clusterNo"))
+		}
+
+		if parsedClusterNo <= 0 {
+			return utils.HandleError(context, utils.BadRequestError("clusterNo must be greater than 0"))
+		}
+
+		clusterNoUint := uint(parsedClusterNo)
+		clusterNo = &clusterNoUint
+	}
+
+	var progressDone *int
+	if progressDoneStr != "" {
+		parsedProgressDone, err := strconv.Atoi(progressDoneStr)
+		if err != nil {
+			return utils.HandleError(context, utils.BadRequestError("invalid progressDone"))
+		}
+
+		if parsedProgressDone < 0 || parsedProgressDone > 5 {
+			return utils.HandleError(context, utils.BadRequestError("progressDone must be between 0 and 5"))
+		}
+
+		progressDone = &parsedProgressDone
+	}
+
+	response, err := h.service.GetClusterFilter(
+		uint(zoneId),
+		poleNo,
+		clusterNo,
+		progressDone,
+	)
 	if err != nil {
 		return utils.HandleError(context, err)
 	}

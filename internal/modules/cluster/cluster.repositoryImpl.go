@@ -148,3 +148,28 @@ func (r *repository) GetAllClusterFormDetailsByZoneId(zoneId uint) ([]models.Clu
 	}
 	return forms, nil
 }
+
+func (r *repository) GetClustersByFilter(zoneId uint, poleNo *uint, clusterNo *uint) ([]models.Cluster, error) {
+	var clusters []models.Cluster
+
+	query := r.db.
+		Model(&models.Cluster{}).
+		Preload("Pole").
+		Preload("Pole.Zone").
+		Joins("JOIN poles ON poles.pole_id = clusters.pole_id").
+		Where("poles.zone_id = ?", zoneId)
+
+	if poleNo != nil {
+		query = query.Where("poles.pole_no = ?", *poleNo)
+	}
+
+	if clusterNo != nil {
+		query = query.Where("clusters.cluster_no = ?", *clusterNo)
+	}
+
+	err := query.
+		Order("poles.pole_no ASC, clusters.cluster_no ASC").
+		Find(&clusters).Error
+
+	return clusters, err
+}

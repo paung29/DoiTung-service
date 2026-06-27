@@ -42,7 +42,7 @@ func (s *poleService) GetPoleByZone(year int, zoneNo int) (PolesByZoneResponse, 
 	if err != nil {
 		return PolesByZoneResponse{}, utils.SystemError("failed to get poles by zone")
 	}
-	var poleResponses []PoleResponse
+	poleResponses := make([]PoleResponse, 0, len(poles))
 	for _, pole := range poles {
 		poleResponses = append(poleResponses, PoleResponse{
 			PoleId:                 pole.PoleID,
@@ -55,4 +55,34 @@ func (s *poleService) GetPoleByZone(year int, zoneNo int) (PolesByZoneResponse, 
 		})
 	}
 	return PolesByZoneResponse{Poles: poleResponses}, nil
+}
+
+func (s *poleService) GetPoleFilter(zoneId uint, poleNo *uint, harvestGradingFormDone *bool) (PoleFilterResponse, error) {
+	zoneRecord, err := s.zoneRepo.FindById(zoneId)
+	if err != nil {
+		return PoleFilterResponse{}, utils.NotFoundError("zone not found")
+	}
+
+	poles, err := s.poleRepo.GetPolesByFilter(zoneRecord.ZoneID, poleNo, harvestGradingFormDone)
+	if err != nil {
+		return PoleFilterResponse{}, utils.SystemError("failed to get poles by filter")
+	}
+
+	poleResponses := make([]PoleResponse, 0, len(poles))
+
+	for _, pole := range poles {
+		poleResponses = append(poleResponses, PoleResponse{
+			PoleId:                 pole.PoleID,
+			ZoneId:                 pole.ZoneID,
+			Location:               pole.Zone.ZoneName,
+			PoleNo:                 uint(pole.PoleNo),
+			HarvestGradingFormDone: pole.HarvestGradingFormDone,
+			CreatedAt:              pole.CreatedAt.Format("2006-01-02 15:04"),
+			UpdatedAt:              pole.UpdatedAt.Format("2006-01-02 15:04"),
+		})
+	}
+
+	return PoleFilterResponse{
+		Poles: poleResponses,
+	}, nil
 }

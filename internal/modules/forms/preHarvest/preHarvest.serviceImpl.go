@@ -208,8 +208,8 @@ func (s *service) GetPreHarvestFormHistories(userId uint, year uint) (PreHarvest
 			PoleNo:       uint(clusterInfo.Pole.PoleNo),
 			ClusterNo:    uint(clusterInfo.ClusterNo),
 			ProgressDone: utils.CalculateClusterProgress(*clusterInfo),
-			CreatedAt:    record.CreatedAt.Format("2006-01-02 15:04:05"),
-			UpdatedAt:    record.UpdatedAt.Format("2006-01-02 15:04:05"),
+			CreatedAt:    record.CreatedAt.Format("2006-01-02"),
+			UpdatedAt:    record.UpdatedAt.Format("2006-01-02"),
 		})
 	}
 	return PreHarvestFormHistoriesResponse{PreHarvestForms: preHarvestFormHistories}, nil
@@ -254,7 +254,7 @@ func (s *service) GetPreHarvestFormByZoneId(zoneId uint) (PreHarvestFormLists, e
 			Condition:             string(record.Condition),
 			PreHarvestFormDone:    clusterInfo.PreHarvestFormDone,
 			RecordedBy:            record.RecordedBy.Name,
-			Date:                  record.RecordedDate.Format("2006-01-02 15:04:05"),
+			Date:                  record.UpdatedAt.Format("2006-01-02"),
 		})
 	}
 

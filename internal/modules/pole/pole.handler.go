@@ -45,3 +45,58 @@ func (h *PoleHandler) GetPoleByZone(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *PoleHandler) GetPoleFilter(context *fiber.Ctx) error {
+	zoneIdStr := context.Query("zoneId")
+	poleNoStr := context.Query("poleNo")
+	harvestGradingFormDoneStr := context.Query("harvestGradingFormDone")
+
+	if zoneIdStr == "" {
+		return utils.HandleError(context, utils.BadRequestError("zoneId is required"))
+	}
+
+	zoneId, err := strconv.Atoi(zoneIdStr)
+	if err != nil {
+		return utils.HandleError(context, utils.BadRequestError("invalid zoneId"))
+	}
+
+	if zoneId <= 0 {
+		return utils.HandleError(context, utils.BadRequestError("zoneId must be greater than 0"))
+	}
+
+	var poleNo *uint
+	if poleNoStr != "" {
+		parsedPoleNo, err := strconv.Atoi(poleNoStr)
+		if err != nil {
+			return utils.HandleError(context, utils.BadRequestError("invalid poleNo"))
+		}
+
+		if parsedPoleNo <= 0 {
+			return utils.HandleError(context, utils.BadRequestError("poleNo must be greater than 0"))
+		}
+
+		poleNoUint := uint(parsedPoleNo)
+		poleNo = &poleNoUint
+	}
+
+	var harvestGradingFormDone *bool
+	if harvestGradingFormDoneStr != "" {
+		parsedHarvestGradingFormDone, err := strconv.ParseBool(harvestGradingFormDoneStr)
+		if err != nil {
+			return utils.HandleError(context, utils.BadRequestError("invalid harvestGradingFormDone"))
+		}
+
+		harvestGradingFormDone = &parsedHarvestGradingFormDone
+	}
+
+	response, err := h.service.GetPoleFilter(
+		uint(zoneId),
+		poleNo,
+		harvestGradingFormDone,
+	)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}

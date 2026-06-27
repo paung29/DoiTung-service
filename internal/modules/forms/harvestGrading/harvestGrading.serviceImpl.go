@@ -221,8 +221,8 @@ func (s *service) GetHarvestGradingFormHistories(userId uint, year uint) (Harves
 			Location:               poleRecord.Zone.ZoneName,
 			PoleNo:                 uint(poleRecord.PoleNo),
 			HarvestGradingFormDone: poleRecord.HarvestGradingFormDone,
-			CreatedAt:              form.CreatedAt.Format("2006-01-02 15:04:05"),
-			UpdatedAt:              form.UpdatedAt.Format("2006-01-02 15:04:05"),
+			CreatedAt:              form.CreatedAt.Format("2006-01-02"),
+			UpdatedAt:              form.UpdatedAt.Format("2006-01-02"),
 		}
 		harvestGradingFormHistories = append(harvestGradingFormHistories, harvestGradingFormHistory)
 	}
@@ -284,7 +284,7 @@ func (s *service) GetHarvestGradingFormsByZoneId(zoneId uint) (HarvestGradingFor
 			RottenWeight:           float64(form.RottenWeight),
 			HarvestGradingFormDone: poleRecord.HarvestGradingFormDone,
 			RecordedBy:             form.RecordedBy.Name,
-			Date:                   form.RecordedDate.Format("2006-01-02 15:04:05"),
+			Date:                   form.UpdatedAt.Format("2006-01-02"),
 		}
 		harvestGradingFormDetailsList = append(harvestGradingFormDetailsList, formDetails)
 	}

@@ -426,7 +426,7 @@ func (s *service) GetStockMovementListsByYear(year uint) (GetAllStockMovementsBy
 		return GetAllStockMovementsByYearResponse{}, utils.SystemError("Failed to retrieve stock movements")
 	}
 
-	var stockMovementDetailsList []StockMovementDetails
+	stockMovementDetailsList := make([]StockMovementDetails, 0, len(stockMovements))
 	for number, movement := range stockMovements {
 
 		isIssuedMovement := movement.MovementType == enums.MovementIssued

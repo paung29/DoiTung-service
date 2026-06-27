@@ -7,4 +7,5 @@ type ClusterService interface {
 	UpdateClusterForm(form ClusterUpdateRequest) (ClusterUpdateResponse, error)
 	GetClusterFormHistories(userId uint, year uint) (ClusterFormHistoriesResponse, error)
 	GetAllClustersFormByZone(zoneId uint) (GetAllClustersFormByZoneResponse, error)
+	GetClusterFilter(zoneId uint, poleNo *uint, clusterNo *uint, progressDone *int) (ClusterFilterResponse, error)
 }
