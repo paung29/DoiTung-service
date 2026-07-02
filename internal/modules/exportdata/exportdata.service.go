@@ -5,4 +5,5 @@ type ExportDataService interface {
 	ExportHarvestGrading(year int) (ExportXLSXResponse, error)
 	ExportHarvestGradingSummary(year int) (ExportXLSXResponse, error)
 	ExportStockMovements(year *int) (ExportXLSXResponse, error)
+	ExportCustomerDistribution(yearValue *int) (ExportXLSXResponse, error)
 }

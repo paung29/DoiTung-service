@@ -201,3 +201,55 @@ func (s *service) ExportStockMovements(yearValue *int) (ExportXLSXResponse, erro
 		),
 	}, nil
 }
+
+func (s *service) ExportCustomerDistribution(yearValue *int) (ExportXLSXResponse, error) {
+	var yearID *uint
+	fileName := "customer-distribution-all-years"
+
+	if yearValue != nil {
+		yearRecord, err := s.yearRepo.FindByYear(*yearValue)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ExportXLSXResponse{},
+					utils.NotFoundError("year not found")
+			}
+
+			return ExportXLSXResponse{},
+				utils.SystemError("failed to retrieve year")
+		}
+
+		yearID = &yearRecord.YearID
+
+		fileName = fmt.Sprintf(
+			"customer-distribution-%d",
+			yearRecord.Year,
+		)
+	}
+
+	movements, err := s.exportDataRepository.FindCustomerDistributions(yearID)
+	if err != nil {
+		return ExportXLSXResponse{},
+			utils.SystemError("failed to retrieve customer distribution")
+	}
+
+	if len(movements) == 0 {
+		return ExportXLSXResponse{},
+			utils.NotFoundError("no customer distribution found")
+	}
+
+	fileBytes, err :=
+		stockMovementExcel.BuildCustomerDistributionWorkBook(movements)
+	if err != nil {
+		return ExportXLSXResponse{},
+			utils.SystemError("failed to generate Excel file")
+	}
+
+	return ExportXLSXResponse{
+		FileBytes: fileBytes,
+		FileName: fmt.Sprintf(
+			"%s-%s.xlsx",
+			fileName,
+			time.Now().Format("2006-01-02"),
+		),
+	}, nil
+}

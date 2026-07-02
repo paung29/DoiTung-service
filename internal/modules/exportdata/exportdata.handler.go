@@ -148,3 +148,41 @@ func (h *ExportDataHandler) ExportAllStockMovements(
 
 	return sendExcel(context, response)
 }
+
+func (h *ExportDataHandler) ExportCustomerDistributionByYear(
+	context *fiber.Ctx,
+) error {
+	yearString := context.Query("year")
+	if yearString == "" {
+		return utils.HandleError(
+			context,
+			utils.BadRequestError("year is required"),
+		)
+	}
+
+	year, err := strconv.Atoi(yearString)
+	if err != nil || year <= 0 {
+		return utils.HandleError(
+			context,
+			utils.BadRequestError("year must be a positive integer"),
+		)
+	}
+
+	response, err := h.service.ExportCustomerDistribution(&year)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return sendExcel(context, response)
+}
+
+func (h *ExportDataHandler) ExportAllCustomerDistribution(
+	context *fiber.Ctx,
+) error {
+	response, err := h.service.ExportCustomerDistribution(nil)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return sendExcel(context, response)
+}

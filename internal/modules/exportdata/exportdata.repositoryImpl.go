@@ -2,6 +2,7 @@ package exportdata
 
 import (
 	"github.com/doitung/DoiTung-service/internal/models"
+	"github.com/doitung/DoiTung-service/internal/types/enums"
 	"gorm.io/gorm"
 )
 
@@ -64,6 +65,30 @@ func (r *repository) FindStockMovements(
 		Preload("FromWarehouse").
 		Preload("ToWarehouse").
 		Preload("IssuedToCustomer")
+
+	if yearID != nil {
+		query = query.Where("year_id = ?", *yearID)
+	}
+
+	err := query.
+		Order("recorded_date ASC, stock_movement_id ASC").
+		Find(&movements).Error
+
+	return movements, err
+}
+
+func (r *repository) FindCustomerDistributions(
+	yearID *uint,
+) ([]models.StockMovement, error) {
+	var movements []models.StockMovement
+
+	query := r.db.
+		Preload("Year").
+		Preload("ProductionYear").
+		Preload("FromWarehouse").
+		Preload("IssuedToCustomer").
+		Where("movement_type = ?", enums.MovementIssued).
+		Where("issued_to_customer_id IS NOT NULL")
 
 	if yearID != nil {
 		query = query.Where("year_id = ?", *yearID)
