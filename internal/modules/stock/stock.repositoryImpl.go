@@ -189,3 +189,45 @@ func (r *repository) GetMonthlySummary(yearId uint) ([]MonthlySummary, error) {
 		Order("month ASC").Scan(&summaries).Error
 	return summaries, err
 }
+
+func (r *repository) GetStockMovementHistoryFilter(
+	yearID uint,
+	category *enums.MovementType,
+	grade *enums.Grade,
+	productionYearID *uint,
+	warehouseID *uint,
+) ([]*models.StockMovement, error) {
+	var movements []*models.StockMovement
+
+	query := r.db.
+		Preload("ProductionYear").
+		Preload("FromWarehouse").
+		Preload("ToWarehouse").
+		Where("year_id = ?", yearID)
+
+	if category != nil {
+		query = query.Where("movement_type = ?", *category)
+	}
+
+	if grade != nil {
+		query = query.Where("grade = ?", *grade)
+	}
+
+	if productionYearID != nil {
+		query = query.Where("production_year_id = ?", *productionYearID)
+	}
+
+	if warehouseID != nil {
+		query = query.Where(
+			"(from_warehouse_id = ? OR to_warehouse_id = ?)",
+			*warehouseID,
+			*warehouseID,
+		)
+	}
+
+	err := query.
+		Order("recorded_date DESC, stock_movement_id DESC").
+		Find(&movements).Error
+
+	return movements, err
+}

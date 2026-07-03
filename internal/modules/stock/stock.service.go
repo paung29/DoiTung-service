@@ -1,5 +1,7 @@
 package stock
 
+import "github.com/doitung/DoiTung-service/internal/types/enums"
+
 type StockService interface {
 	CreateCarryOver(accountID uint, form CreateCarryOverStockRequest) (StockMovementResponse, error)
 	CreateIncomingStock(accountID uint, form CreateIncomingStockRequest) (StockMovementResponse, error)
@@ -9,4 +11,11 @@ type StockService interface {
 	GetStockMovementListsByYear(year uint) (GetAllStockMovementsByYearResponse, error)
 	GetCustomerStockTableByYear(year uint) (CustomerStockTableByYearResponse, error)
 	GetStockOverviewBalanceByYear(year uint) (StockOverviewResponse, error)
+	GetStockMovementHistoryFilter(
+		year uint,
+		category *enums.MovementType,
+		grade *enums.Grade,
+		productionYear *uint,
+		warehouseID *uint,
+	) (GetAllStockMovementsByYearResponse, error)
 }

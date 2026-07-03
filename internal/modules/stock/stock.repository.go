@@ -21,4 +21,11 @@ type StockRepository interface {
 	GetIncomingStockTotal(yearId uint) (StockBalance, error)
 	GetIssuedStockTotal(yearId uint) (StockBalance, error)
 	GetMonthlySummary(yearId uint) ([]MonthlySummary, error)
+	GetStockMovementHistoryFilter(
+		yearID uint,
+		category *enums.MovementType,
+		grade *enums.Grade,
+		productionYearID *uint,
+		warehouseID *uint,
+	) ([]*models.StockMovement, error)
 }
