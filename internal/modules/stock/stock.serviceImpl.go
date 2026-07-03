@@ -622,3 +622,99 @@ func (s *service) GetStockOverviewBalanceByYear(year uint) (StockOverviewRespons
 		MonthlySummary: monthlySummary,
 	}, nil
 }
+
+func (s *service) GetStockMovementHistoryFilter(
+	year uint,
+	category *enums.MovementType,
+	grade *enums.Grade,
+	productionYear *uint,
+	warehouseID *uint,
+) (GetAllStockMovementsByYearResponse, error) {
+	yearRecord, err := s.yearRepo.FindByYear(int(year))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return GetAllStockMovementsByYearResponse{},
+				utils.BadRequestError("Year doesn't exist")
+		}
+
+		return GetAllStockMovementsByYearResponse{},
+			utils.SystemError("Failed to retrieve year record")
+	}
+
+	var productionYearID *uint
+	if productionYear != nil {
+		productionYearRecord, err := s.yearRepo.FindByYear(int(*productionYear))
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return GetAllStockMovementsByYearResponse{},
+					utils.BadRequestError("Production year doesn't exist")
+			}
+
+			return GetAllStockMovementsByYearResponse{},
+				utils.SystemError("Failed to retrieve production year record")
+		}
+
+		productionYearID = &productionYearRecord.YearID
+	}
+
+	stockMovements, err := s.repo.GetStockMovementHistoryFilter(
+		yearRecord.YearID,
+		category,
+		grade,
+		productionYearID,
+		warehouseID,
+	)
+	if err != nil {
+		return GetAllStockMovementsByYearResponse{},
+			utils.SystemError("Failed to retrieve stock movements")
+	}
+
+	stockMovementDetailsList := make([]StockMovementDetails, 0, len(stockMovements))
+
+	for number, movement := range stockMovements {
+		isIssuedMovement := movement.MovementType == enums.MovementIssued
+
+		warehouseName := ""
+		if isIssuedMovement {
+			if movement.FromWarehouse != nil {
+				warehouseName = movement.FromWarehouse.WarehouseName
+			}
+		} else {
+			if movement.ToWarehouse != nil {
+				warehouseName = movement.ToWarehouse.WarehouseName
+			}
+		}
+
+		productionYearValue := 0
+		if movement.ProductionYear != nil {
+			productionYearValue = movement.ProductionYear.Year
+		}
+
+		totalGrams := 0.0
+		if movement.TotalGrams != nil {
+			totalGrams = *movement.TotalGrams
+		}
+
+		totalPods := 0
+		if movement.TotalPods != nil {
+			totalPods = *movement.TotalPods
+		}
+
+		stockMovementDetailsList = append(stockMovementDetailsList, StockMovementDetails{
+			No:              uint(number + 1),
+			StockMovementID: movement.StockMovementID,
+			Date:            movement.RecordedDate.Format("2006-01-02"),
+			Category:        movement.MovementType,
+			Grade:           movement.Grade,
+			ProductionYear:  productionYearValue,
+			Warehouse:       warehouseName,
+			TotalGrams:      totalGrams,
+			TotalPods:       totalPods,
+			Details:         movement.Details,
+		})
+	}
+
+	return GetAllStockMovementsByYearResponse{
+		StockMovements: stockMovementDetailsList,
+	}, nil
+}
