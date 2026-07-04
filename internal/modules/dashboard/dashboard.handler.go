@@ -17,9 +17,7 @@ func NewDashboardHandler(service DashboardService) *DashboardHandler {
 	}
 }
 
-func (h *DashboardHandler) GetPerformanceOverview(
-	context *fiber.Ctx,
-) error {
+func (h *DashboardHandler) GetPerformanceOverview(context *fiber.Ctx) error {
 	yearStr := context.Query("year")
 	if yearStr == "" {
 		return utils.HandleError(
@@ -44,9 +42,7 @@ func (h *DashboardHandler) GetPerformanceOverview(
 	return context.Status(fiber.StatusOK).JSON(response)
 }
 
-func (h *DashboardHandler) GetConditionByStage(
-	context *fiber.Ctx,
-) error {
+func (h *DashboardHandler) GetConditionByStage(context *fiber.Ctx) error {
 	yearStr := context.Query("year")
 	if yearStr == "" {
 		return utils.HandleError(
@@ -71,10 +67,17 @@ func (h *DashboardHandler) GetConditionByStage(
 	return context.Status(fiber.StatusOK).JSON(response)
 }
 
-func (h *DashboardHandler) GetFlowerProductionTrend(
-	context *fiber.Ctx,
-) error {
+func (h *DashboardHandler) GetFlowerProductionTrend(context *fiber.Ctx) error {
 	response, err := h.service.GetFlowerProductionTrend()
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}
+
+func (h *DashboardHandler) GetPodProductionTrend(context *fiber.Ctx) error {
+	response, err := h.service.GetPodProductionTrend()
 	if err != nil {
 		return utils.HandleError(context, err)
 	}

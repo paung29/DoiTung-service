@@ -132,3 +132,35 @@ func (r *repository) GetFlowerProductionTrend() ([]FlowerProductionTrendRow, err
 
 	return rows, err
 }
+
+func (r *repository) GetPodOverviewTrend() ([]PodOverviewTrendRow, error) {
+	var rows []PodOverviewTrendRow
+
+	err := r.db.
+		Table("years").
+		Select(`
+			years.year AS year,
+
+			COALESCE((
+				SELECT SUM(pod_forms.number_pods)
+				FROM pod_forms
+				WHERE pod_forms.year_id = years.year_id
+			), 0) AS total_pods,
+
+			COALESCE((
+				SELECT SUM(pod_forms.lost_pods)
+				FROM pod_forms
+				WHERE pod_forms.year_id = years.year_id
+			), 0) AS lost_pods,
+
+			COALESCE((
+				SELECT SUM(pod_forms.remaining_pods)
+				FROM pod_forms
+				WHERE pod_forms.year_id = years.year_id
+			), 0) AS remaining_pods
+		`).
+		Order("years.year ASC").
+		Scan(&rows).Error
+
+	return rows, err
+}

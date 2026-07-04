@@ -149,3 +149,25 @@ func (s *service) GetFlowerProductionTrend() (FlowerProductionTrendResponse, err
 		Items: items,
 	}, nil
 }
+
+func (s *service) GetPodProductionTrend() (PodProductionTrendResponse, error) {
+	rows, err := s.repo.GetPodOverviewTrend()
+	if err != nil {
+		return PodProductionTrendResponse{}, utils.SystemError("failed to retrieve pod production trend")
+	}
+
+	items := make([]PodProductionTrendItem, 0, len(rows))
+
+	for _, row := range rows {
+		items = append(items, PodProductionTrendItem{
+			Year:          row.Year,
+			TotalPods:     row.TotalPods,
+			LostPods:      row.LostPods,
+			RemainingPods: row.RemainingPods,
+		})
+	}
+
+	return PodProductionTrendResponse{
+		Items: items,
+	}, nil
+}
