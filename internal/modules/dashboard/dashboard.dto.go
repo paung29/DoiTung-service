@@ -56,3 +56,16 @@ type PodSetRateTrendItem struct {
 	BadFlowers              int64 `json:"badFlowers"`
 	TotalFlowers            int64 `json:"totalFlowers"`
 }
+
+type HarvestablePodsTrendResponse struct {
+	Items []HarvestablePodsTrendItem `json:"items"`
+}
+
+type HarvestablePodsTrendItem struct {
+	Year                  int   `json:"year"`
+	TotalPods             int64 `json:"totalPods"`
+	RemainingPods         int64 `json:"remainingPods"`
+	SecondRoundPods       int64 `json:"secondRoundPods"`
+	LostPodsBeforeHarvest int64 `json:"lostPodsBeforeHarvest"`
+	RemovedPods           int64 `json:"removedPods"`
+}

@@ -197,3 +197,27 @@ func (s *service) GetPodSetRateTrend() (PodSetRateTrendResponse, error) {
 		Items: items,
 	}, nil
 }
+
+func (s *service) GetHarvestablePodsTrend() (HarvestablePodsTrendResponse, error) {
+	rows, err := s.repo.GetHarvestablePodsTrend()
+	if err != nil {
+		return HarvestablePodsTrendResponse{}, utils.SystemError("failed to retrieve harvestable pods trend")
+	}
+
+	items := make([]HarvestablePodsTrendItem, 0, len(rows))
+
+	for _, row := range rows {
+		items = append(items, HarvestablePodsTrendItem{
+			Year:                  row.Year,
+			TotalPods:             row.TotalPods,
+			RemainingPods:         row.RemainingPods,
+			SecondRoundPods:       row.SecondRoundPods,
+			LostPodsBeforeHarvest: row.LostPodsBeforeHarvest,
+			RemovedPods:           row.RemovedPods,
+		})
+	}
+
+	return HarvestablePodsTrendResponse{
+		Items: items,
+	}, nil
+}

@@ -202,3 +202,47 @@ func (r *repository) GetPodSetRateTrend() ([]PodSetRateTrendRow, error) {
 
 	return rows, err
 }
+
+func (r *repository) GetHarvestablePodsTrend() ([]HarvestablePodsTrendRow, error) {
+	var rows []HarvestablePodsTrendRow
+
+	err := r.db.
+		Table("years").
+		Select(`
+			years.year AS year,
+
+			COALESCE((
+				SELECT SUM(pod_forms.number_pods)
+				FROM pod_forms
+				WHERE pod_forms.year_id = years.year_id
+			), 0) AS total_pods,
+
+			COALESCE((
+				SELECT SUM(pod_forms.remaining_pods)
+				FROM pod_forms
+				WHERE pod_forms.year_id = years.year_id
+			), 0) AS remaining_pods,
+
+			COALESCE((
+				SELECT SUM(pre_harvest_forms.number_pods_second_round)
+				FROM pre_harvest_forms
+				WHERE pre_harvest_forms.year_id = years.year_id
+			), 0) AS second_round_pods,
+
+			COALESCE((
+				SELECT SUM(pre_harvest_forms.lost_pods_before_harvest)
+				FROM pre_harvest_forms
+				WHERE pre_harvest_forms.year_id = years.year_id
+			), 0) AS lost_pods_before_harvest,
+
+			COALESCE((
+				SELECT SUM(pre_harvest_forms.removed_pods)
+				FROM pre_harvest_forms
+				WHERE pre_harvest_forms.year_id = years.year_id
+			), 0) AS removed_pods
+		`).
+		Order("years.year ASC").
+		Scan(&rows).Error
+
+	return rows, err
+}

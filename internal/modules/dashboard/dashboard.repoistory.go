@@ -9,6 +9,7 @@ type DashboardRepository interface {
 	GetFlowerProductionTrend() ([]FlowerProductionTrendRow, error)
 	GetPodOverviewTrend() ([]PodOverviewTrendRow, error)
 	GetPodSetRateTrend() ([]PodSetRateTrendRow, error)
+	GetHarvestablePodsTrend() ([]HarvestablePodsTrendRow, error)
 }
 
 type PollinationStats struct {
@@ -54,4 +55,13 @@ type PodSetRateTrendRow struct {
 	UnsuccessfulPollination int64
 	GoodFlowers             int64
 	BadFlowers              int64
+}
+
+type HarvestablePodsTrendRow struct {
+	Year                  int
+	TotalPods             int64
+	RemainingPods         int64
+	SecondRoundPods       int64
+	LostPodsBeforeHarvest int64
+	RemovedPods           int64
 }

@@ -6,4 +6,5 @@ type DashboardService interface {
 	GetFlowerProductionTrend() (FlowerProductionTrendResponse, error)
 	GetPodProductionTrend() (PodProductionTrendResponse, error)
 	GetPodSetRateTrend() (PodSetRateTrendResponse, error)
+	GetHarvestablePodsTrend() (HarvestablePodsTrendResponse, error)
 }
