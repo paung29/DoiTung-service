@@ -21,3 +21,14 @@ type ConditionByStageItem struct {
 	Insect int64  `json:"insect"`
 	Rotten int64  `json:"rotten"`
 }
+
+type FlowerProductionTrendResponse struct {
+	Items []FlowerProductionTrendItem `json:"items"`
+}
+
+type FlowerProductionTrendItem struct {
+	Year         int   `json:"year"`
+	TotalFlowers int64 `json:"totalFlowers"`
+	GoodFlowers  int64 `json:"goodFlowers"`
+	BadFlowers   int64 `json:"badFlowers"`
+}

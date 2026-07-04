@@ -20,4 +20,11 @@ func RegisterRoutes(app *fiber.App, handler *DashboardHandler) {
 		middleware.RequireRoles("ADMIN"),
 		handler.GetConditionByStage,
 	)
+
+	dashboard.Get(
+		"/flower-production-trend",
+		middleware.RequiredAuth,
+		middleware.RequireRoles("ADMIN"),
+		handler.GetFlowerProductionTrend,
+	)
 }

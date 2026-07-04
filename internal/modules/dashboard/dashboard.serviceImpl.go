@@ -127,3 +127,25 @@ func (s *service) GetConditionByStage(year int) (ConditionByStageResponse, error
 		Stages: responseStages,
 	}, nil
 }
+
+func (s *service) GetFlowerProductionTrend() (FlowerProductionTrendResponse, error) {
+	rows, err := s.repo.GetFlowerProductionTrend()
+	if err != nil {
+		return FlowerProductionTrendResponse{}, utils.SystemError("failed to retrieve flower production trend")
+	}
+
+	items := make([]FlowerProductionTrendItem, 0, len(rows))
+
+	for _, row := range rows {
+		items = append(items, FlowerProductionTrendItem{
+			Year:         row.Year,
+			TotalFlowers: row.TotalFlowers,
+			GoodFlowers:  row.GoodFlowers,
+			BadFlowers:   row.BadFlowers,
+		})
+	}
+
+	return FlowerProductionTrendResponse{
+		Items: items,
+	}, nil
+}

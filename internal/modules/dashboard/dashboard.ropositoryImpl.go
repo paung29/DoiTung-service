@@ -100,3 +100,35 @@ func (r *repository) GetConditionByStage(tableName string, yearId int) (Conditio
 
 	return row, err
 }
+
+func (r *repository) GetFlowerProductionTrend() ([]FlowerProductionTrendRow, error) {
+	var rows []FlowerProductionTrendRow
+
+	err := r.db.
+		Table("years").
+		Select(`
+			years.year AS year,
+
+			COALESCE((
+				SELECT SUM(flower_forms.total_flowers)
+				FROM flower_forms
+				WHERE flower_forms.year_id = years.year_id
+			), 0) AS total_flowers,
+
+			COALESCE((
+				SELECT SUM(pollination_forms.good_flowers)
+				FROM pollination_forms
+				WHERE pollination_forms.year_id = years.year_id
+			), 0) AS good_flowers,
+
+			COALESCE((
+				SELECT SUM(pollination_forms.bad_flowers)
+				FROM pollination_forms
+				WHERE pollination_forms.year_id = years.year_id
+			), 0) AS bad_flowers
+		`).
+		Order("years.year ASC").
+		Scan(&rows).Error
+
+	return rows, err
+}
