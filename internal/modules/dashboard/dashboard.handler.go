@@ -1,1 +1,45 @@
 package dashboard
+
+import (
+	"strconv"
+
+	"github.com/doitung/DoiTung-service/internal/utils"
+	"github.com/gofiber/fiber/v2"
+)
+
+type DashboardHandler struct {
+	service DashboardService
+}
+
+func NewDashboardHandler(service DashboardService) *DashboardHandler {
+	return &DashboardHandler{
+		service: service,
+	}
+}
+
+func (h *DashboardHandler) GetPerformanceOverview(
+	context *fiber.Ctx,
+) error {
+	yearStr := context.Query("year")
+	if yearStr == "" {
+		return utils.HandleError(
+			context,
+			utils.BadRequestError("year is required"),
+		)
+	}
+
+	year, err := strconv.Atoi(yearStr)
+	if err != nil || year <= 0 {
+		return utils.HandleError(
+			context,
+			utils.BadRequestError("year must be a positive integer"),
+		)
+	}
+
+	response, err := h.service.GetPerformanceOverview(year)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}
