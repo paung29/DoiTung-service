@@ -164,3 +164,41 @@ func (r *repository) GetPodOverviewTrend() ([]PodOverviewTrendRow, error) {
 
 	return rows, err
 }
+
+func (r *repository) GetPodSetRateTrend() ([]PodSetRateTrendRow, error) {
+	var rows []PodSetRateTrendRow
+
+	err := r.db.
+		Table("years").
+		Select(`
+			years.year AS year,
+
+			COALESCE((
+				SELECT SUM(pollination_forms.number_pods)
+				FROM pollination_forms
+				WHERE pollination_forms.year_id = years.year_id
+			), 0) AS number_pods,
+
+			COALESCE((
+				SELECT SUM(pollination_forms.unsuccessful_pollination)
+				FROM pollination_forms
+				WHERE pollination_forms.year_id = years.year_id
+			), 0) AS unsuccessful_pollination,
+
+			COALESCE((
+				SELECT SUM(pollination_forms.good_flowers)
+				FROM pollination_forms
+				WHERE pollination_forms.year_id = years.year_id
+			), 0) AS good_flowers,
+
+			COALESCE((
+				SELECT SUM(pollination_forms.bad_flowers)
+				FROM pollination_forms
+				WHERE pollination_forms.year_id = years.year_id
+			), 0) AS bad_flowers
+		`).
+		Order("years.year ASC").
+		Scan(&rows).Error
+
+	return rows, err
+}

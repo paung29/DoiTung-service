@@ -5,4 +5,5 @@ type DashboardService interface {
 	GetConditionByStage(year int) (ConditionByStageResponse, error)
 	GetFlowerProductionTrend() (FlowerProductionTrendResponse, error)
 	GetPodProductionTrend() (PodProductionTrendResponse, error)
+	GetPodSetRateTrend() (PodSetRateTrendResponse, error)
 }

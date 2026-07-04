@@ -8,6 +8,7 @@ type DashboardRepository interface {
 	GetConditionByStage(tableName string, yearId int) (ConditionCountRow, error)
 	GetFlowerProductionTrend() ([]FlowerProductionTrendRow, error)
 	GetPodOverviewTrend() ([]PodOverviewTrendRow, error)
+	GetPodSetRateTrend() ([]PodSetRateTrendRow, error)
 }
 
 type PollinationStats struct {
@@ -45,4 +46,12 @@ type PodOverviewTrendRow struct {
 	TotalPods     int64
 	LostPods      int64
 	RemainingPods int64
+}
+
+type PodSetRateTrendRow struct {
+	Year                    int
+	NumberPods              int64
+	UnsuccessfulPollination int64
+	GoodFlowers             int64
+	BadFlowers              int64
 }

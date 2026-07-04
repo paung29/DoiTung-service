@@ -171,3 +171,29 @@ func (s *service) GetPodProductionTrend() (PodProductionTrendResponse, error) {
 		Items: items,
 	}, nil
 }
+
+func (s *service) GetPodSetRateTrend() (PodSetRateTrendResponse, error) {
+	rows, err := s.repo.GetPodSetRateTrend()
+	if err != nil {
+		return PodSetRateTrendResponse{}, utils.SystemError("failed to retrieve pod set rate trend")
+	}
+
+	items := make([]PodSetRateTrendItem, 0, len(rows))
+
+	for _, row := range rows {
+		totalFlowers := row.GoodFlowers + row.BadFlowers
+
+		items = append(items, PodSetRateTrendItem{
+			Year:                    row.Year,
+			NumberPods:              row.NumberPods,
+			UnsuccessfulPollination: row.UnsuccessfulPollination,
+			GoodFlowers:             row.GoodFlowers,
+			BadFlowers:              row.BadFlowers,
+			TotalFlowers:            totalFlowers,
+		})
+	}
+
+	return PodSetRateTrendResponse{
+		Items: items,
+	}, nil
+}

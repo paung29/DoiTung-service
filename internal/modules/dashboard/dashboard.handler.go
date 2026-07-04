@@ -84,3 +84,12 @@ func (h *DashboardHandler) GetPodProductionTrend(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *DashboardHandler) GetPodSetRateTrend(context *fiber.Ctx) error {
+	response, err := h.service.GetPodSetRateTrend()
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}
