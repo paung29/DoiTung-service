@@ -43,3 +43,30 @@ func (h *DashboardHandler) GetPerformanceOverview(
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *DashboardHandler) GetConditionByStage(
+	context *fiber.Ctx,
+) error {
+	yearStr := context.Query("year")
+	if yearStr == "" {
+		return utils.HandleError(
+			context,
+			utils.BadRequestError("year is required"),
+		)
+	}
+
+	year, err := strconv.Atoi(yearStr)
+	if err != nil || year <= 0 {
+		return utils.HandleError(
+			context,
+			utils.BadRequestError("year must be a positive integer"),
+		)
+	}
+
+	response, err := h.service.GetConditionByStage(year)
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}

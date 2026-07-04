@@ -80,3 +80,50 @@ func (s *service) GetPerformanceOverview(year int) (PerformanceOverviewResponse,
 		TotalHarvestPods:   harvestStats.TotalHarvestPods,
 	}, nil
 }
+
+func (s *service) GetConditionByStage(year int) (ConditionByStageResponse, error) {
+	yearRecord, err := s.yearRepo.FindByYear(year)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ConditionByStageResponse{},
+				utils.NotFoundError("year not found")
+		}
+
+		return ConditionByStageResponse{},
+			utils.SystemError("failed to retrieve year")
+	}
+
+	yearId := yearRecord.YearID
+
+	Stages := []struct {
+		Name  string
+		Table string
+	}{{Name: "cluster", Table: "cluster_forms"},
+		{Name: "flower", Table: "flower_forms"},
+		{Name: "pollination", Table: "pollination_forms"},
+		{Name: "pod", Table: "pod_forms"},
+		{Name: "preHarvest", Table: "pre_harvest_forms"},
+	}
+	// get condition by stage of that year
+	responseStages := make([]ConditionByStageItem, 0, len(Stages))
+
+	for _, stage := range Stages {
+		count, err := s.repo.GetConditionByStage(stage.Table, int(yearId))
+		if err != nil {
+			return ConditionByStageResponse{}, utils.SystemError("failed to retrieve condition by stage")
+		}
+
+		responseStages = append(responseStages, ConditionByStageItem{
+			Stage:  stage.Name,
+			Good:   count.Good,
+			Insect: count.Insect,
+			Rotten: count.Rotten,
+		})
+
+	}
+
+	return ConditionByStageResponse{
+		Year:   yearRecord.Year,
+		Stages: responseStages,
+	}, nil
+}

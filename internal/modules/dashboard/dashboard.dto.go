@@ -9,3 +9,15 @@ type PerformanceOverviewResponse struct {
 	TotalHarvestWeight float64 `json:"totalHarvestWeight"`
 	TotalHarvestPods   int64   `json:"totalHarvestPods"`
 }
+
+type ConditionByStageResponse struct {
+	Year   int                    `json:"year"`
+	Stages []ConditionByStageItem `json:"stages"`
+}
+
+type ConditionByStageItem struct {
+	Stage  string `json:"stage"`
+	Good   int64  `json:"good"`
+	Insect int64  `json:"insect"`
+	Rotten int64  `json:"rotten"`
+}

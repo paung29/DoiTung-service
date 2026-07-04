@@ -14,4 +14,10 @@ func RegisterRoutes(app *fiber.App, handler *DashboardHandler) {
 		middleware.RequireRoles("ADMIN"),
 		handler.GetPerformanceOverview,
 	)
+	dashboard.Get(
+		"/condition-by-stage",
+		middleware.RequiredAuth,
+		middleware.RequireRoles("ADMIN"),
+		handler.GetConditionByStage,
+	)
 }

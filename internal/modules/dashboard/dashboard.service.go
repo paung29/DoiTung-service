@@ -2,4 +2,5 @@ package dashboard
 
 type DashboardService interface {
 	GetPerformanceOverview(year int) (PerformanceOverviewResponse, error)
+	GetConditionByStage(year int) (ConditionByStageResponse, error)
 }

@@ -84,3 +84,19 @@ func (r *repository) GetHarvestStats(yearId int) (HarvestStats, error) {
 
 	return stats, err
 }
+
+func (r *repository) GetConditionByStage(tableName string, yearId int) (ConditionCountRow, error) {
+	var row ConditionCountRow
+
+	err := r.db.
+		Table(tableName).
+		Select(`
+			COALESCE(SUM(CASE WHEN condition = 'GOOD' THEN 1 ELSE 0 END), 0) AS good,	
+		COALESCE(SUM(CASE WHEN condition = 'INSECT' THEN 1 ELSE 0 END), 0) AS insect,
+		COALESCE(SUM(CASE WHEN condition = 'ROTTEN' THEN 1 ELSE 0 END), 0) AS rotten
+		`).
+		Where("year_id = ?", yearId).
+		Scan(&row).Error
+
+	return row, err
+}
