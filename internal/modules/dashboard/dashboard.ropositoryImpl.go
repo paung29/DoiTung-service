@@ -121,29 +121,15 @@ func (r *repository) GetConditionByStage(tableName string, yearId int) (Conditio
 func (r *repository) GetFlowerProductionTrend() ([]FlowerProductionTrendRow, error) {
 	var rows []FlowerProductionTrendRow
 
+	selectSQL := yearlySelect(
+		yearlySum("flower_forms", "total_flowers", "total_flowers"),
+		yearlySum("pollination_forms", "good_flowers", "good_flowers"),
+		yearlySum("pollination_forms", "bad_flowers", "bad_flowers"),
+	)
+
 	err := r.db.
 		Table("years").
-		Select(`
-			years.year AS year,
-
-			COALESCE((
-				SELECT SUM(flower_forms.total_flowers)
-				FROM flower_forms
-				WHERE flower_forms.year_id = years.year_id
-			), 0) AS total_flowers,
-
-			COALESCE((
-				SELECT SUM(pollination_forms.good_flowers)
-				FROM pollination_forms
-				WHERE pollination_forms.year_id = years.year_id
-			), 0) AS good_flowers,
-
-			COALESCE((
-				SELECT SUM(pollination_forms.bad_flowers)
-				FROM pollination_forms
-				WHERE pollination_forms.year_id = years.year_id
-			), 0) AS bad_flowers
-		`).
+		Select(selectSQL).
 		Order("years.year ASC").
 		Scan(&rows).Error
 
@@ -153,29 +139,15 @@ func (r *repository) GetFlowerProductionTrend() ([]FlowerProductionTrendRow, err
 func (r *repository) GetPodOverviewTrend() ([]PodOverviewTrendRow, error) {
 	var rows []PodOverviewTrendRow
 
+	selectSQL := yearlySelect(
+		yearlySum("pod_forms", "number_pods", "total_pods"),
+		yearlySum("pod_forms", "lost_pods", "lost_pods"),
+		yearlySum("pod_forms", "remaining_pods", "remaining_pods"),
+	)
+
 	err := r.db.
 		Table("years").
-		Select(`
-			years.year AS year,
-
-			COALESCE((
-				SELECT SUM(pod_forms.number_pods)
-				FROM pod_forms
-				WHERE pod_forms.year_id = years.year_id
-			), 0) AS total_pods,
-
-			COALESCE((
-				SELECT SUM(pod_forms.lost_pods)
-				FROM pod_forms
-				WHERE pod_forms.year_id = years.year_id
-			), 0) AS lost_pods,
-
-			COALESCE((
-				SELECT SUM(pod_forms.remaining_pods)
-				FROM pod_forms
-				WHERE pod_forms.year_id = years.year_id
-			), 0) AS remaining_pods
-		`).
+		Select(selectSQL).
 		Order("years.year ASC").
 		Scan(&rows).Error
 
@@ -185,35 +157,16 @@ func (r *repository) GetPodOverviewTrend() ([]PodOverviewTrendRow, error) {
 func (r *repository) GetPodSetRateTrend() ([]PodSetRateTrendRow, error) {
 	var rows []PodSetRateTrendRow
 
+	selectSQL := yearlySelect(
+		yearlySum("pollination_forms", "number_pods", "number_pods"),
+		yearlySum("pollination_forms", "unsuccessful_pollination", "unsuccessful_pollination"),
+		yearlySum("pollination_forms", "good_flowers", "good_flowers"),
+		yearlySum("pollination_forms", "bad_flowers", "bad_flowers"),
+	)
+
 	err := r.db.
 		Table("years").
-		Select(`
-			years.year AS year,
-
-			COALESCE((
-				SELECT SUM(pollination_forms.number_pods)
-				FROM pollination_forms
-				WHERE pollination_forms.year_id = years.year_id
-			), 0) AS number_pods,
-
-			COALESCE((
-				SELECT SUM(pollination_forms.unsuccessful_pollination)
-				FROM pollination_forms
-				WHERE pollination_forms.year_id = years.year_id
-			), 0) AS unsuccessful_pollination,
-
-			COALESCE((
-				SELECT SUM(pollination_forms.good_flowers)
-				FROM pollination_forms
-				WHERE pollination_forms.year_id = years.year_id
-			), 0) AS good_flowers,
-
-			COALESCE((
-				SELECT SUM(pollination_forms.bad_flowers)
-				FROM pollination_forms
-				WHERE pollination_forms.year_id = years.year_id
-			), 0) AS bad_flowers
-		`).
+		Select(selectSQL).
 		Order("years.year ASC").
 		Scan(&rows).Error
 
@@ -223,41 +176,17 @@ func (r *repository) GetPodSetRateTrend() ([]PodSetRateTrendRow, error) {
 func (r *repository) GetHarvestablePodsTrend() ([]HarvestablePodsTrendRow, error) {
 	var rows []HarvestablePodsTrendRow
 
+	selectSQL := yearlySelect(
+		yearlySum("pod_forms", "number_pods", "total_pods"),
+		yearlySum("pod_forms", "remaining_pods", "remaining_pods"),
+		yearlySum("pre_harvest_forms", "number_pods_second_round", "second_round_pods"),
+		yearlySum("pre_harvest_forms", "lost_pods_before_harvest", "lost_pods_before_harvest"),
+		yearlySum("pre_harvest_forms", "removed_pods", "removed_pods"),
+	)
+
 	err := r.db.
 		Table("years").
-		Select(`
-			years.year AS year,
-
-			COALESCE((
-				SELECT SUM(pod_forms.number_pods)
-				FROM pod_forms
-				WHERE pod_forms.year_id = years.year_id
-			), 0) AS total_pods,
-
-			COALESCE((
-				SELECT SUM(pod_forms.remaining_pods)
-				FROM pod_forms
-				WHERE pod_forms.year_id = years.year_id
-			), 0) AS remaining_pods,
-
-			COALESCE((
-				SELECT SUM(pre_harvest_forms.number_pods_second_round)
-				FROM pre_harvest_forms
-				WHERE pre_harvest_forms.year_id = years.year_id
-			), 0) AS second_round_pods,
-
-			COALESCE((
-				SELECT SUM(pre_harvest_forms.lost_pods_before_harvest)
-				FROM pre_harvest_forms
-				WHERE pre_harvest_forms.year_id = years.year_id
-			), 0) AS lost_pods_before_harvest,
-
-			COALESCE((
-				SELECT SUM(pre_harvest_forms.removed_pods)
-				FROM pre_harvest_forms
-				WHERE pre_harvest_forms.year_id = years.year_id
-			), 0) AS removed_pods
-		`).
+		Select(selectSQL).
 		Order("years.year ASC").
 		Scan(&rows).Error
 
