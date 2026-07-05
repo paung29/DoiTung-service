@@ -69,3 +69,17 @@ type HarvestablePodsTrendItem struct {
 	LostPodsBeforeHarvest int64 `json:"lostPodsBeforeHarvest"`
 	RemovedPods           int64 `json:"removedPods"`
 }
+type FreshPodGradeTrendResponse struct {
+	Items []FreshPodGradeTrendItem `json:"items"`
+}
+
+type FreshPodGradeTrendItem struct {
+	Year       int     `json:"year"`
+	GradeAPlus float64 `json:"gradeAPlus"`
+	GradeA     float64 `json:"gradeA"`
+	GradeB     float64 `json:"gradeB"`
+	GradeC     float64 `json:"gradeC"`
+	GradeDPlus float64 `json:"gradeDPlus"`
+	Undersized float64 `json:"undersized"`
+	Rotten     float64 `json:"rotten"`
+}

@@ -221,3 +221,30 @@ func (s *service) GetHarvestablePodsTrend() (HarvestablePodsTrendResponse, error
 		Items: items,
 	}, nil
 }
+
+func (s *service) GetFreshPodGradeTrend() (FreshPodGradeTrendResponse, error) {
+
+	rows, err := s.repo.GetFreshPodGradeTrend()
+	if err != nil {
+		return FreshPodGradeTrendResponse{}, utils.SystemError("failed to retrieve fresh pod grade trend")
+	}
+
+	items := make([]FreshPodGradeTrendItem, 0, len(rows))
+
+	for _, row := range rows {
+		items = append(items, FreshPodGradeTrendItem{
+			Year:       row.Year,
+			GradeAPlus: row.GradeAPlus,
+			GradeA:     row.GradeA,
+			GradeB:     row.GradeB,
+			GradeC:     row.GradeC,
+			GradeDPlus: row.GradeDPlus,
+			Undersized: row.Undersized,
+			Rotten:     row.Rotten,
+		})
+	}
+
+	return FreshPodGradeTrendResponse{
+		Items: items,
+	}, nil
+}

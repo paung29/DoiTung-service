@@ -48,4 +48,11 @@ func RegisterRoutes(app *fiber.App, handler *DashboardHandler) {
 		middleware.RequireRoles("ADMIN"),
 		handler.GetHarvestablePodsTrend,
 	)
+
+	dashboard.Get(
+		"/fresh-pod-grade-trend",
+		middleware.RequiredAuth,
+		middleware.RequireRoles("ADMIN"),
+		handler.GetFreshPodGradeTrend,
+	)
 }

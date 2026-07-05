@@ -102,3 +102,12 @@ func (h *DashboardHandler) GetHarvestablePodsTrend(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *DashboardHandler) GetFreshPodGradeTrend(context *fiber.Ctx) error {
+	response, err := h.service.GetFreshPodGradeTrend()
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}

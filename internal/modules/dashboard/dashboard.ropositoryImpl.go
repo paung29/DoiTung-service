@@ -1,6 +1,9 @@
 package dashboard
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/doitung/DoiTung-service/internal/models"
 	"gorm.io/gorm"
 )
@@ -13,6 +16,20 @@ func NewDashboardRepository(db *gorm.DB) DashboardRepository {
 	return &repository{
 		db: db,
 	}
+}
+
+func yearlySum(tableName string, columnName string, alias string) string {
+	return fmt.Sprintf(`
+		COALESCE((
+			SELECT SUM(%s.%s)
+			FROM %s
+			WHERE %s.year_id = years.year_id
+		), 0) AS %s
+	`, tableName, columnName, tableName, tableName, alias)
+}
+
+func yearlySelect(parts ...string) string {
+	return "years.year AS year,\n" + strings.Join(parts, ",\n")
 }
 
 func (r *repository) SumTotalFlowers(yearId int) (int64, error) {
@@ -241,6 +258,28 @@ func (r *repository) GetHarvestablePodsTrend() ([]HarvestablePodsTrendRow, error
 				WHERE pre_harvest_forms.year_id = years.year_id
 			), 0) AS removed_pods
 		`).
+		Order("years.year ASC").
+		Scan(&rows).Error
+
+	return rows, err
+}
+
+func (r *repository) GetFreshPodGradeTrend() ([]FreshPodGradeTrendRow, error) {
+	var rows []FreshPodGradeTrendRow
+
+	selectSQL := yearlySelect(
+		yearlySum("harvest_grading_forms", "grade_a_plus_weight", "grade_a_plus"),
+		yearlySum("harvest_grading_forms", "grade_a_weight", "grade_a"),
+		yearlySum("harvest_grading_forms", "grade_b_weight", "grade_b"),
+		yearlySum("harvest_grading_forms", "grade_c_weight", "grade_c"),
+		yearlySum("harvest_grading_forms", "grade_d_plus_weight", "grade_d_plus"),
+		yearlySum("harvest_grading_forms", "undersized_weight", "undersized"),
+		yearlySum("harvest_grading_forms", "rotten_weight", "rotten"),
+	)
+
+	err := r.db.
+		Table("years").
+		Select(selectSQL).
 		Order("years.year ASC").
 		Scan(&rows).Error
 
