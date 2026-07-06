@@ -248,3 +248,31 @@ func (s *service) GetFreshPodGradeTrend() (FreshPodGradeTrendResponse, error) {
 		Items: items,
 	}, nil
 }
+
+func (s *service) GetProductivePolesTrend() (ProductivePolesTrendResponse, error) {
+	rows, err := s.repo.GetProductivePolesTrend()
+	if err != nil {
+		return ProductivePolesTrendResponse{}, utils.SystemError("failed to retrieve productive poles trend")
+	}
+
+	items := make([]ProductivePolesTrendItem, 0, len(rows))
+
+	for _, row := range rows {
+
+		// Non-productive poles are poles which don't have harvest and grading forms.
+		nonProductivePoles := row.TotalPoles - row.ProductivePoles
+		if nonProductivePoles < 0 {
+			nonProductivePoles = 0
+		}
+		items = append(items, ProductivePolesTrendItem{
+			Year:               row.Year,
+			TotalPoles:         row.TotalPoles,
+			ProductivePoles:    row.ProductivePoles,
+			NonProductivePoles: nonProductivePoles,
+		})
+	}
+
+	return ProductivePolesTrendResponse{
+		Items: items,
+	}, nil
+}

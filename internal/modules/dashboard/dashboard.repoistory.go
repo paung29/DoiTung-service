@@ -11,6 +11,7 @@ type DashboardRepository interface {
 	GetPodSetRateTrend() ([]PodSetRateTrendRow, error)
 	GetHarvestablePodsTrend() ([]HarvestablePodsTrendRow, error)
 	GetFreshPodGradeTrend() ([]FreshPodGradeTrendRow, error)
+	GetProductivePolesTrend() ([]ProductivePolesTrendRow, error)
 }
 
 type PollinationStats struct {
@@ -76,4 +77,10 @@ type FreshPodGradeTrendRow struct {
 	GradeDPlus float64
 	Undersized float64
 	Rotten     float64
+}
+
+type ProductivePolesTrendRow struct {
+	Year            int
+	TotalPoles      int64
+	ProductivePoles int64
 }

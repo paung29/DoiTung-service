@@ -55,4 +55,11 @@ func RegisterRoutes(app *fiber.App, handler *DashboardHandler) {
 		middleware.RequireRoles("ADMIN"),
 		handler.GetFreshPodGradeTrend,
 	)
+
+	dashboard.Get(
+		"/productive-poles-trend",
+		middleware.RequiredAuth,
+		middleware.RequireRoles("ADMIN"),
+		handler.GetProductivePolesTrend,
+	)
 }
