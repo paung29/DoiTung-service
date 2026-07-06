@@ -83,3 +83,14 @@ type FreshPodGradeTrendItem struct {
 	Undersized float64 `json:"undersized"`
 	Rotten     float64 `json:"rotten"`
 }
+
+type ProductivePolesTrendResponse struct {
+	Items []ProductivePolesTrendItem `json:"items"`
+}
+
+type ProductivePolesTrendItem struct {
+	Year               int   `json:"year"`
+	TotalPoles         int64 `json:"totalPoles"`
+	ProductivePoles    int64 `json:"productivePoles"`
+	NonProductivePoles int64 `json:"nonProductivePoles"`
+}
