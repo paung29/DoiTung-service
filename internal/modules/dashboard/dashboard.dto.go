@@ -94,3 +94,12 @@ type ProductivePolesTrendItem struct {
 	ProductivePoles    int64 `json:"productivePoles"`
 	NonProductivePoles int64 `json:"nonProductivePoles"`
 }
+
+type WeightPerPodTrendResponse struct {
+	Items []WeightPerPodTrendItem `json:"items"`
+}
+
+type WeightPerPodTrendItem struct {
+	Year                int     `json:"year"`
+	AverageWeightPerPod float64 `json:"averageWeightPerPod"`
+}

@@ -276,3 +276,29 @@ func (s *service) GetProductivePolesTrend() (ProductivePolesTrendResponse, error
 		Items: items,
 	}, nil
 }
+
+func (s *service) GetWeightPerPodTrend() (WeightPerPodTrendResponse, error) {
+	rows, err := s.repo.GetWeightPerPodTrend()
+	if err != nil {
+		return WeightPerPodTrendResponse{}, utils.SystemError("failed to retrieve weight per pod trend")
+	}
+
+	items := make([]WeightPerPodTrendItem, 0, len(rows))
+
+	for _, row := range rows {
+		averageWeightPerPod := 0.0
+
+		if row.TotalHarvestPods > 0 {
+			averageWeightPerPod = row.TotalHarvestWeight / float64(row.TotalHarvestPods)
+		}
+
+		items = append(items, WeightPerPodTrendItem{
+			Year:                row.Year,
+			AverageWeightPerPod: utils.RoundTwoDecimals(averageWeightPerPod),
+		})
+	}
+
+	return WeightPerPodTrendResponse{
+		Items: items,
+	}, nil
+}

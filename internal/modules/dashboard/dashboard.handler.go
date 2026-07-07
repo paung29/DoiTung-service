@@ -120,3 +120,12 @@ func (h *DashboardHandler) GetProductivePolesTrend(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *DashboardHandler) GetWeightPerPodTrend(context *fiber.Ctx) error {
+	response, err := h.service.GetWeightPerPodTrend()
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+
+	return context.Status(fiber.StatusOK).JSON(response)
+}
