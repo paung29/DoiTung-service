@@ -13,6 +13,7 @@ type DashboardRepository interface {
 	GetFreshPodGradeTrend() ([]FreshPodGradeTrendRow, error)
 	GetProductivePolesTrend() ([]ProductivePolesTrendRow, error)
 	GetWeightPerPodTrend() ([]WeightPerPodTrendRow, error)
+	GetActualYieldTrend() ([]ActualYieldTrendRow, error)
 }
 
 type PollinationStats struct {
@@ -90,4 +91,10 @@ type WeightPerPodTrendRow struct {
 	Year               int
 	TotalHarvestWeight float64
 	TotalHarvestPods   int64
+}
+
+type ActualYieldTrendRow struct {
+	Year               int
+	TotalHarvestWeight float64
+	ProductivePoles    int64
 }

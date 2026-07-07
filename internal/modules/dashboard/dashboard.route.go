@@ -69,4 +69,11 @@ func RegisterRoutes(app *fiber.App, handler *DashboardHandler) {
 		middleware.RequireRoles("ADMIN"),
 		handler.GetWeightPerPodTrend,
 	)
+
+	dashboard.Get(
+		"/actual-yield-trend",
+		middleware.RequiredAuth,
+		middleware.RequireRoles("ADMIN"),
+		handler.GetActualYieldTrend,
+	)
 }

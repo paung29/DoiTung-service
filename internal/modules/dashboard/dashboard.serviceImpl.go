@@ -302,3 +302,30 @@ func (s *service) GetWeightPerPodTrend() (WeightPerPodTrendResponse, error) {
 		Items: items,
 	}, nil
 }
+
+func (s *service) GetActualYieldTrend() (ActualYieldTrendResponse, error) {
+	rows, err := s.repo.GetActualYieldTrend()
+	if err != nil {
+		return ActualYieldTrendResponse{},
+			utils.SystemError("failed to retrieve actual yield trend")
+	}
+
+	items := make([]ActualYieldTrendItem, 0, len(rows))
+
+	for _, row := range rows {
+		actualYieldPerPole := 0.0
+
+		if row.ProductivePoles > 0 {
+			actualYieldPerPole = row.TotalHarvestWeight / float64(row.ProductivePoles)
+		}
+
+		items = append(items, ActualYieldTrendItem{
+			Year:               row.Year,
+			ActualYieldPerPole: utils.RoundTwoDecimals(actualYieldPerPole),
+		})
+	}
+
+	return ActualYieldTrendResponse{
+		Items: items,
+	}, nil
+}

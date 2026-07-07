@@ -103,3 +103,12 @@ type WeightPerPodTrendItem struct {
 	Year                int     `json:"year"`
 	AverageWeightPerPod float64 `json:"averageWeightPerPod"`
 }
+
+type ActualYieldTrendResponse struct {
+	Items []ActualYieldTrendItem `json:"items"`
+}
+
+type ActualYieldTrendItem struct {
+	Year               int     `json:"year"`
+	ActualYieldPerPole float64 `json:"actualYieldPerPole"`
+}

@@ -10,4 +10,5 @@ type DashboardService interface {
 	GetFreshPodGradeTrend() (FreshPodGradeTrendResponse, error)
 	GetProductivePolesTrend() (ProductivePolesTrendResponse, error)
 	GetWeightPerPodTrend() (WeightPerPodTrendResponse, error)
+	GetActualYieldTrend() (ActualYieldTrendResponse, error)
 }

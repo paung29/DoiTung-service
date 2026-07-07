@@ -129,3 +129,11 @@ func (h *DashboardHandler) GetWeightPerPodTrend(context *fiber.Ctx) error {
 
 	return context.Status(fiber.StatusOK).JSON(response)
 }
+
+func (h *DashboardHandler) GetActualYieldTrend(context *fiber.Ctx) error {
+	response, err := h.service.GetActualYieldTrend()
+	if err != nil {
+		return utils.HandleError(context, err)
+	}
+	return context.Status(fiber.StatusOK).JSON(response)
+}

@@ -300,3 +300,58 @@ func (r *repository) GetWeightPerPodTrend() ([]WeightPerPodTrendRow, error) {
 
 	return rows, err
 }
+
+func (r *repository) GetActualYieldTrend() ([]ActualYieldTrendRow, error) {
+	var rows []ActualYieldTrendRow
+
+	err := r.db.
+		Table("years").
+		Select(`
+			years.year AS year,
+
+			COALESCE((
+				SELECT SUM(
+					grade_a_plus_weight +
+					grade_a_weight +
+					grade_b_weight +
+					grade_c_weight +
+					grade_d_plus_weight +
+					undersized_weight +
+					rotten_weight
+				)
+				FROM harvest_grading_forms
+				WHERE harvest_grading_forms.year_id = years.year_id
+			), 0) AS total_harvest_weight,
+
+			COALESCE((
+				SELECT COUNT(DISTINCT harvest_grading_forms.pole_id)
+				FROM harvest_grading_forms
+				WHERE harvest_grading_forms.year_id = years.year_id
+				AND (
+					(
+						grade_a_plus_count +
+						grade_a_count +
+						grade_b_count +
+						grade_c_count +
+						grade_d_plus_count +
+						undersized_count +
+						rotten_count
+					) > 0
+					OR
+					(
+						grade_a_plus_weight +
+						grade_a_weight +
+						grade_b_weight +
+						grade_c_weight +
+						grade_d_plus_weight +
+						undersized_weight +
+						rotten_weight
+					) > 0
+				)
+			), 0) AS productive_poles
+		`).
+		Order("years.year ASC").
+		Scan(&rows).Error
+
+	return rows, err
+}
