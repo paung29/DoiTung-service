@@ -43,8 +43,9 @@ func (s *poleService) GetPoleByZone(year int, zoneNo int) (PolesByZoneResponse, 
 		return PolesByZoneResponse{}, utils.SystemError("failed to get poles by zone")
 	}
 	poleResponses := make([]PoleResponse, 0, len(poles))
-	for _, pole := range poles {
+	for number, pole := range poles {
 		poleResponses = append(poleResponses, PoleResponse{
+			No:                     uint(number + 1),
 			PoleId:                 pole.PoleID,
 			ZoneId:                 pole.ZoneID,
 			Location:               pole.Zone.ZoneName,
