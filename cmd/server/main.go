@@ -8,6 +8,7 @@ import (
 	"github.com/doitung/DoiTung-service/internal/modules/auth"
 	"github.com/doitung/DoiTung-service/internal/modules/cluster"
 	"github.com/doitung/DoiTung-service/internal/modules/customer"
+	"github.com/doitung/DoiTung-service/internal/modules/dashboard"
 	exportdata "github.com/doitung/DoiTung-service/internal/modules/exportdata"
 	"github.com/doitung/DoiTung-service/internal/modules/forms/flower"
 	harvestgrading "github.com/doitung/DoiTung-service/internal/modules/forms/harvestGrading"
@@ -73,6 +74,7 @@ func main() {
 	customer.Setup(app, config.DB)
 	stock.Setup(app, config.DB)
 	exportdata.Setup(app, config.DB)
+	dashboard.Setup(app, config.DB)
 
 	log.Fatal(app.Listen(":8080"))
 }

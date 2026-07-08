@@ -5,6 +5,7 @@ type PolesByZoneResponse struct {
 }
 
 type PoleResponse struct {
+	No                     uint   `json:"no"`
 	PoleId                 uint   `json:"poleId"`
 	ZoneId                 uint   `json:"zoneId"`
 	Location               string `json:"location"`
