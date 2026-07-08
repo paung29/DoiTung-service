@@ -161,7 +161,7 @@ func (s *service) GetYearManagementTable() (YearManagementListResponse, error) {
 		return YearManagementListResponse{}, err
 	}
 
-	var yearManagementList []YearManagementItem
+	yearManagementList := make([]YearManagementItem, 0, len(yearDetailsModels))
 
 	for _, yearSetting := range yearDetailsModels {
 		totalZone, err := s.yearRepo.CountZonesByYear(yearSetting.YearID)
