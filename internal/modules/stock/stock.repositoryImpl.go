@@ -105,14 +105,13 @@ func (r *repository) GetAllByYearId(yearId uint) ([]*models.StockMovement, error
 		Where("year_id = ?", yearId).Find(&movements).Error
 	return movements, err
 }
-
 func (r *repository) GetCustomerStockByYearId(yearId uint) ([]CustomerStockRow, error) {
 	var rows []CustomerStockRow
 
 	err := r.db.
-		Table("stock_movements").
+		Table("customers").
 		Select(`
-			stock_movements.issued_to_customer_id AS customer_id,
+			customers.customer_id AS customer_id,
 			customers.customer_name AS customer_name,
 
 			COALESCE(SUM(CASE WHEN stock_movements.grade IN ('A_PLUS', 'A') THEN COALESCE(stock_movements.total_grams, 0) ELSE 0 END), 0) AS grade_a,
@@ -123,13 +122,16 @@ func (r *repository) GetCustomerStockByYearId(yearId uint) ([]CustomerStockRow, 
 
 			customers.note AS note
 		`).
-		Joins("JOIN customers ON customers.customer_id = stock_movements.issued_to_customer_id").
-		Where(
-			"stock_movements.year_id = ? AND stock_movements.issued_to_customer_id IS NOT NULL AND stock_movements.movement_type = ?",
+		Joins(
+			`LEFT JOIN stock_movements
+				ON stock_movements.issued_to_customer_id = customers.customer_id
+				AND stock_movements.year_id = ?
+				AND stock_movements.movement_type = ?`,
 			yearId,
 			enums.MovementIssued,
 		).
-		Group("stock_movements.issued_to_customer_id, customers.customer_name, customers.note").
+		Group("customers.customer_id, customers.customer_name, customers.note").
+		Order("customers.customer_id ASC").
 		Scan(&rows).Error
 
 	return rows, err
