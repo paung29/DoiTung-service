@@ -194,7 +194,7 @@ func (s *service) GetPreHarvestFormHistories(userId uint, year uint) (PreHarvest
 		return PreHarvestFormHistoriesResponse{}, utils.SystemError("failed to get preHarvest form histories")
 	}
 
-	var preHarvestFormHistories []PreHarvestFormHistory
+	preHarvestFormHistories := make([]PreHarvestFormHistory, 0, len(preHarvestFormRecords))
 	for number, record := range preHarvestFormRecords {
 		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(record.ClusterID)
 		if err != nil {
@@ -232,7 +232,7 @@ func (s *service) GetPreHarvestFormByZoneId(zoneId uint) (PreHarvestFormLists, e
 		return PreHarvestFormLists{}, utils.SystemError("failed to get preHarvest forms by zone id")
 	}
 
-	var preHarvestFormDetailsList []PreHarvestFormDetails
+	preHarvestFormDetailsList := make([]PreHarvestFormDetails, 0, len(preHarvestForms))
 	for number, record := range preHarvestForms {
 		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(record.ClusterID)
 		if err != nil {
