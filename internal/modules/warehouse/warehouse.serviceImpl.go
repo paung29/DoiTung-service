@@ -142,8 +142,8 @@ func (s *service) GetWarehouseTableByYear(year int) (WarehouseTableByYearRespons
 	}
 	warehouseTableYearResponse.TotalActiveWarehouses = len(activeWarehouses)
 
-	totalStocksPods := 0
-	totalStocksGrams := 0.0
+	remainingStocksPods := 0
+	remainingStocksGrams := 0.0
 	warehouseTable := make([]WarehouseTableItem, 0, len(warehouses))
 	for _, warehouse := range warehouses {
 
@@ -183,12 +183,12 @@ func (s *service) GetWarehouseTableByYear(year int) (WarehouseTableByYearRespons
 			RemainingPods:    int(remainingPods),
 			RemainingWeights: remainingWeights,
 		})
-		totalStocksPods += int(remainingPods)
-		totalStocksGrams += remainingWeights
+		remainingStocksPods += int(remainingPods)
+		remainingStocksGrams += remainingWeights
 	}
 	warehouseTableYearResponse.WarehouseTable = warehouseTable
-	warehouseTableYearResponse.TotalStocksPods = totalStocksPods
-	warehouseTableYearResponse.TotalStocksWeights = totalStocksGrams
+	warehouseTableYearResponse.RemainingStocksPods = remainingStocksPods
+	warehouseTableYearResponse.RemainingStocksWeights = remainingStocksGrams
 
 	return warehouseTableYearResponse, nil
 }
