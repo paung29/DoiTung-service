@@ -43,7 +43,7 @@ type YearManagementItem struct {
 }
 
 type UpdateYearNameRequest struct {
-	YearId   int `json:"yearId" validate:"required"`
+	Year     int `json:"year" validate:"required"`
 	YearName int `json:"yearName" validate:"required"`
 }
 
