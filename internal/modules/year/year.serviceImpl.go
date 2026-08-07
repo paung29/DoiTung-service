@@ -178,7 +178,8 @@ func (s *service) GetYearManagementTable() (YearManagementListResponse, error) {
 }
 
 func (s *service) UpdateYearName(form UpdateYearNameRequest) (UpdateYearNameResponse, error) {
-	yearRecord, err := s.yearRepo.FindByID(uint(form.YearId))
+	yearRecord, err := s.yearRepo.FindByYear(form.Year)
+	yearId := int(yearRecord.YearID)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -198,7 +199,7 @@ func (s *service) UpdateYearName(form UpdateYearNameRequest) (UpdateYearNameResp
 
 	yearRecord.Year = form.YearName
 
-	if err := s.yearRepo.UpdateYearName(s.db, form.YearId, yearRecord.Year); err != nil {
+	if err := s.yearRepo.UpdateYearName(s.db, yearId, yearRecord.Year); err != nil {
 		return UpdateYearNameResponse{}, utils.SystemError("failed to update year name")
 	}
 	return UpdateYearNameResponse{
