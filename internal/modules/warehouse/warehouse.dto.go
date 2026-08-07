@@ -30,11 +30,11 @@ type UpdateWarehouseResponse struct {
 }
 
 type WarehouseTableByYearResponse struct {
-	TotalWarehouses       int                  `json:"total_warehouses"`
-	TotalActiveWarehouses int                  `json:"total_active_warehouses"`
-	TotalStocksPods       int                  `json:"total_stocks_pods"`
-	TotalStocksWeights    float64              `json:"total_stocks_weights"`
-	WarehouseTable        []WarehouseTableItem `json:"warehouse_table"`
+	TotalWarehouses        int                  `json:"total_warehouses"`
+	TotalActiveWarehouses  int                  `json:"total_active_warehouses"`
+	RemainingStocksPods    int                  `json:"remaining_stocks_pods"`
+	RemainingStocksWeights float64              `json:"remaining_stocks_weights"`
+	WarehouseTable         []WarehouseTableItem `json:"warehouse_table"`
 }
 
 type WarehouseTableItem struct {

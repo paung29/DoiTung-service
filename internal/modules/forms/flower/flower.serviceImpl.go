@@ -161,7 +161,7 @@ func (s *service) GetFlowerFormHistories(userId uint, year uint) (FlowerFormHist
 		return FlowerFormHistoriesResponse{}, utils.SystemError("failed to get flower form histories")
 	}
 
-	var flowerFormHistories []FlowerFormHistory
+	flowerFormHistories := make([]FlowerFormHistory, 0, len(flowerFormRecords))
 	for _, record := range flowerFormRecords {
 		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(record.ClusterID)
 		if err != nil {
@@ -202,7 +202,7 @@ func (s *service) GetFlowerFormsByZoneId(zoneId uint) (FlowerFormLists, error) {
 		return FlowerFormLists{}, utils.SystemError("failed to get flower forms by zone id")
 	}
 
-	var flowerFormDetailsList []FlowerFormDetails
+	flowerFormDetailsList := make([]FlowerFormDetails, 0, len(flowerForms))
 	for i, form := range flowerForms {
 		flowerFormDetails := FlowerFormDetails{
 			No:           i + 1,

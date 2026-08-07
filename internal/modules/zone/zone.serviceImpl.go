@@ -83,7 +83,7 @@ func (s service) GetAllZone(yearID uint) (GetAllZoneResponse, error) {
 		return GetAllZoneResponse{}, utils.SystemError("failed to get zones")
 	}
 
-	var zoneResponses []ZoneResponse
+	zoneResponses := make([]ZoneResponse, 0, len(zones))
 	for _, z := range zones {
 		zoneResponses = append(zoneResponses, ZoneResponse{
 			ZoneID:   z.ZoneID,
@@ -111,7 +111,7 @@ func (s service) GetZoneManagementTable(yearID uint) (GetZoneManagementTableResp
 		return GetZoneManagementTableResponse{}, utils.SystemError("failed to get zones")
 	}
 
-	var zoneInfos []ZoneManagementInfo
+	zoneInfos := make([]ZoneManagementInfo, 0, len(zones))
 	var totalPoles int64 = 0
 
 	for _, z := range zones {

@@ -202,7 +202,7 @@ func (s *service) GetPollinationFormHistories(userId uint, year uint) (Pollinati
 		return PollinationFormHistoriesResponse{}, utils.SystemError("failed to get pollination form histories")
 	}
 
-	var pollinationFormHistoriesResponse []PollinationFormHistory
+	pollinationFormHistoriesResponse := make([]PollinationFormHistory, 0, len(pollinationFormHistories))
 	for _, history := range pollinationFormHistories {
 		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(history.ClusterID)
 		if err != nil {
@@ -241,7 +241,7 @@ func (s *service) GetPollinationFormsByZoneId(zoneId uint) (PollinationFormLists
 		return PollinationFormLists{}, utils.SystemError("failed to get pollination forms by zone id")
 	}
 
-	var pollinationFormDetailsList []PollinationFormDetails
+	pollinationFormDetailsList := make([]PollinationFormDetails, 0, len(pollinationForms))
 	for i, form := range pollinationForms {
 		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(form.ClusterID)
 		if err != nil {

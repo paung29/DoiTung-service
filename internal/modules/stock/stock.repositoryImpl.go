@@ -105,7 +105,6 @@ func (r *repository) GetAllByYearId(yearId uint) ([]*models.StockMovement, error
 		Where("year_id = ?", yearId).Find(&movements).Error
 	return movements, err
 }
-
 func (r *repository) GetCustomerStockByYearId(yearId uint) ([]CustomerStockRow, error) {
 	var rows []CustomerStockRow
 
@@ -123,14 +122,16 @@ func (r *repository) GetCustomerStockByYearId(yearId uint) ([]CustomerStockRow, 
 
 			customers.note AS note
 		`).
-		Joins(`
-			LEFT JOIN stock_movements
+		Joins(
+			`LEFT JOIN stock_movements
 				ON stock_movements.issued_to_customer_id = customers.customer_id
 				AND stock_movements.year_id = ?
-				AND stock_movements.movement_type = ?
-		`, yearId, enums.MovementIssued).
+				AND stock_movements.movement_type = ?`,
+			yearId,
+			enums.MovementIssued,
+		).
 		Group("customers.customer_id, customers.customer_name, customers.note").
-		Order("customers.customer_id").
+		Order("customers.customer_id ASC").
 		Scan(&rows).Error
 
 	return rows, err

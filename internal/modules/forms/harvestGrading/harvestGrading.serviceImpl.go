@@ -209,7 +209,7 @@ func (s *service) GetHarvestGradingFormHistories(userId uint, year uint) (Harves
 		return HarvestGradingFormHistoriesResponse{}, utils.SystemError("failed to get harvest grading form histories")
 	}
 
-	var harvestGradingFormHistories []HarvestGradingFormHistory
+	harvestGradingFormHistories := make([]HarvestGradingFormHistory, 0, len(harvestGradingForms))
 	for _, form := range harvestGradingForms {
 		poleRecord, err := s.poleRepo.GetPoleById(form.PoleID)
 		if err != nil {
@@ -255,7 +255,7 @@ func (s *service) GetHarvestGradingFormsByZoneId(zoneId uint) (HarvestGradingFor
 		return HarvestGradingFormLists{}, utils.SystemError("failed to get harvest grading forms by zone id")
 	}
 
-	var harvestGradingFormDetailsList []HarvestGradingFormDetails
+	harvestGradingFormDetailsList := make([]HarvestGradingFormDetails, 0, len(harvestGradingForms))
 	for number, form := range harvestGradingForms {
 		poleRecord, err := s.poleRepo.GetPoleById(form.PoleID)
 		if err != nil {

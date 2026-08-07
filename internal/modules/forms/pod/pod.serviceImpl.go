@@ -194,7 +194,7 @@ func (s *service) GetPodFormHistories(userId uint, year uint) (PodFormHistoriesR
 		return PodFormHistoriesResponse{}, utils.SystemError("failed to get pod form histories")
 	}
 
-	var podFormHistoriesResponse []cluster.ClusterInfo
+	podFormHistoriesResponse := make([]cluster.ClusterInfo, 0, len(podFormHistories))
 	for number, history := range podFormHistories {
 		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(history.ClusterID)
 		if err != nil {
@@ -236,7 +236,7 @@ func (s *service) GetPodFormsByZoneId(zoneId uint) (PodFormLists, error) {
 		return PodFormLists{}, utils.SystemError("failed to get pod forms by zone id")
 	}
 
-	var podFormDetailsList []PodFormDetails
+	podFormDetailsList := make([]PodFormDetails, 0, len(podForms))
 	for i, podForm := range podForms {
 		clusterInfo, err := s.clusterRepo.GetClusterBasicInfoByClusterId(podForm.ClusterID)
 		if err != nil {

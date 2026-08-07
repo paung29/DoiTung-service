@@ -174,7 +174,7 @@ func (s *service) GetClustersByZone(year int, zoneNo int) (ClustersByZoneRespons
 		}
 		clusters = append(clusters, poleClusters...)
 	}
-	var clusterResponses []ClusterInfo
+	clusterResponses := make([]ClusterInfo, 0, len(clusters))
 
 	for i, cluster := range clusters {
 		clusterProgress := utils.CalculateClusterProgress(cluster)
@@ -248,7 +248,7 @@ func (s *service) GetClusterFormHistories(userId uint, year uint) (ClusterFormHi
 		return ClusterFormHistoriesResponse{}, utils.SystemError("failed to get cluster form histories")
 	}
 
-	var clusterFormHistoryResponses []ClusterInfo
+	clusterFormHistoryResponses := make([]ClusterInfo, 0, len(clusterFormHistories))
 	for number, history := range clusterFormHistories {
 		progressDone := utils.CalculateClusterProgress(history.Cluster)
 		clusterFormHistoryResponses = append(clusterFormHistoryResponses, ClusterInfo{
@@ -282,7 +282,7 @@ func (s *service) GetAllClustersFormByZone(zoneId uint) (GetAllClustersFormByZon
 		return GetAllClustersFormByZoneResponse{}, utils.SystemError("failed to get cluster forms by zone id")
 	}
 
-	var clusterFormDetails []ClusterFormDetails
+	clusterFormDetails := make([]ClusterFormDetails, 0, len(clusterForms))
 	for i, clusterForm := range clusterForms {
 		clusterFormDetails = append(clusterFormDetails, ClusterFormDetails{
 			No:         i + 1,
